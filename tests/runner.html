@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PrincessCycle — Automated Test Suite</title>
+  <link rel="icon" type="image/jpeg" href="../assets/fairy-icon.jpg" />
+  <link rel="stylesheet" href="../css/reset.css" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <style>
+    body {
+      padding: var(--space-xl);
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .test-result-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-sm) var(--space-md);
+      margin-bottom: var(--space-xs);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+    }
+    .test-pass {
+      background-color: var(--color-success-bg);
+      color: var(--color-success);
+      border: 1px solid rgba(82, 137, 114, 0.2);
+    }
+    .test-fail {
+      background-color: var(--color-danger-bg);
+      color: var(--color-danger);
+      border: 1px solid rgba(194, 84, 84, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="card" style="margin-bottom: var(--space-xl);">
+    <div class="card-header">
+      <div>
+        <h1 style="font-size: 1.5rem;">PrincessCycle Test Suite</h1>
+        <p class="card-subtitle">Automated unit and integration checks</p>
+      </div>
+      <button class="btn btn-primary btn-sm" id="btn-rerun">Re-run Tests</button>
+    </div>
+    <div id="test-summary" style="font-size: 1.15rem; font-weight: 600; margin-top: var(--space-sm);">
+      Running tests...
+    </div>
+  </div>
+
+  <div id="test-results-list"></div>
+
+  <div style="margin-top: var(--space-xl); text-align: center;">
+    <a href="../index.html" class="btn btn-secondary btn-sm">← Back to PrincessCycle App</a>
+  </div>
+
+  <script type="module">
+    import { runAllTests } from './cycle-engine.test.js';
+
+    function execute() {
+      const results = runAllTests();
+      const listEl = document.getElementById('test-results-list');
+      const summaryEl = document.getElementById('test-summary');
+
+      const total = results.length;
+      const passed = results.filter(r => r.passed).length;
+      const failed = total - passed;
+
+      summaryEl.innerHTML = `
+        <span style="color: ${failed === 0 ? 'var(--color-success)' : 'var(--color-danger)'};">
+          ${passed} / ${total} Tests Passed ${failed === 0 ? '🎉 (100% Success)' : `(${failed} Failed)`}
+        </span>
+      `;
+
+      listEl.innerHTML = results.map(r => `
+        <div class="test-result-item ${r.passed ? 'test-pass' : 'test-fail'}">
+          <div class="flex items-center gap-xs">
+            <span>${r.passed ? '✓' : '✗'}</span>
+            <strong>${r.testName}</strong>
+          </div>
+          <span style="font-size: 0.75rem;">${r.passed ? 'PASSED' : (r.details || 'FAILED')}</span>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('btn-rerun').addEventListener('click', execute);
+    execute();
+  </script>
+</body>
+</html>

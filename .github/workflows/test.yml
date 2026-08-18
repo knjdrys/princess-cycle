@@ -1,0 +1,39 @@
+name: PrincessCycle Test Suite & Lint
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js for Headless Test Verification
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate Calculation Engine & Test Suite
+        run: |
+          node -e "
+            import('./js/cycle.js').then(async (cycleMod) => {
+              const testMod = await import('./tests/cycle-engine.test.js');
+              const results = testMod.runAllTests();
+              const passed = results.filter(r => r.passed).length;
+              const total = results.length;
+              console.log(\`✅ \${passed}/\${total} Unit Test Assertions Passed.\`);
+              if (passed !== total) {
+                console.error('❌ Some tests failed:', results.filter(r => !r.passed));
+                process.exit(1);
+              }
+            }).catch(err => {
+              console.error('❌ Engine Import Error:', err);
+              process.exit(1);
+            });
+          "

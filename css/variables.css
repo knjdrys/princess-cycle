@@ -1,0 +1,162 @@
+/**
+ * PrincessCycle - Dreamy Lilac & Artistic Pastel Design System
+ * Tailored for a vibrant, artistic, emotional 21-year-old Princess
+ * Palette: Lilac Purple, Lavender Mist, Pastel Orchid, Cotton Candy Violet & Soft Rose
+ */
+
+:root {
+  /* ==========================================================================
+     Core Lilac & Violet Color Palette
+     ========================================================================== */
+  --color-primary: #9061F9;           /* Vibrant Dreamy Lilac */
+  --color-primary-hover: #7C3AED;     /* Deep Royal Lilac */
+  --color-primary-light: #EDE9FE;     /* Pastel Lilac Mist */
+  --color-primary-glow: rgba(144, 97, 249, 0.28);
+  --color-primary-soft: #DDD6FE;      /* Soft Lavender */
+
+  --color-secondary: #C084FC;         /* Soft Pastel Orchid */
+  --color-accent: #F472B6;            /* Strawberry Blossom Pink */
+  --color-sparkle: #FDE047;           /* Fairy Gold Sparkle */
+
+  /* Neutral Backgrounds (Cloud & Milk Lavender) */
+  --bg-app: #FAF7FF;                  /* Ethereal Lavender Ivory */
+  --bg-surface: #FFFFFF;              /* Cloud White */
+  --bg-surface-subtle: #F5EEFF;       /* Soft Lilac Tint */
+  --bg-surface-hover: #EFE5FD;        /* Lavender Petal */
+  --bg-surface-elevated: #FFFFFF;     /* Floating Card */
+
+  /* Typography Colors */
+  --text-primary: #28193D;            /* Deep Midnight Plum */
+  --text-secondary: #6B5B82;          /* Muted Lilac Slate */
+  --text-tertiary: #9E8FB2;           /* Soft Lavender Gray */
+  --text-inverse: #FFFFFF;            /* Pure White */
+
+  /* Borders & Dividers */
+  --border-subtle: #E9DEFA;           /* Whispering Lilac */
+  --border-medium: #D8C5F4;           /* Soft Lavender Outline */
+  --border-focus: #9061F9;
+
+  /* ==========================================================================
+     The 4 Menstrual Phase Accents (Artistic Pastel Tones)
+     ========================================================================== */
+  --phase-menstruation: #F472B6;       /* Blossom Rose Pink */
+  --phase-menstruation-bg: #FDF2F8;
+  --phase-menstruation-text: #BE185D;
+  --phase-menstruation-border: #FBCFE8;
+
+  --phase-follicular: #A78BFA;         /* Radiant Lilac Fairy */
+  --phase-follicular-bg: #F5EEFF;
+  --phase-follicular-text: #6D28D9;
+  --phase-follicular-border: #DDD6FE;
+
+  --phase-ovulation: #FBBF24;          /* Warm Sunbeam & Gold Honey */
+  --phase-ovulation-bg: #FEF3C7;
+  --phase-ovulation-text: #B45309;
+  --phase-ovulation-border: #FDE68A;
+
+  --phase-luteal: #818CF8;             /* Dreamy Twilight Periwinkle */
+  --phase-luteal-bg: #EEF2FF;
+  --phase-luteal-text: #4338CA;
+  --phase-luteal-border: #C7D2FE;
+
+  /* Success & Alert */
+  --color-success: #34D399;
+  --color-success-bg: #ECFDF5;
+  --color-danger: #FB7185;
+  --color-danger-bg: #FFF1F2;
+
+  /* ==========================================================================
+     Typography
+     ========================================================================== */
+  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Quicksand", "Nunito", "Outfit", sans-serif;
+  --font-family-display: -apple-system, BlinkMacSystemFont, "Quicksand", "Comfortaa", "Nunito", sans-serif;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.84375rem;
+  --font-size-base: 0.9375rem;
+  --font-size-md: 1.0625rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.45rem;
+  --font-size-2xl: 1.85rem;
+  --font-size-3xl: 2.35rem;
+
+  --font-weight-normal: 450;
+  --font-weight-medium: 600;
+  --font-weight-semibold: 700;
+  --font-weight-bold: 800;
+
+  /* ==========================================================================
+     Spacings & Soft Pillow Radiuses
+     ========================================================================== */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.25rem;
+  --space-xl: 1.75rem;
+  --space-2xl: 2.5rem;
+
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+
+  /* ==========================================================================
+     Dreamy Lilac Glow Shadows
+     ========================================================================== */
+  --shadow-sm: 0 3px 12px rgba(144, 97, 249, 0.08);
+  --shadow-md: 0 8px 24px rgba(144, 97, 249, 0.12), 0 2px 8px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 16px 36px rgba(144, 97, 249, 0.18), 0 4px 12px rgba(192, 132, 252, 0.15);
+  --shadow-sheet: 0 -12px 40px rgba(144, 97, 249, 0.2);
+
+  --transition-fast: 160ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-normal: 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --min-tap-target: 44px;
+}
+
+/* ==========================================================================
+   Dreamy Dark Mode (Midnight Lilac Orchid)
+   ========================================================================== */
+[data-theme="dark"] {
+  --bg-app: #120D1D;                  /* Deep Violet Abyss */
+  --bg-surface: #1C152B;              /* Velvet Lilac */
+  --bg-surface-subtle: #271E3C;       /* Midnight Plum */
+  --bg-surface-hover: #342750;
+  --bg-surface-elevated: #241B37;
+
+  --text-primary: #F5EEFF;            /* Starlight Lavender */
+  --text-secondary: #C8B8E2;          /* Soft Lilac Mist */
+  --text-tertiary: #8F7CA8;           /* Muted Violet */
+
+  --border-subtle: #362953;
+  --border-medium: #4B3972;
+  --border-focus: #C084FC;
+
+  --color-primary: #A78BFA;
+  --color-primary-hover: #C4B5FD;
+  --color-primary-light: rgba(167, 139, 250, 0.2);
+  --color-primary-glow: rgba(167, 139, 250, 0.4);
+
+  --phase-menstruation-bg: rgba(244, 114, 182, 0.18);
+  --phase-menstruation-text: #F472B6;
+  --phase-menstruation-border: rgba(244, 114, 182, 0.35);
+
+  --phase-follicular-bg: rgba(167, 139, 250, 0.18);
+  --phase-follicular-text: #C4B5FD;
+  --phase-follicular-border: rgba(167, 139, 250, 0.35);
+
+  --phase-ovulation-bg: rgba(251, 191, 36, 0.18);
+  --phase-ovulation-text: #FDE68A;
+  --phase-ovulation-border: rgba(251, 191, 36, 0.35);
+
+  --phase-luteal-bg: rgba(129, 140, 248, 0.18);
+  --phase-luteal-text: #C7D2FE;
+  --phase-luteal-border: rgba(129, 140, 248, 0.35);
+
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.65);
+}
