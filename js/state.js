@@ -1,6 +1,6 @@
 /**
  * PrincessCycle - State Management & Pub/Sub Event Bus
- * Lightweight, reactive, predictable state container
+ * Lightweight, reactive, predictable state container with immutable snapshot protection.
  */
 
 class StateStore {
@@ -16,6 +16,7 @@ class StateStore {
         trackedCategories: ['mood', 'symptoms', 'energy', 'sleep', 'cravings', 'flow', 'notes'],
         onboardingComplete: false,
         theme: 'system', // 'system' | 'light' | 'dark'
+        soundEffectsEnabled: true,
         partnerSharing: {
           enabled: false,
           sharePhase: true,
@@ -54,8 +55,12 @@ class StateStore {
     return `${year}-${month}-${day}`;
   }
 
+  // Returns an immutable, deep-cloned state snapshot to prevent accidental external mutation
   getState() {
-    return this.state;
+    if (typeof structuredClone === 'function') {
+      return structuredClone(this.state);
+    }
+    return JSON.parse(JSON.stringify(this.state));
   }
 
   // Subscribe to changes on specific keys or all state
@@ -77,7 +82,7 @@ class StateStore {
     if (this.subscribers.has(event)) {
       this.subscribers.get(event).forEach(cb => {
         try {
-          cb(data, this.state);
+          cb(data, this.getState());
         } catch (err) {
           console.error(`Error in subscriber for event "${event}":`, err);
         }
@@ -87,7 +92,7 @@ class StateStore {
     if (event !== '*' && this.subscribers.has('*')) {
       this.subscribers.get('*').forEach(cb => {
         try {
-          cb({ event, data }, this.state);
+          cb({ event, data }, this.getState());
         } catch (err) {
           console.error('Error in global subscriber:', err);
         }
@@ -97,16 +102,16 @@ class StateStore {
 
   // Pure state updater
   setState(updater) {
-    const prevState = { ...this.state };
+    const prevState = this.getState();
     if (typeof updater === 'function') {
       this.state = updater(this.state);
     } else {
       this.state = { ...this.state, ...updater };
     }
-    this.emit('stateChanged', { prevState, currentState: this.state });
+    this.emit('stateChanged', { prevState, currentState: this.getState() });
   }
 
-  // User Actions
+  // Domain Actions (Trigger granular events for delta persistence)
   setUserProfile(userPatch) {
     this.setState(s => ({
       ...s,

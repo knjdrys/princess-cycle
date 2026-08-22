@@ -2,7 +2,7 @@
  * PrincessCycle - Automated Unit Test Suite
  * Validates cycle calculations, phase transitions, boundary dates, moving averages,
  * hormone curves, BBT, seed cycling, sleep schedule calculations, gap predictions,
- * Web Crypto PIN salted hashing, and IndexedDB delta storage integrity.
+ * Web Crypto PIN salted hashing, IndexedDB delta storage integrity, and State Immutability.
  */
 
 import { CycleEngine, PHASES, SEED_CYCLING_GUIDE } from '../js/cycle.js';
@@ -10,6 +10,8 @@ import { SleepScheduleEngine } from '../js/sleep.js';
 import { Validation } from '../js/validation.js';
 import { PrivacyLock } from '../js/privacy-lock.js';
 import { storage } from '../js/storage.js';
+import { store } from '../js/state.js';
+import { DOM } from '../js/dom.js';
 
 export async function runAllTests() {
   const results = [];
@@ -222,6 +224,25 @@ export async function runAllTests() {
     assert('Delta entry is persisted accurately', loaded.dailyEntries[testDate]?.energy === 5);
   } catch (e) {
     assert('Storage engine tests threw exception', false, e.message);
+  }
+
+  // --- Group 12: State Immutability & DOM Centralization ---
+  try {
+    // 1. Test that external mutation of getState() return value does not mutate store state
+    const originalName = store.getState().user.name;
+    const snapshot = store.getState();
+    snapshot.user.name = 'HackedNameDirectMutation';
+    assert('getState() returns immutable snapshot, internal state protected', store.getState().user.name === originalName);
+
+    // 2. Test domain action updates state properly
+    store.setUserProfile({ name: 'Danica' });
+    assert('setUserProfile domain action updates state correctly', store.getState().user.name === 'Danica');
+    store.setUserProfile({ name: originalName }); // restore
+
+    // 3. Test DOM Centralized Selector Map exists and has view keys
+    assert('DOM registry provides stable view accessors', typeof DOM.views.home === 'function' && typeof DOM.views.calendar === 'function');
+  } catch (e) {
+    assert('State Immutability tests threw exception', false, e.message);
   }
 
   return results;

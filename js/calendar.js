@@ -221,12 +221,10 @@ export class CalendarController {
   }
 
   attachEvents(container, month, year) {
-    const prevBtn = container.querySelector('#cal-prev-btn');
-    const nextBtn = container.querySelector('#cal-next-btn');
-    const todayBtn = container.querySelector('#cal-today-btn');
-
-    if (prevBtn) {
-      prevBtn.addEventListener('click', () => {
+    // Clean Event Delegation on the container
+    container.onclick = (e) => {
+      // 1. Prev Month
+      if (e.target.closest('#cal-prev-btn')) {
         let newMonth = month - 1;
         let newYear = year;
         if (newMonth < 0) {
@@ -234,11 +232,11 @@ export class CalendarController {
           newYear -= 1;
         }
         this.store.setCalendarMonth(newMonth, newYear);
-      });
-    }
+        return;
+      }
 
-    if (nextBtn) {
-      nextBtn.addEventListener('click', () => {
+      // 2. Next Month
+      if (e.target.closest('#cal-next-btn')) {
         let newMonth = month + 1;
         let newYear = year;
         if (newMonth > 11) {
@@ -246,55 +244,49 @@ export class CalendarController {
           newYear += 1;
         }
         this.store.setCalendarMonth(newMonth, newYear);
-      });
-    }
+        return;
+      }
 
-    if (todayBtn) {
-      todayBtn.addEventListener('click', () => {
+      // 3. Today Button
+      if (e.target.closest('#cal-today-btn')) {
         const now = new Date();
         this.store.setCalendarMonth(now.getMonth(), now.getFullYear());
         this.store.setSelectedDate(this.store.formatDate(now));
-      });
-    }
+        return;
+      }
 
-    const dayBtns = container.querySelectorAll('.calendar-day:not(.empty)');
-    dayBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const dateStr = btn.getAttribute('data-date');
+      // 4. Calendar Day Selection
+      const dayBtn = e.target.closest('.calendar-day:not(.empty)');
+      if (dayBtn) {
+        const dateStr = dayBtn.getAttribute('data-date');
         if (dateStr) {
           this.store.setSelectedDate(dateStr);
           const detailMount = container.querySelector('#calendar-day-detail-mount');
           if (detailMount) {
             detailMount.innerHTML = this.renderDayDetailCard(dateStr);
-            this.attachDetailCardEvents(detailMount, dateStr);
           }
-          // Highlight active cell
-          dayBtns.forEach(b => b.classList.remove('selected'));
-          btn.classList.add('selected');
+          container.querySelectorAll('.calendar-day').forEach(b => b.classList.remove('selected'));
+          dayBtn.classList.add('selected');
         }
-      });
-    });
+        return;
+      }
 
-    const detailMount = container.querySelector('#calendar-day-detail-mount');
-    if (detailMount) {
-      this.attachDetailCardEvents(detailMount, this.store.getState().selectedDate);
-    }
-  }
-
-  attachDetailCardEvents(container, dateStr) {
-    const logBtn = container.querySelector('#btn-inspect-log-day');
-    const markPeriodBtn = container.querySelector('#btn-inspect-mark-period');
-
-    if (logBtn) {
-      logBtn.addEventListener('click', () => {
+      // 5. Inspect Log Day Action
+      const logBtn = e.target.closest('#btn-inspect-log-day');
+      if (logBtn) {
+        const dateStr = logBtn.getAttribute('data-date') || this.store.getState().selectedDate;
         if (this.onSelectDate) this.onSelectDate(dateStr);
-      });
-    }
+        return;
+      }
 
-    if (markPeriodBtn) {
-      markPeriodBtn.addEventListener('click', () => {
+      // 6. Inspect Mark Period Action
+      const markPeriodBtn = e.target.closest('#btn-inspect-mark-period');
+      if (markPeriodBtn) {
+        const dateStr = markPeriodBtn.getAttribute('data-date') || this.store.getState().selectedDate;
         if (this.onMarkPeriodStart) this.onMarkPeriodStart(dateStr);
-      });
-    }
+        return;
+      }
+    };
   }
 }
+
