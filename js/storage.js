@@ -1,6 +1,7 @@
 /**
- * PrincessCycle - Offline-First Local Storage Engine
- * IndexedDB persistence with LocalStorage fallback, JSON/CSV export, and safe import
+ * PrincessCycle - Authoritative Offline-First Storage Engine
+ * IndexedDB as primary Source of Truth with granular delta writes,
+ * safe transaction rollback, localStorage backup/migration, and JSON/CSV export.
  */
 
 import { Validation } from './validation.js';
@@ -16,18 +17,20 @@ const LOCAL_STORAGE_KEY = 'princess_cycle_app_data_v1';
 class StorageEngine {
   constructor() {
     this.db = null;
-    this.useIndexedDB = 'indexedDB' in window;
+    this.useIndexedDB = typeof window !== 'undefined' && 'indexedDB' in window;
+    this.isReady = false;
   }
 
   async init() {
     if (!this.useIndexedDB) {
-      console.warn('IndexedDB not supported, falling back to LocalStorage.');
-      return;
+      console.warn('IndexedDB not supported, using LocalStorage fallback.');
+      this.isReady = true;
+      return true;
     }
 
     return new Promise((resolve) => {
       try {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        const request = window.indexedDB.open(DB_NAME, DB_VERSION);
 
         request.onupgradeneeded = (event) => {
           const db = event.target.result;
@@ -44,40 +47,65 @@ class StorageEngine {
 
         request.onsuccess = (event) => {
           this.db = event.target.result;
+          this.isReady = true;
           resolve(true);
         };
 
         request.onerror = (err) => {
-          console.warn('IndexedDB init error, fallback to LocalStorage:', err);
+          console.warn('IndexedDB open error, falling back to LocalStorage:', err);
           this.useIndexedDB = false;
+          this.isReady = true;
           resolve(false);
         };
       } catch (e) {
-        console.warn('IndexedDB exception, using LocalStorage fallback:', e);
+        console.warn('IndexedDB open exception, falling back to LocalStorage:', e);
         this.useIndexedDB = false;
+        this.isReady = true;
         resolve(false);
       }
     });
   }
 
-  // Load entire initial application state
+  // Load entire initial application state (IndexedDB primary, LocalStorage legacy migration)
   async loadAllData() {
-    // Try LocalStorage first or fallback
+    if (this.db && this.useIndexedDB) {
+      try {
+        const idbData = await this.readAllFromIndexedDB();
+        const hasIdbData = Boolean(idbData.user || (idbData.cycles && idbData.cycles.length > 0) || Object.keys(idbData.dailyEntries).length > 0);
+
+        if (hasIdbData) {
+          // Sync backup cache to localStorage
+          this.syncToLocalStorage(idbData);
+          return idbData;
+        }
+      } catch (err) {
+        console.warn('Error reading from IndexedDB, trying fallback:', err);
+      }
+    }
+
+    // Fallback or Legacy Migration from localStorage
     try {
       const localBackup = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (localBackup) {
         const parsed = JSON.parse(localBackup);
-        return {
+        const data = {
           user: parsed.user || null,
-          cycles: parsed.cycles || [],
-          dailyEntries: parsed.dailyEntries || {}
+          cycles: Array.isArray(parsed.cycles) ? parsed.cycles : [],
+          dailyEntries: (parsed.dailyEntries && typeof parsed.dailyEntries === 'object') ? parsed.dailyEntries : {}
         };
+
+        // If IndexedDB is available, migrate legacy localStorage data into IndexedDB
+        if (this.db && this.useIndexedDB) {
+          await this.saveAllData(data);
+          console.log('✨ Migrated legacy localStorage data to IndexedDB.');
+        }
+
+        return data;
       }
     } catch (err) {
       console.error('Error reading localStorage backup:', err);
     }
 
-    // Default blank structure
     return {
       user: null,
       cycles: [],
@@ -85,65 +113,213 @@ class StorageEngine {
     };
   }
 
-  // Save complete state to storage
-  async saveAllData(state) {
-    const payload = {
-      user: state.user,
-      cycles: state.cycles,
-      dailyEntries: state.dailyEntries,
-      savedAt: new Date().toISOString()
-    };
+  // Internal helper to read all stores from IndexedDB
+  async readAllFromIndexedDB() {
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction([STORE_USER, STORE_CYCLES, STORE_ENTRIES], 'readonly');
+      let user = null;
+      const cycles = [];
+      const dailyEntries = {};
 
-    // Always mirror to localStorage for redundancy and instant sync
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(payload));
-    } catch (e) {
-      console.warn('LocalStorage quota or write error:', e);
-    }
+      tx.objectStore(STORE_USER).openCursor().onsuccess = (e) => {
+        const cursor = e.target.result;
+        if (cursor) {
+          user = cursor.value;
+          cursor.continue();
+        }
+      };
+
+      tx.objectStore(STORE_CYCLES).openCursor().onsuccess = (e) => {
+        const cursor = e.target.result;
+        if (cursor) {
+          cycles.push(cursor.value);
+          cursor.continue();
+        }
+      };
+
+      tx.objectStore(STORE_ENTRIES).openCursor().onsuccess = (e) => {
+        const cursor = e.target.result;
+        if (cursor) {
+          dailyEntries[cursor.value.date] = cursor.value;
+          cursor.continue();
+        }
+      };
+
+      tx.oncomplete = () => {
+        resolve({ user, cycles, dailyEntries });
+      };
+
+      tx.onerror = (e) => {
+        reject(e.target.error);
+      };
+    });
+  }
+
+  // -------------------------------------------------------------
+  // Granular Delta Writes (No destructive clear-and-rewrite loops)
+  // -------------------------------------------------------------
+
+  async saveUser(userObj) {
+    if (!userObj) return;
 
     if (this.db && this.useIndexedDB) {
       try {
-        const tx = this.db.transaction([STORE_USER, STORE_CYCLES, STORE_ENTRIES], 'readwrite');
-        
-        // Save user
-        if (state.user) {
-          tx.objectStore(STORE_USER).put(state.user);
-        }
-
-        // Save daily entries
-        const entryStore = tx.objectStore(STORE_ENTRIES);
-        entryStore.clear();
-        Object.values(state.dailyEntries).forEach(entry => {
-          entryStore.put(entry);
-        });
-
-        // Save cycles
-        const cycleStore = tx.objectStore(STORE_CYCLES);
-        cycleStore.clear();
-        state.cycles.forEach(cycle => {
-          cycleStore.put(cycle);
-        });
-
-        return new Promise((resolve) => {
-          tx.oncomplete = () => resolve(true);
-          tx.onerror = () => resolve(false);
-        });
+        const tx = this.db.transaction([STORE_USER], 'readwrite');
+        tx.objectStore(STORE_USER).put({ ...userObj, id: userObj.id || 'user_default' });
+        await this.txPromise(tx);
       } catch (err) {
-        console.warn('IndexedDB write error:', err);
+        console.warn('IndexedDB saveUser error:', err);
       }
     }
+  }
+
+  async saveDailyEntry(dateStr, entryData) {
+    if (!dateStr || !entryData) return;
+
+    const payload = { ...entryData, date: dateStr };
+
+    if (this.db && this.useIndexedDB) {
+      try {
+        const tx = this.db.transaction([STORE_ENTRIES], 'readwrite');
+        tx.objectStore(STORE_ENTRIES).put(payload);
+        await this.txPromise(tx);
+      } catch (err) {
+        console.warn('IndexedDB saveDailyEntry error:', err);
+      }
+    }
+  }
+
+  async deleteDailyEntry(dateStr) {
+    if (!dateStr) return;
+
+    if (this.db && this.useIndexedDB) {
+      try {
+        const tx = this.db.transaction([STORE_ENTRIES], 'readwrite');
+        tx.objectStore(STORE_ENTRIES).delete(dateStr);
+        await this.txPromise(tx);
+      } catch (err) {
+        console.warn('IndexedDB deleteDailyEntry error:', err);
+      }
+    }
+  }
+
+  async saveCycles(cyclesList) {
+    if (!Array.isArray(cyclesList)) return;
+
+    if (this.db && this.useIndexedDB) {
+      try {
+        const tx = this.db.transaction([STORE_CYCLES], 'readwrite');
+        const store = tx.objectStore(STORE_CYCLES);
+        store.clear();
+        cyclesList.forEach(c => store.put(c));
+        await this.txPromise(tx);
+      } catch (err) {
+        console.warn('IndexedDB saveCycles error:', err);
+      }
+    }
+  }
+
+  // Bulk save (used on import, demo load, or initial setup)
+  async saveAllData(state) {
+    const payload = {
+      user: state.user,
+      cycles: state.cycles || [],
+      dailyEntries: state.dailyEntries || {},
+      savedAt: new Date().toISOString()
+    };
+
+    // 1. Write to IndexedDB
+    if (this.db && this.useIndexedDB) {
+      try {
+        const tx = this.db.transaction([STORE_USER, STORE_CYCLES, STORE_ENTRIES], 'readwrite');
+
+        if (state.user) {
+          tx.objectStore(STORE_USER).put({ ...state.user, id: state.user.id || 'user_default' });
+        }
+
+        const entryStore = tx.objectStore(STORE_ENTRIES);
+        entryStore.clear();
+        Object.values(state.dailyEntries || {}).forEach(entry => {
+          if (entry && entry.date) {
+            entryStore.put(entry);
+          }
+        });
+
+        const cycleStore = tx.objectStore(STORE_CYCLES);
+        cycleStore.clear();
+        (state.cycles || []).forEach(cycle => {
+          if (cycle && cycle.id) {
+            cycleStore.put(cycle);
+          }
+        });
+
+        await this.txPromise(tx);
+      } catch (err) {
+        console.warn('IndexedDB saveAllData error:', err);
+      }
+    }
+
+    // 2. Synchronize backup to localStorage
+    this.syncToLocalStorage(payload);
     return true;
+  }
+
+  syncToLocalStorage(state) {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
+        user: state.user,
+        cycles: state.cycles,
+        dailyEntries: state.dailyEntries,
+        savedAt: new Date().toISOString()
+      }));
+    } catch (e) {
+      console.warn('LocalStorage backup sync skipped (quota or unavailable):', e);
+    }
+  }
+
+  // Helper promise for transaction completion
+  txPromise(tx) {
+    return new Promise((resolve, reject) => {
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = (e) => reject(e.target.error);
+      tx.onabort = (e) => reject(e.target.error);
+    });
+  }
+
+  // Wipe all databases completely
+  async wipeAllData() {
+    if (this.db && this.useIndexedDB) {
+      try {
+        const tx = this.db.transaction([STORE_USER, STORE_CYCLES, STORE_ENTRIES], 'readwrite');
+        tx.objectStore(STORE_USER).clear();
+        tx.objectStore(STORE_CYCLES).clear();
+        tx.objectStore(STORE_ENTRIES).clear();
+        await this.txPromise(tx);
+      } catch (e) {
+        console.warn('IndexedDB clear error:', e);
+      }
+    }
+
+    try {
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+    } catch (e) {}
   }
 
   // Export full user database as JSON file download
   exportAsJSON(state) {
+    // Sanitize export payload: ensure no accidental plaintext pinCode is ever exported
+    const safeUser = state.user ? { ...state.user } : null;
+    if (safeUser) {
+      delete safeUser.pinCode;
+    }
+
     const exportData = {
       app: 'PrincessCycle',
-      version: '1.0.0',
+      version: '1.1.0',
       exportDate: new Date().toISOString(),
-      user: state.user,
-      cycles: state.cycles,
-      dailyEntries: state.dailyEntries
+      user: safeUser,
+      cycles: state.cycles || [],
+      dailyEntries: state.dailyEntries || {}
     };
 
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
@@ -158,22 +334,28 @@ class StorageEngine {
   }
 
   // Export daily check-in logs as CSV file
-  exportAsCSV(state) {
-    const entries = Object.values(state.dailyEntries).sort((a, b) => a.date.localeCompare(b.date));
+  exportAsCSV(dailyEntries) {
+    const entries = Object.values(dailyEntries || {}).sort((a, b) => a.date.localeCompare(b.date));
     if (entries.length === 0) {
-      throw new Error('No logged entries available to export.');
+      alert('No logged entries to export yet! Log a few days first ✨');
+      return;
     }
 
-    const headers = ['Date', 'Moods', 'Energy', 'SleepHours', 'SleepQuality', 'Symptoms', 'Flow', 'Cravings', 'Notes'];
+    const headers = ['Date', 'Moods', 'Pinay Cravings', 'Energy (1-5)', 'Period Flow', 'BBT (C)', 'Cervical Fluid', 'Physical Symptoms', 'Bedtime', 'Wake Time', 'Sleep Hours', 'Sleep Quality', 'Water Glasses', 'Notes'];
     const rows = entries.map(e => [
       e.date || '',
-      (e.mood || []).join('; '),
+      `"${(e.mood || []).join('; ')}"`,
+      `"${(e.cravings || []).join('; ')}"`,
       e.energy || '',
+      e.flow || 'None',
+      e.bbt || '',
+      e.cervicalFluid || '',
+      `"${(e.symptoms || []).join('; ')}"`,
+      e.bedtime || '',
+      e.wakeTime || '',
       e.sleepHours || '',
       e.sleepQuality || '',
-      (e.symptoms || []).join('; '),
-      e.flow || '',
-      (e.cravings || []).join('; '),
+      e.waterGlasses || '',
       `"${(e.notes || '').replace(/"/g, '""')}"`
     ]);
 
@@ -187,45 +369,6 @@ class StorageEngine {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }
-
-  // Import JSON backup
-  async importFromJSON(jsonString) {
-    let parsed;
-    try {
-      parsed = JSON.parse(jsonString);
-    } catch (e) {
-      throw new Error('Selected file is not valid JSON.');
-    }
-
-    const validation = Validation.validateImportPayload(parsed);
-    if (!validation.valid) {
-      throw new Error(validation.error);
-    }
-
-    return parsed;
-  }
-
-  // Complete Data Deletion
-  async wipeAllData() {
-    try {
-      localStorage.removeItem(LOCAL_STORAGE_KEY);
-    } catch (e) {}
-
-    if (this.db && this.useIndexedDB) {
-      try {
-        const tx = this.db.transaction([STORE_USER, STORE_CYCLES, STORE_ENTRIES], 'readwrite');
-        tx.objectStore(STORE_USER).clear();
-        tx.objectStore(STORE_CYCLES).clear();
-        tx.objectStore(STORE_ENTRIES).clear();
-        await new Promise(res => {
-          tx.oncomplete = res;
-          tx.onerror = res;
-        });
-      } catch (err) {
-        console.warn('Error clearing IndexedDB stores:', err);
-      }
-    }
   }
 }
 

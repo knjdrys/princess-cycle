@@ -61,7 +61,7 @@ class PrincessCycleApp {
     } catch (e) {}
 
     this.privacyLock = new PrivacyLock(store);
-    this.privacyLock.init();
+    await this.privacyLock.init();
 
     this.sleepEngine = new SleepScheduleEngine(store);
 
@@ -80,7 +80,6 @@ class PrincessCycleApp {
         const state = store.getState();
         const updatedCycles = [newCycle, ...(state.cycles || [])];
         store.setCycles(updatedCycles);
-        await storage.saveAllData(store.getState());
         soundFx.playChime('sparkle');
         UI.showToast('Past cycle memory saved! 🌸', 'success');
         this.historyCtrl.render(document.getElementById('history-mount-point'));
@@ -89,7 +88,6 @@ class PrincessCycleApp {
         const state = store.getState();
         const updatedCycles = (state.cycles || []).filter(c => c.id !== cycleId);
         store.setCycles(updatedCycles);
-        await storage.saveAllData(store.getState());
         UI.showToast('Cycle record removed.', 'info');
         this.historyCtrl.render(document.getElementById('history-mount-point'));
       }
@@ -97,7 +95,6 @@ class PrincessCycleApp {
 
     this.sharingCtrl = new SharingController(store, async (patch) => {
       store.setUserProfile(patch);
-      await storage.saveAllData(store.getState());
       this.sharingCtrl.render(document.getElementById('sharing-mount-point'));
       UI.showToast('Sharing settings updated ✨', 'info');
     });
@@ -133,7 +130,6 @@ class PrincessCycleApp {
         if (confirmBtn) {
           confirmBtn.onclick = async () => {
             this.sleepEngine.confirmWakeTimeNow(detectedTime, todayStr);
-            await storage.saveAllData(store.getState());
             soundFx.playChime('sparkle');
             UI.showToast(`Wake time recorded: ${detectedTime} ☀️ Have the sweetest day!`, 'success');
             banner.style.display = 'none';
@@ -157,8 +153,25 @@ class PrincessCycleApp {
       this.renderCurrentView();
     }
 
-    store.subscribe('stateChanged', async () => {
-      await storage.saveAllData(store.getState());
+    // Granular delta storage listeners (High performance, zero table-wiping loops)
+    store.subscribe('userUpdated', async (updatedUser) => {
+      await storage.saveUser(updatedUser);
+      storage.syncToLocalStorage(store.getState());
+    });
+
+    store.subscribe('dailyEntrySaved', async ({ date, entry }) => {
+      await storage.saveDailyEntry(date, entry);
+      storage.syncToLocalStorage(store.getState());
+    });
+
+    store.subscribe('dailyEntryDeleted', async ({ date }) => {
+      await storage.deleteDailyEntry(date);
+      storage.syncToLocalStorage(store.getState());
+    });
+
+    store.subscribe('cyclesUpdated', async (cycles) => {
+      await storage.saveCycles(cycles);
+      storage.syncToLocalStorage(store.getState());
     });
 
     store.subscribe('calendarMonthChanged', ({ month, year }) => {
@@ -271,7 +284,6 @@ class PrincessCycleApp {
         waterGlasses: newGlasses
       });
 
-      await storage.saveAllData(store.getState());
       soundFx.playChime('sparkle');
 
       if (newGlasses === 8) {
@@ -310,7 +322,6 @@ class PrincessCycleApp {
   wireSleepTrackingActions() {
     const handleGoodnight = async () => {
       const bedtimeStr = this.sleepEngine.recordBedtimeNow();
-      await storage.saveAllData(store.getState());
       soundFx.playChime('breath-out');
       UI.showToast(`Bedtime logged at ${bedtimeStr}. Sweet dreams, beautiful artist 🌙`, 'info', 4000);
     };
@@ -617,7 +628,6 @@ class PrincessCycleApp {
       symptoms: existingEntry.symptoms || ['Cramps']
     });
 
-    await storage.saveAllData(store.getState());
     soundFx.playChime('sparkle');
     UI.showToast(`Period started on ${dateStr}. Take extra gentle care today! 🌸`, 'success');
     this.renderCurrentView();
@@ -651,7 +661,6 @@ class PrincessCycleApp {
         mood: updatedMoods
       });
 
-      await storage.saveAllData(store.getState());
       soundFx.playChime('sparkle');
       UI.showToast(`Logged "${mood}" vibe ✨`, 'info', 1600);
     });
@@ -794,7 +803,6 @@ class PrincessCycleApp {
         notes
       });
 
-      await storage.saveAllData(store.getState());
       soundFx.playChime('sparkle');
       closeSheet();
       UI.showToast('Check-in saved in your private journal ✨', 'success');

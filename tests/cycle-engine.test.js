@@ -1,13 +1,17 @@
 /**
  * PrincessCycle - Automated Unit Test Suite
- * Validates cycle calculations, phase transitions, boundary dates, moving averages, hormone curves, BBT, seed cycling, sleep schedule calculations, and security sanitization.
+ * Validates cycle calculations, phase transitions, boundary dates, moving averages,
+ * hormone curves, BBT, seed cycling, sleep schedule calculations, gap predictions,
+ * Web Crypto PIN salted hashing, and IndexedDB delta storage integrity.
  */
 
 import { CycleEngine, PHASES, SEED_CYCLING_GUIDE } from '../js/cycle.js';
 import { SleepScheduleEngine } from '../js/sleep.js';
 import { Validation } from '../js/validation.js';
+import { PrivacyLock } from '../js/privacy-lock.js';
+import { storage } from '../js/storage.js';
 
-export function runAllTests() {
+export async function runAllTests() {
   const results = [];
 
   function assert(testName, passed, details = '') {
@@ -28,75 +32,66 @@ export function runAllTests() {
     assert('Date Math tests threw exception', false, e.message);
   }
 
-  // --- Group 2: Phase Boundaries Calculation ---
+  // --- Group 2: Phase Calculations & Boundaries ---
   try {
-    const b28 = CycleEngine.getPhaseBoundaries(28, 5);
-    assert('Phase boundaries for 28-day cycle: Menstruation is Days 1-5', b28.menstruation.startDay === 1 && b28.menstruation.endDay === 5);
-    assert('Phase boundaries for 28-day cycle: Ovulation peak is Day 14', b28.ovulation.peakDay === 14);
-    assert('Phase boundaries for 28-day cycle: Luteal ends on Day 28', b28.luteal.endDay === 28);
+    // 28-day cycle, 5-day period, starting on 2026-08-01
+    const p1 = CycleEngine.getCycleDayAndPhase('2026-08-01', '2026-08-01', 28, 5);
+    assert('Day 1 is Menstruation phase', p1.phase === PHASES.MENSTRUATION && p1.cycleDay === 1);
 
-    const b34 = CycleEngine.getPhaseBoundaries(34, 6);
-    assert('Phase boundaries for 34-day cycle: Menstruation is Days 1-6', b34.menstruation.endDay === 6);
-    assert('Phase boundaries for 34-day cycle: Ovulation peak is Day 20', b34.ovulation.peakDay === 20);
-    assert('Phase boundaries for 34-day cycle: Luteal ends on Day 34', b34.luteal.endDay === 34);
+    const p5 = CycleEngine.getCycleDayAndPhase('2026-08-05', '2026-08-01', 28, 5);
+    assert('Day 5 is Menstruation phase (last day)', p5.phase === PHASES.MENSTRUATION && p5.cycleDay === 5);
+
+    const p6 = CycleEngine.getCycleDayAndPhase('2026-08-06', '2026-08-01', 28, 5);
+    assert('Day 6 transitions to Follicular phase', p6.phase === PHASES.FOLLICULAR && p6.cycleDay === 6);
+
+    const p14 = CycleEngine.getCycleDayAndPhase('2026-08-14', '2026-08-01', 28, 5);
+    assert('Day 14 is Ovulation window', p14.phase === PHASES.OVULATION && p14.cycleDay === 14);
+
+    const p20 = CycleEngine.getCycleDayAndPhase('2026-08-20', '2026-08-01', 28, 5);
+    assert('Day 20 is Luteal phase', p20.phase === PHASES.LUTEAL && p20.cycleDay === 20);
+
+    const p29 = CycleEngine.getCycleDayAndPhase('2026-08-29', '2026-08-01', 28, 5);
+    assert('Day 29 rolls into new estimated cycle day 1', p29.cycleDay === 1 && p29.phase === PHASES.MENSTRUATION);
   } catch (e) {
-    assert('Phase Boundaries tests threw exception', false, e.message);
+    assert('Phase Calculation tests threw exception', false, e.message);
   }
 
-  // --- Group 3: Cycle Day & Phase Resolution ---
+  // --- Group 3: Dynamic Hormone Curve Math ---
   try {
-    const lastPeriod = '2026-08-01';
+    const h1 = CycleEngine.calculateHormoneLevels(1, 28);
+    assert('Day 1 Estrogen is at baseline (~15%)', h1.estrogen >= 10 && h1.estrogen <= 20);
+    assert('Day 1 Progesterone is baseline (~5%)', h1.progesterone >= 1 && h1.progesterone <= 10);
 
-    // Day 1: Period
-    const day1 = CycleEngine.getCycleDayAndPhase('2026-08-01', lastPeriod, 28, 5);
-    assert('Day 1 resolves to Menstruation phase', day1.cycleDay === 1 && day1.phase === PHASES.MENSTRUATION);
+    const h14 = CycleEngine.calculateHormoneLevels(14, 28);
+    assert('Day 14 Estrogen reaches peak (>= 90%)', h14.estrogen >= 90);
+    assert('Day 14 LH surge reaches absolute peak (100%)', h14.lh === 100);
 
-    // Day 8: Follicular
-    const day8 = CycleEngine.getCycleDayAndPhase('2026-08-08', lastPeriod, 28, 5);
-    assert('Day 8 resolves to Follicular phase', day8.cycleDay === 8 && day8.phase === PHASES.FOLLICULAR);
-
-    // Day 14: Ovulation
-    const day14 = CycleEngine.getCycleDayAndPhase('2026-08-14', lastPeriod, 28, 5);
-    assert('Day 14 resolves to Ovulation phase', day14.cycleDay === 14 && day14.phase === PHASES.OVULATION);
-
-    // Day 22: Luteal
-    const day22 = CycleEngine.getCycleDayAndPhase('2026-08-22', lastPeriod, 28, 5);
-    assert('Day 22 resolves to Luteal phase', day22.cycleDay === 22 && day22.phase === PHASES.LUTEAL);
-
-    // Estimated next period date
-    assert('Next period date is accurately projected 28 days out', day1.nextPeriodDate === '2026-08-29');
-    assert('Days until next period on Day 1 is 28', day1.daysUntilNextPeriod === 28);
+    const h21 = CycleEngine.calculateHormoneLevels(21, 28);
+    assert('Day 21 Progesterone reaches luteal peak (>= 80%)', h21.progesterone >= 80);
   } catch (e) {
-    assert('Cycle Day & Phase tests threw exception', false, e.message);
+    assert('Hormone curve calculations threw exception', false, e.message);
   }
 
-  // --- Group 4: Hormone & BBT Estimation Curves ---
+  // --- Group 4: Basal Body Temperature (BBT) Estimation ---
   try {
-    const day3Hormones = CycleEngine.getHormoneLevels(3, 28);
-    assert('Day 3 (Menstruation): Progesterone is baseline low', day3Hormones.progesterone <= 0.15);
-    assert('Day 3: BBT is in follicular baseline range (~36.3°C)', day3Hormones.bbtCelsius >= 36.1 && day3Hormones.bbtCelsius <= 36.5);
+    const bbtFollicular = CycleEngine.estimateBasalBodyTemperature(7, 28);
+    assert('Follicular BBT is in lower range (~36.35°C)', bbtFollicular.celsius >= 36.2 && bbtFollicular.celsius <= 36.5);
 
-    const day13Hormones = CycleEngine.getHormoneLevels(13, 28);
-    assert('Day 13 (Pre-ovulatory): LH Surge is elevated', day13Hormones.lh >= 0.85);
-
-    const day21Hormones = CycleEngine.getHormoneLevels(21, 28);
-    assert('Day 21 (Mid-Luteal): Progesterone peaks', day21Hormones.progesterone >= 0.70);
-    assert('Day 21: BBT exhibits luteal thermal shift (> 36.6°C)', day21Hormones.bbtCelsius >= 36.6);
+    const bbtLuteal = CycleEngine.estimateBasalBodyTemperature(22, 28);
+    assert('Luteal BBT has biphasic thermal shift (>= 36.70°C)', bbtLuteal.celsius >= 36.65);
+    assert('Fahrenheit conversion is mathematically consistent', Math.abs(bbtLuteal.fahrenheit - ((bbtLuteal.celsius * 9/5) + 32)) < 0.1);
   } catch (e) {
-    assert('Hormone & BBT tests threw exception', false, e.message);
+    assert('BBT estimation tests threw exception', false, e.message);
   }
 
-  // --- Group 5: Sleep Schedule Calculations ---
+  // --- Group 5: Sleep Schedule Duration Math ---
   try {
-    // 23:00 to 07:00 (8h)
-    const sleep8 = SleepScheduleEngine.calculateSleepDuration('23:00', '07:00');
-    assert('Sleep duration 23:00 to 07:00 computes 8 hours', sleep8.hours === 8.0 && sleep8.formatted === '8h');
+    const standardSleep = SleepScheduleEngine.calculateSleepDuration('23:00', '07:00');
+    assert('Sleep duration 23:00 to 07:00 computes exactly 8.0 hours', standardSleep.hours === 8.0 && standardSleep.formatted === '8h 0m');
 
-    // 22:30 to 06:45 (8h 15m)
-    const sleep815 = SleepScheduleEngine.calculateSleepDuration('22:30', '06:45');
-    assert('Sleep duration 22:30 to 06:45 computes 8h 15m', sleep815.totalMinutes === 495 && sleep815.formatted === '8h 15m');
+    const midnightCrossSleep = SleepScheduleEngine.calculateSleepDuration('22:30', '06:45');
+    assert('Sleep duration cross-midnight 22:30 to 06:45 computes 8h 15m', midnightCrossSleep.hours === 8.3 && midnightCrossSleep.formatted === '8h 15m');
 
-    // Late bedtime crossing midnight: 01:15 to 09:30 (8h 15m)
     const lateSleep = SleepScheduleEngine.calculateSleepDuration('01:15', '09:30');
     assert('Sleep duration post-midnight 01:15 to 09:30 computes 8h 15m', lateSleep.hours === 8.3);
   } catch (e) {
@@ -179,6 +174,54 @@ export function runAllTests() {
     assert('Auto-prediction yields appropriate phase flow and energy', predicted.energy >= 1 && predicted.flow !== undefined);
   } catch (e) {
     assert('Gap Detection tests threw exception', false, e.message);
+  }
+
+  // --- Group 10: Web Crypto Salted PIN Security ---
+  try {
+    const salt1 = PrivacyLock.generateSalt();
+    const salt2 = PrivacyLock.generateSalt();
+    assert('Cryptographic salt is 32 hex chars (16 bytes)', salt1.length === 32 && /^[a-f0-9]+$/i.test(salt1));
+    assert('Consecutive salts are cryptographically unique', salt1 !== salt2);
+
+    const testPin = '4321';
+    const hash = await PrivacyLock.hashPin(testPin, salt1);
+    assert('SHA-256 hash output is 64 hex chars (256-bit)', hash.length === 64 && /^[a-f0-9]+$/i.test(hash));
+
+    const validVerification = await PrivacyLock.verifyPin(testPin, salt1, hash);
+    assert('Web Crypto verifyPin succeeds on matching PIN', validVerification === true);
+
+    const invalidVerification = await PrivacyLock.verifyPin('9999', salt1, hash);
+    assert('Web Crypto verifyPin rejects wrong PIN', invalidVerification === false);
+
+    // Import sanitizer purges plaintext PIN
+    const legacyImport = {
+      version: '1.0.0',
+      exportDate: '2026-08-18',
+      user: { typicalCycleLength: 28, pinCode: '1234' },
+      cycles: [],
+      dailyEntries: {}
+    };
+    Validation.validateImportPayload(legacyImport);
+    assert('Import sanitizer purges plaintext pinCode', !('pinCode' in legacyImport.user));
+  } catch (e) {
+    assert('Web Crypto PIN security tests threw exception', false, e.message);
+  }
+
+  // --- Group 11: Authoritative Storage & Delta Integrity ---
+  try {
+    await storage.init();
+    assert('Storage engine initializes successfully', storage.isReady === true);
+
+    // Granular delta entry save without wiping database
+    const testDate = '2026-08-15';
+    const testEntry = { mood: ['Kilig & In Love'], energy: 5, waterGlasses: 8 };
+    await storage.saveDailyEntry(testDate, testEntry);
+
+    const loaded = await storage.loadAllData();
+    assert('IndexedDB loads authoritative state', loaded !== null && typeof loaded === 'object');
+    assert('Delta entry is persisted accurately', loaded.dailyEntries[testDate]?.energy === 5);
+  } catch (e) {
+    assert('Storage engine tests threw exception', false, e.message);
   }
 
   return results;

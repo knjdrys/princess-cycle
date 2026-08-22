@@ -80,8 +80,22 @@ export const Validation = {
       return { valid: false, error: 'dailyEntries must be an object keyed by date.' };
     }
 
-    if (data.cycles && !Array.isArray(data.cycles)) {
-      return { valid: false, error: 'cycles must be an array.' };
+    // Security Sanitization: Strip any accidental plaintext pinCode from imported payload
+    if (data.user && 'pinCode' in data.user) {
+      delete data.user.pinCode;
+    }
+
+    // Validate PIN hash/salt format if present
+    if (data.user && data.user.pinHash) {
+      if (typeof data.user.pinHash !== 'string' || !/^[a-f0-9]{64}$/i.test(data.user.pinHash)) {
+        return { valid: false, error: 'Invalid PIN cryptographic hash format.' };
+      }
+    }
+
+    if (data.user && data.user.pinSalt) {
+      if (typeof data.user.pinSalt !== 'string' || !/^[a-f0-9]{32}$/i.test(data.user.pinSalt)) {
+        return { valid: false, error: 'Invalid PIN cryptographic salt format.' };
+      }
     }
 
     return { valid: true, data };

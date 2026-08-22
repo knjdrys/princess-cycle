@@ -59,30 +59,38 @@
   <script type="module">
     import { runAllTests } from './cycle-engine.test.js';
 
-    function execute() {
-      const results = runAllTests();
-      const listEl = document.getElementById('test-results-list');
+    async function execute() {
       const summaryEl = document.getElementById('test-summary');
+      const listEl = document.getElementById('test-results-list');
 
-      const total = results.length;
-      const passed = results.filter(r => r.passed).length;
-      const failed = total - passed;
+      summaryEl.textContent = 'Running tests...';
 
-      summaryEl.innerHTML = `
-        <span style="color: ${failed === 0 ? 'var(--color-success)' : 'var(--color-danger)'};">
-          ${passed} / ${total} Tests Passed ${failed === 0 ? '🎉 (100% Success)' : `(${failed} Failed)`}
-        </span>
-      `;
+      try {
+        const results = await runAllTests();
 
-      listEl.innerHTML = results.map(r => `
-        <div class="test-result-item ${r.passed ? 'test-pass' : 'test-fail'}">
-          <div class="flex items-center gap-xs">
-            <span>${r.passed ? '✓' : '✗'}</span>
-            <strong>${r.testName}</strong>
+        const total = results.length;
+        const passed = results.filter(r => r.passed).length;
+        const failed = total - passed;
+
+        summaryEl.innerHTML = `
+          <span style="color: ${failed === 0 ? 'var(--color-success)' : 'var(--color-danger)'};">
+            ${passed} / ${total} Tests Passed ${failed === 0 ? '🎉 (100% Success)' : `(${failed} Failed)`}
+          </span>
+        `;
+
+        listEl.innerHTML = results.map(r => `
+          <div class="test-result-item ${r.passed ? 'test-pass' : 'test-fail'}">
+            <div class="flex items-center gap-xs">
+              <span>${r.passed ? '✓' : '✗'}</span>
+              <strong>${r.testName}</strong>
+            </div>
+            <span style="font-size: 0.75rem;">${r.passed ? 'PASSED' : (r.details || 'FAILED')}</span>
           </div>
-          <span style="font-size: 0.75rem;">${r.passed ? 'PASSED' : (r.details || 'FAILED')}</span>
-        </div>
-      `).join('');
+        `).join('');
+      } catch (err) {
+        summaryEl.innerHTML = `<span style="color: var(--color-danger);">Test execution error: ${err.message}</span>`;
+        console.error(err);
+      }
     }
 
     document.getElementById('btn-rerun').addEventListener('click', execute);
