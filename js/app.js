@@ -114,6 +114,7 @@ class PrincessCycleApp {
     this.wireSleepTrackingActions();
     this.wireRelaxationTriggers();
     this.wireAffirmationsAndSpicyMode();
+    this.wireHydrationAndCrystal();
     this.wireCheckinSheet();
     this.wireSettingsEvents();
     this.wirePWA();
@@ -226,6 +227,83 @@ class PrincessCycleApp {
         soundFx.playChime('sparkle');
       });
     }
+  }
+
+  // Daily Hydration Sanctuary & Lucky Crystal
+  wireHydrationAndCrystal() {
+    const crystals = [
+      { name: 'Amethyst of Serenity 🔮', desc: 'Lucky Color: Lilac Lavender • Enhances calm, peace, intuition, and gentle cramp relief.', icon: '🔮' },
+      { name: 'Rose Quartz of Self-Love 🌸', desc: 'Lucky Color: Pastel Rose • Radiates tenderness, emotional healing, and gentle self-compassion.', icon: '🌸' },
+      { name: 'Moonstone of Intuition 🌙', desc: 'Lucky Color: Pearl Silver • Harmonizes with your body\'s natural lunar flow and deep dreams.', icon: '🌙' },
+      { name: 'Sunlit Citrine of Joy ☀️', desc: 'Lucky Color: Golden Honey • Sparks sunny energy, infectious laughter, and creative confidence.', icon: '☀️' },
+      { name: 'Aquamarine of Tranquility 🌊', desc: 'Lucky Color: Sky Pastel • Soothes spicy moments, cooling tension and bringing gentle clarity.', icon: '🌊' },
+      { name: 'Opal of Creative Magic ✨', desc: 'Lucky Color: Iridescent Pink • Inspires artistic expression, journaling, and daydreaming.', icon: '✨' }
+    ];
+
+    const dayOfMonth = new Date().getDate();
+    const crystal = crystals[dayOfMonth % crystals.length];
+
+    const iconEl = document.getElementById('daily-crystal-icon');
+    const nameEl = document.getElementById('daily-crystal-name');
+    const descEl = document.getElementById('daily-crystal-desc');
+
+    if (iconEl) iconEl.textContent = crystal.icon;
+    if (nameEl) nameEl.textContent = crystal.name;
+    if (descEl) descEl.textContent = crystal.desc;
+
+    const dropletsContainer = document.getElementById('water-droplets-container');
+    if (!dropletsContainer) return;
+
+    dropletsContainer.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.water-glass-btn');
+      if (!btn) return;
+
+      const glassNum = Number(btn.getAttribute('data-glass'));
+      const todayStr = store.formatDate(new Date());
+      const state = store.getState();
+      const entry = state.dailyEntries[todayStr] || {};
+      const currentGlasses = entry.waterGlasses || 0;
+
+      const newGlasses = currentGlasses === glassNum ? glassNum - 1 : glassNum;
+
+      store.setDailyEntry(todayStr, {
+        ...entry,
+        waterGlasses: newGlasses
+      });
+
+      await storage.saveAllData(store.getState());
+      soundFx.playChime('sparkle');
+
+      if (newGlasses === 8) {
+        fairySparkles.burst(e.clientX, e.clientY, 25);
+        UI.showToast('🎉 Hydration Goal Achieved! 8 glasses of water logged! Glow on, Princess 💧', 'success', 3500);
+      } else {
+        UI.showToast(`Logged ${newGlasses} / 8 glasses of water 💧`, 'info', 1500);
+      }
+
+      this.updateHydrationUI(newGlasses);
+    });
+  }
+
+  updateHydrationUI(glasses) {
+    const textEl = document.getElementById('water-progress-text');
+    if (textEl) {
+      textEl.textContent = `${glasses} / 8 Glasses (${Math.round((glasses / 8) * 100)}%)`;
+    }
+
+    const buttons = document.querySelectorAll('.water-glass-btn');
+    buttons.forEach(btn => {
+      const g = Number(btn.getAttribute('data-glass'));
+      if (g <= glasses) {
+        btn.textContent = '💧';
+        btn.classList.add('active');
+        btn.style.filter = 'drop-shadow(0 2px 6px rgba(144, 97, 249, 0.5))';
+      } else {
+        btn.textContent = '🥛';
+        btn.classList.remove('active');
+        btn.style.filter = 'none';
+      }
+    });
   }
 
   // Sleep Bedtime Quick Action
@@ -400,6 +478,8 @@ class PrincessCycleApp {
       const moodName = chip.getAttribute('data-mood');
       chip.classList.toggle('active', selectedMoods.includes(moodName));
     });
+
+    this.updateHydrationUI(todayEntry.waterGlasses || 0);
 
     this.checkMissedDaysGap(state, user, todayStr, avgCycleLength, avgPeriodLength);
   }

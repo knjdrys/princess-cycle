@@ -28,16 +28,19 @@ Built from the ground up as an installable **Progressive Web App (PWA)**, Prince
 
 ### ✨ Key Highlights
 - **💜 100% On-Device & Privacy-First**: Zero cloud dependencies, zero analytics trackers, zero third-party telemetry.
-- **🌙 Smart Sleep Schedule Tracker**: Auto-detects your first phone touch of the day as wake time, one-tap "Goodnight" bedtime log, calculates sleep duration across midnight, and visualizes your sleep rhythm trends.
+- **🇵🇭 Filipino Wellness Cuisine & Cravings**: Phase-tailored Pinay comfort foods (Mainit na Sinigang, Arroz Caldo / Lugaw, Champorado, Salabat, Buko Juice, Talbos ng Kamote, Saging na Saba, Boba Milk Tea).
+- **🔮 Predictive Catch-Up Engine for Missed Days**: Continuous calendar day calculations prevent broken streaks; 1-tap smart assistant estimates and auto-fills missing check-in vibes.
+- **💧 Daily Hydration & Fairy Lucky Crystal**: Interactive 8-glass water tracker for cramp relief & radiant skin, paired with daily lucky crystals and colors (Amethyst, Rose Quartz, Moonstone, Citrine).
+- **🌙 Smart Sleep Schedule Tracker**: Auto-detects your first phone touch of the day as wake time, one-tap "Goodnight" bedtime log, calculates crossover sleep duration, and charts your sleep trends.
 - **📊 Adaptive Biological Cycle Engine**: Dynamically calculates cycle day, 4 biological phases, estimated ovulation window, and next period countdown using moving historical averages.
-- **📈 Dynamic Hormone & BBT Visualizer**: Real-time canvas estimation of Estrogen, Progesterone, LH surge, FSH curves, and Basal Body Temperature (BBT in °C/°F).
+- **📈 Dynamic Hormone & BBT Visualizer**: Real-time canvas estimation of Estrogen, Progesterone, LH surge, FSH curves, and Basal Body Temperature (BBT in °C/°F) syncing seamlessly with dark/light themes.
 - **🌬️ Guided Breathing & Cramp Relief Pacer**: Box breathing resonator (4-4-4-4) with expanding visual sphere and gentle harmonic audio cues.
-- **🎵 Generative Ambient Relaxation Audio**: Pure Web Audio API synthesis — Gentle Rain, Soft Waves, and Soft Chimes without any external audio files.
-- **✨ Kawaii Cute UI**: Floating petal animations, sparkle click bursts, lilac glass-morphism cards, bouncy micro-animations, and rounded Comfortaa/Nunito typography.
-- **🌱 Nutritional Seed Cycling & Phase Grocery Planner**: Phase-specific seed cycling guidance and printable grocery checklist.
-- **🩺 Clinical Doctor's Summary Report**: One-click exportable/printable summary formatted for consultations.
-- **🔒 Privacy PIN Lock & Screen Protector**: 4-digit security PIN lock and auto-blur shield when the browser tab loses focus.
-- **👫 Opt-in Partner Mode with QR Code Pairing**: Consent-first sharing with granular control.
+- **🎵 Generative Ambient Relaxation Audio**: Pure Web Audio API synthesis — Gentle Rain, Soft Waves, and Pink Noise without external audio files.
+- **✨ Kawaii Aesthetic & Real Fairy Princess Identity**: Iridescent wings avatar, lilac glass-morphism cards, sparkle click bursts, floating ambient orbs, and rounded typography.
+- **💌 Taglish Affirmations & Spicy Mode Rescue Kit**: Relatable comfort tips (*"Ganda mo today, Princess!"*, *"Valid ang feelings mo"*, FoodPanda/Milk tea suggestions).
+- **🩺 Clinical Doctor's Summary Report**: One-click exportable/printable summary formatted for medical consultations.
+- **🔒 Privacy PIN Lock & Screen Protector**: 4-digit security PIN lock and auto-blur shield when switching tabs or apps.
+- **👫 Opt-in Partner Mode with QR Code Pairing**: Granular consent-first sharing.
 - **📲 Installable PWA**: Offline caching via Service Worker and Web App Manifest.
 
 ---
@@ -54,7 +57,7 @@ PrincessCycle uses **zero bloated frameworks**, proving that clean, modular Java
                             │
 ┌───────────────────────────▼────────────────────────────┐
 │                    State & Controller                  │
-│       (app.js, state.js, ui.js, calendar.js)           │
+│   (app.js, state.js, ui.js, calendar.js, sleep.js)     │
 └─────────────┬─────────────────────────────┬────────────┘
               │                             │
 ┌─────────────▼──────────────┐ ┌────────────▼────────────┐
@@ -62,8 +65,8 @@ PrincessCycle uses **zero bloated frameworks**, proving that clean, modular Java
 │    (cycle.js, insights.js) │ │    (storage.js, PWA)    │
 │  • 4-Phase Boundaries      │ │  • IndexedDB / Local    │
 │  • Moving Averages         │ │  • JSON / CSV Export    │
-│  • Hormone Curves & BBT    │ │  • Service Worker Cache │
-│  • Non-diagnostic Insights │ │  • Web Audio Feedback   │
+│  • Predictive Gap Engine   │ │  • Service Worker Cache │
+│  • Hormone Curves & BBT    │ │  • Procedural Synthesis │
 └────────────────────────────┘ └─────────────────────────┘
 ```
 
@@ -86,10 +89,10 @@ PrincessCycle structures the menstrual cycle into four biologically grounded, no
 
 | Phase | Visual Identity | Biological Context | Typical Trackable Signals |
 |---|---|---|---|
-| **1. Menstruation** | Deep Rose (`#C86D7C`) | Uterine lining shedding; estrogen & progesterone baseline low | Cramps, fatigue, backache, reflective mood, flow volume |
-| **2. Follicular** | Soft Peach (`#E08E74`) | Estrogen rises steadily; FSH stimulates egg maturation | Rising energy, mental clarity, creative focus, motivation |
-| **3. Ovulation** | Warm Gold (`#CCA065`) | Estrogen peaks; LH surge triggers egg release | Peak energy, heightened senses, fertile cervical fluid |
-| **4. Luteal** | Muted Lavender (`#8978A5`) | Progesterone peaks then declines | Cravings, breast tenderness, sleep changes, lower energy |
+| **1. Menstruation** | Deep Rose (`#F472B6`) | Uterine lining shedding; estrogen & progesterone baseline low | Cramps (Puson), fatigue (Pagod), backache, reflective mood, flow volume |
+| **2. Follicular** | Soft Lilac (`#A78BFA`) | Estrogen rises steadily; FSH stimulates egg maturation | Rising energy, mental clarity, creative spark, kilig & fresh confidence |
+| **3. Ovulation** | Sunbeam Gold (`#FBBF24`) | Estrogen peaks; LH surge triggers egg release | Peak stamina, sunkissed glow, fertile cervical fluid |
+| **4. Luteal** | Twilight Blue (`#818CF8`) | Progesterone peaks then declines | Pinay cravings, breast tenderness, sleepy/antukin mood, marupok thoughts |
 
 ---
 
@@ -105,33 +108,36 @@ princess-cycle/
 ├── manifest.json               # PWA configuration manifest
 ├── sw.js                       # Service Worker for offline asset caching
 ├── assets/
-│   └── favicon.svg             # PrincessCycle signature bloom crown icon
+│   └── fairy-icon.jpg          # Real fairy princess avatar & favicon
 ├── css/
 │   ├── reset.css               # Modern box-sizing and CSS reset
 │   ├── variables.css           # Design tokens, color system & dark mode
 │   ├── base.css                # Typography, focus states, accessibility
 │   ├── layout.css              # Header, sidebar & mobile bottom nav
 │   ├── components.css          # Dial, chips, buttons, sheets & forms
-│   └── responsive.css          # Breakpoints (320px, 375px, 768px, 1024px+)
+│   ├── responsive.css          # Universal breakpoints (320px, 375px, 768px, 1024px+)
+│   └── cute.css                # Kawaii tokens, dark mode fixes, ambient floating orbs
 ├── js/
 │   ├── app.js                  # Application coordinator & routing
 │   ├── state.js                # Reactive state store with event pub/sub
 │   ├── storage.js              # IndexedDB & LocalStorage persistence layer
-│   ├── cycle.js                # Pure cycle calculation & hormone curve engine
+│   ├── cycle.js                # Cycle engine, gap predictor & Filipino nutrition
 │   ├── validation.js           # Form validation, bounds & XSS sanitizer
 │   ├── ui.js                   # UI rendering, multi-segment dial & toasts
 │   ├── calendar.js             # Monthly interactive calendar & day inspector
-│   ├── insights.js             # Analytics, hormone canvas & doctor's report
+│   ├── insights.js             # High-DPI canvas charts & clinical report
 │   ├── history.js              # Historical cycle timeline, search & logger
+│   ├── sleep.js                # Sleep tracking engine & morning wake detector
 │   ├── sharing.js              # Privacy-first partner sharing simulator & QR
+│   ├── affirmations.js         # Taglish affirmations & Spicy Mode rescue kit
 │   ├── notifications.js        # Gentle reminder scheduler & web alerts
 │   ├── audio.js                # Web Audio API ambient soundscape synthesizer
 │   ├── relaxation.js           # Guided breathing & cramp relief pacer
 │   ├── privacy-lock.js         # 4-digit PIN lock & screen shield
-│   └── demo-data.js            # Realistic fictional demo data generator
+│   └── demo-data.js            # Realistic Philippine demo data generator
 ├── tests/
 │   ├── runner.html             # Visual browser test runner
-│   └── cycle-engine.test.js    # Unit test suite (40+ assertions)
+│   └── cycle-engine.test.js    # Unit test suite (45+ assertions)
 ├── CONTRIBUTING.md             # Developer guidelines
 ├── CHANGELOG.md                # Release logs
 ├── LICENSE                     # MIT License

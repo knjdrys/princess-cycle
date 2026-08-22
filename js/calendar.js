@@ -177,6 +177,13 @@ export class CalendarController {
             <strong>${(entry.mood && entry.mood.length > 0) ? entry.mood.join(', ') : 'None logged'}</strong>
           </div>
 
+          ${(entry.cravings && entry.cravings.length > 0) ? `
+          <div class="flex justify-between items-center" style="padding: 4px 0; border-bottom: 1px solid var(--border-subtle);">
+            <span style="color: var(--text-secondary);">Pinay Cravings:</span>
+            <strong style="color: var(--color-primary);">${entry.cravings.join(', ')}</strong>
+          </div>
+          ` : ''}
+
           <div class="flex justify-between items-center" style="padding: 4px 0; border-bottom: 1px solid var(--border-subtle);">
             <span style="color: var(--text-secondary);">Physical Sensations:</span>
             <strong>${(entry.symptoms && entry.symptoms.length > 0) ? entry.symptoms.join(', ') : 'None logged'}</strong>
@@ -186,6 +193,13 @@ export class CalendarController {
             <span style="color: var(--text-secondary);">Energy & Sleep:</span>
             <strong>${entry.energy ? `${entry.energy}/5 Energy` : '--'} • ${entry.sleepHours ? `${entry.sleepHours} hrs sleep` : '--'}</strong>
           </div>
+
+          ${entry.waterGlasses ? `
+          <div class="flex justify-between items-center" style="padding: 4px 0; border-bottom: 1px solid var(--border-subtle);">
+            <span style="color: var(--text-secondary);">Hydration:</span>
+            <strong>💧 ${entry.waterGlasses} / 8 Glasses</strong>
+          </div>
+          ` : ''}
 
           ${entry.notes ? `
             <div style="background: var(--bg-surface-subtle); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 0.8125rem; margin-top: 4px;">
