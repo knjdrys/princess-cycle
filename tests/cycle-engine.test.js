@@ -1,8 +1,9 @@
 /**
- * PrincessCycle - Automated Unit Test Suite
+ * PrincessCycle - Automated Unit Test Suite (Comprehensive Phase 4 Suite)
  * Validates cycle calculations, phase transitions, boundary dates, moving averages,
  * hormone curves, BBT, seed cycling, sleep schedule calculations, gap predictions,
- * Web Crypto PIN salted hashing, IndexedDB delta storage integrity, and State Immutability.
+ * Web Crypto PIN salted hashing, IndexedDB delta storage integrity, State Immutability,
+ * Accessibility Focus Trapping, Timezone-Neutral Date Arithmetic, and Failure Recovery.
  */
 
 import { CycleEngine, PHASES, SEED_CYCLING_GUIDE } from '../js/cycle.js';
@@ -12,6 +13,8 @@ import { PrivacyLock } from '../js/privacy-lock.js';
 import { storage } from '../js/storage.js';
 import { store } from '../js/state.js';
 import { DOM } from '../js/dom.js';
+import { UI, FocusTrap } from '../js/ui.js';
+import { InsightsController } from '../js/insights.js';
 
 export async function runAllTests() {
   const results = [];
@@ -243,6 +246,80 @@ export async function runAllTests() {
     assert('DOM registry provides stable view accessors', typeof DOM.views.home === 'function' && typeof DOM.views.calendar === 'function');
   } catch (e) {
     assert('State Immutability tests threw exception', false, e.message);
+  }
+
+  // --- Group 13: Accessibility, Focus Trap & Status Announcements ---
+  try {
+    // 1. FocusTrap utility existence and interface
+    assert('FocusTrap class is defined with static trap method', typeof FocusTrap.trap === 'function');
+
+    // 2. UI showToast ARIA attributes
+    if (typeof document !== 'undefined') {
+      UI.showToast('Accessible test message', 'info', 500);
+      const toastContainer = document.getElementById('toast-container');
+      assert('Toast container has role="status"', toastContainer?.getAttribute('role') === 'status');
+      assert('Toast container has aria-live="polite"', toastContainer?.getAttribute('aria-live') === 'polite');
+    }
+  } catch (e) {
+    assert('Accessibility tests threw exception', false, e.message);
+  }
+
+  // --- Group 14: Timezone & DST-Neutral Date Arithmetic ---
+  try {
+    // Month roll-over over 31-day and 30-day boundaries
+    const janToFeb = CycleEngine.addDays('2026-01-31', 1);
+    assert('addDays crosses Jan 31 to Feb 01 correctly', janToFeb === '2026-02-01');
+
+    const febToMarLeap = CycleEngine.addDays('2024-02-28', 2);
+    assert('addDays crosses leap year Feb 28 to Mar 01', febToMarLeap === '2024-03-01');
+
+    const yearRollOver = CycleEngine.addDays('2026-12-31', 1);
+    assert('addDays crosses year boundary Dec 31 to Jan 01', yearRollOver === '2027-01-01');
+
+    // Negative diff (past dates)
+    const negDiff = CycleEngine.diffInDays('2026-08-15', '2026-08-01');
+    assert('diffInDays handles negative day differences accurately', negDiff === -14);
+  } catch (e) {
+    assert('Timezone & Date arithmetic tests threw exception', false, e.message);
+  }
+
+  // --- Group 15: Symptothermal Biomarkers & Uncertainty Disclosure ---
+  try {
+    // Effective metrics boundary enforcement (clamps cycle length 18-60)
+    const metricsExtreme = CycleEngine.getEffectiveCycleMetrics(
+      { typicalCycleLength: 90, typicalPeriodLength: 20 },
+      [{ id: '1', cycleLength: 90, periodLength: 20 }]
+    );
+    assert('Metrics clamp cycle length to <= 60 days', metricsExtreme.avgCycleLength <= 60);
+    assert('Metrics clamp period length to <= 15 days', metricsExtreme.avgPeriodLength <= 15);
+    assert('Confidence margin is explicitly provided', typeof metricsExtreme.confidenceMargin === 'number');
+
+    // Overdue period calculation
+    const overdueCycle = CycleEngine.getCycleDayAndPhase('2026-09-05', '2026-08-01', 28, 5);
+    assert('Overdue cycle indicates negative daysUntilNextPeriod', overdueCycle.daysUntilNextPeriod < 0);
+  } catch (e) {
+    assert('Symptothermal domain tests threw exception', false, e.message);
+  }
+
+  // --- Group 16: Storage Failure State Handling ---
+  try {
+    // Null/undefined protections
+    await storage.saveUser(null);
+    await storage.saveDailyEntry(null, null);
+    await storage.deleteDailyEntry(null);
+    await storage.saveCycles(null);
+    assert('Storage engine delta methods handle null inputs gracefully without crashing', true);
+  } catch (e) {
+    assert('Storage failure state tests threw exception', false, e.message);
+  }
+
+  // --- Group 17: Canvas & Rendering Performance Lifecycle ---
+  try {
+    const insights = new InsightsController(store);
+    assert('InsightsController provides destroy cleanup method', typeof insights.destroy === 'function');
+    assert('InsightsController provides scheduleDrawAllCharts method', typeof insights.scheduleDrawAllCharts === 'function');
+  } catch (e) {
+    assert('Canvas performance tests threw exception', false, e.message);
   }
 
   return results;

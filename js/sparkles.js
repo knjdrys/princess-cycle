@@ -23,10 +23,15 @@ export class FairySparkles {
 
     this.ctx = this.canvas.getContext('2d');
     this.resize();
-    window.addEventListener('resize', () => this.resize());
+    window.addEventListener('resize', () => this.resize(), { passive: true });
+
+    // Respect user reduced-motion preference
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
 
     // Spawn initial gentle floating particles
-    for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < 20; i++) {
       this.spawnParticle();
     }
 
@@ -34,8 +39,9 @@ export class FairySparkles {
 
     // Click sparkle burst
     document.addEventListener('pointerdown', (e) => {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       this.burst(e.clientX, e.clientY, 8);
-    });
+    }, { passive: true });
   }
 
   resize() {

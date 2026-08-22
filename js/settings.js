@@ -1,13 +1,14 @@
 /**
  * PrincessCycle - Settings & Data Sanctuary Controller
- * Handles user preferences, theme selection, sound toggles, JSON/CSV exports, backup imports & database wipes.
+ * Handles user preferences, theme selection, sound toggles, JSON/CSV exports,
+ * backup imports & accessible in-app confirmation dialogs.
  */
 
 import { DOM } from './dom.js';
 import { Validation } from './validation.js';
 import { storage } from './storage.js';
 import { soundFx } from './audio.js';
-import { UI } from './ui.js';
+import { UI, FocusTrap } from './ui.js';
 import { generateDemoData } from './demo-data.js';
 
 export class SettingsController {
@@ -162,35 +163,40 @@ export class SettingsController {
       });
     }
 
-    // Load Demo Data
+    // Load Demo Data with Accessible Modal
     const loadDemoBtn = DOM.settings.loadDemoBtn();
     if (loadDemoBtn) {
-      loadDemoBtn.addEventListener('click', async () => {
-        const confirmed = confirm('Load realistic Filipino demo data? This will populate sample logs, Pinay cravings, and full charts!');
-        if (confirmed) {
-          const demo = generateDemoData();
-          this.store.setState({
-            user: demo.user,
-            cycles: demo.cycles,
-            dailyEntries: demo.dailyEntries,
-            isLoading: false
-          });
-          await storage.saveAllData(this.store.getState());
-          soundFx.playChime('sparkle');
-          UI.showToast('Demo data loaded! Enjoy exploring 🌸', 'success');
-          this.render();
-        }
+      loadDemoBtn.addEventListener('click', () => {
+        this.showConfirmDialog(
+          'Load Realistic Demo Data? 🌸',
+          'This will populate sample Filipino cycles, Pinay cravings, and full analytics charts to explore.',
+          'Load Demo Data ✨',
+          async () => {
+            const demo = generateDemoData();
+            this.store.setState({
+              user: demo.user,
+              cycles: demo.cycles,
+              dailyEntries: demo.dailyEntries,
+              isLoading: false
+            });
+            await storage.saveAllData(this.store.getState());
+            soundFx.playChime('sparkle');
+            UI.showToast('Demo data loaded! Enjoy exploring 🌸', 'success');
+            this.render();
+          }
+        );
       });
     }
 
-    // Wipe All Data
+    // Wipe All Data with Accessible Modal
     const wipeDataBtn = DOM.settings.wipeDataBtn();
     if (wipeDataBtn) {
-      wipeDataBtn.addEventListener('click', async () => {
-        const confirmed1 = confirm('Delete all data permanently? This action cannot be undone.');
-        if (confirmed1) {
-          const confirmed2 = confirm('Please confirm once more: All cycle records, notes, and preferences will be permanently wiped from this device.');
-          if (confirmed2) {
+      wipeDataBtn.addEventListener('click', () => {
+        this.showConfirmDialog(
+          'Delete All Data Permanently? ⚠️',
+          'All your private cycle records, notes, and preferences will be permanently wiped from this device. This action cannot be undone.',
+          'Permanently Delete All Data',
+          async () => {
             await storage.wipeAllData();
             this.store.setState({
               user: {
@@ -218,9 +224,53 @@ export class SettingsController {
             if (typeof this.onDataReset === 'function') {
               this.onDataReset();
             }
-          }
-        }
+          },
+          true
+        );
       });
+    }
+  }
+
+  showConfirmDialog(title, message, confirmLabel, onConfirm, isDanger = false) {
+    let dialogOverlay = document.getElementById('accessible-confirm-dialog');
+    if (!dialogOverlay) {
+      dialogOverlay = document.createElement('div');
+      dialogOverlay.id = 'accessible-confirm-dialog';
+      dialogOverlay.className = 'pin-lock-backdrop';
+      dialogOverlay.setAttribute('role', 'alertdialog');
+      dialogOverlay.setAttribute('aria-modal', 'true');
+      document.body.appendChild(dialogOverlay);
+    }
+
+    dialogOverlay.innerHTML = `
+      <div class="modal-container text-center" style="max-width: 380px; padding: var(--space-xl);">
+        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">${title}</h3>
+        <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: var(--space-lg);">${message}</p>
+        <div class="flex gap-sm justify-center">
+          <button class="btn btn-secondary btn-sm" id="btn-cancel-custom-dialog">Cancel</button>
+          <button class="btn ${isDanger ? 'btn-danger' : 'btn-primary'} btn-sm" id="btn-confirm-custom-dialog">${confirmLabel}</button>
+        </div>
+      </div>
+    `;
+
+    dialogOverlay.classList.add('active');
+
+    const trap = FocusTrap.trap(dialogOverlay, () => closeDialog());
+
+    const closeDialog = () => {
+      dialogOverlay.classList.remove('active');
+      trap.release();
+    };
+
+    const cancelBtn = dialogOverlay.querySelector('#btn-cancel-custom-dialog');
+    const confirmBtn = dialogOverlay.querySelector('#btn-confirm-custom-dialog');
+
+    if (cancelBtn) cancelBtn.onclick = closeDialog;
+    if (confirmBtn) {
+      confirmBtn.onclick = async () => {
+        closeDialog();
+        await onConfirm();
+      };
     }
   }
 }

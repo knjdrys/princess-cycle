@@ -1,9 +1,72 @@
 /**
  * PrincessCycle - Dreamy Lilac UI Component & Interaction Engine
- * Multi-Segment SVG Cycle Dial, Stardust Beacon Orb, Whimsical Contextual Greetings, Modals & Toasts
+ * Multi-Segment SVG Cycle Dial, Focus Trap Manager, Accessible Toasts & Themes
  */
 
 import { PHASE_META, PHASES, CycleEngine } from './cycle.js';
+
+export class FocusTrap {
+  static trap(containerEl, onEscapeCallback) {
+    if (!containerEl) return { release: () => {} };
+
+    const focusableSelector = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const previousActiveElement = document.activeElement;
+
+    const getFocusables = () => Array.from(containerEl.querySelectorAll(focusableSelector));
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (typeof onEscapeCallback === 'function') {
+          e.preventDefault();
+          onEscapeCallback();
+        }
+        return;
+      }
+
+      if (e.key === 'Tab') {
+        const focusables = getFocusables();
+        if (focusables.length === 0) {
+          e.preventDefault();
+          return;
+        }
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === first || !containerEl.contains(document.activeElement)) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last || !containerEl.contains(document.activeElement)) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      }
+    };
+
+    containerEl.addEventListener('keydown', handleKeyDown);
+
+    // Initial focus on the first focusable control
+    setTimeout(() => {
+      const focusables = getFocusables();
+      if (focusables.length > 0) {
+        focusables[0].focus();
+      }
+    }, 50);
+
+    return {
+      release: () => {
+        containerEl.removeEventListener('keydown', handleKeyDown);
+        if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
+          previousActiveElement.focus();
+        }
+      }
+    };
+  }
+}
 
 export const UI = {
   // SVG Icon Map
@@ -63,7 +126,7 @@ export const UI = {
 
     return `
       <div class="cycle-dial-wrapper" role="img" aria-label="Cycle Day ${cycleDay} of ${cLen}, ${phase.title}">
-        <svg class="cycle-dial-svg" viewBox="0 0 220 220">
+        <svg class="cycle-dial-svg" viewBox="0 0 220 220" aria-hidden="true">
           <circle class="cycle-dial-track" cx="110" cy="110" r="${radius}" />
 
           <!-- Segment 1: Menstruation (Blossom Rose) -->
@@ -96,31 +159,34 @@ export const UI = {
         </svg>
 
         <!-- Current Day Stardust Beacon Orb -->
-        <div style="position: absolute; width: 22px; height: 22px; border-radius: 50%; background: #FFFFFF; border: 4px solid var(--color-primary); box-shadow: 0 0 14px var(--color-primary-glow), 0 2px 8px rgba(0,0,0,0.18); left: ${orbX}px; top: ${orbY}px; transform: translate(-50%, -50%); z-index: 5; animation: pulseBeacon 2.4s ease-in-out infinite;"></div>
+        <div class="beacon-orb" style="position: absolute; width: 22px; height: 22px; border-radius: 50%; background: #FFFFFF; border: 4px solid var(--color-primary); box-shadow: 0 0 14px var(--color-primary-glow), 0 2px 8px rgba(0,0,0,0.18); left: ${orbX}px; top: ${orbY}px; transform: translate(-50%, -50%); z-index: 5;" aria-hidden="true"></div>
 
         <div class="cycle-dial-content">
           <div class="cycle-dial-total" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); font-weight: 600;">Cycle Day</div>
           <div class="cycle-dial-day-number" style="font-family: var(--font-family-display); font-size: 2.8rem; background: linear-gradient(135deg, var(--color-primary), #C084FC); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${cycleDay}</div>
-          <div class="cycle-dial-total" style="color: var(--text-tertiary);">of ~${cLen} days</div>
+          <div class="cycle-dial-total" style="color: var(--text-tertiary); font-size: 0.8125rem;">of ~${cLen} days</div>
           <div class="cycle-dial-phase-title" style="color: var(${phase.colorVar}); font-weight: 700; margin-top: 4px;">${phase.title}</div>
         </div>
       </div>
     `;
   },
 
-  // Toast Notification Trigger
+  // Accessible Toast Notification Trigger
   showToast(message, type = 'info', duration = 3000) {
     let container = document.getElementById('toast-container');
     if (!container) {
       container = document.createElement('div');
       container.id = 'toast-container';
       container.className = 'toast-container';
+      container.setAttribute('role', 'status');
+      container.setAttribute('aria-live', 'polite');
+      container.setAttribute('aria-atomic', 'true');
       document.body.appendChild(container);
     }
 
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    toast.setAttribute('role', 'status');
+    toast.setAttribute('role', 'alert');
     toast.innerHTML = `<span>${message}</span>`;
     container.appendChild(toast);
 

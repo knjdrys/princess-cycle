@@ -337,7 +337,11 @@ class StorageEngine {
   exportAsCSV(dailyEntries) {
     const entries = Object.values(dailyEntries || {}).sort((a, b) => a.date.localeCompare(b.date));
     if (entries.length === 0) {
-      alert('No logged entries to export yet! Log a few days first ✨');
+      if (typeof window !== 'undefined' && window.UI && typeof window.UI.showToast === 'function') {
+        window.UI.showToast('No logged entries to export yet! Log a few days first ✨', 'info');
+      } else {
+        console.info('No logged entries to export yet.');
+      }
       return;
     }
 

@@ -27,8 +27,8 @@
 
   /* Typography Colors */
   --text-primary: #28193D;            /* Deep Midnight Plum */
-  --text-secondary: #6B5B82;          /* Muted Lilac Slate */
-  --text-tertiary: #9E8FB2;           /* Soft Lavender Gray */
+  --text-secondary: #5F4E75;          /* Muted Lilac Slate */
+  --text-tertiary: #6E5D88;           /* High-Contrast Soft Lavender Slate (WCAG AA Compliant) */
   --text-inverse: #FFFFFF;            /* Pure White */
 
   /* Borders & Dividers */

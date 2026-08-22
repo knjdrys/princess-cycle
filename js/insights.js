@@ -196,12 +196,47 @@ export class InsightsController {
       });
     }
 
-    setTimeout(() => {
+    // Schedule all canvas drawing in requestAnimationFrame for high-DPI crisp rendering
+    this.scheduleDrawAllCharts(state, cycleInfo, avgCycleLength, analytics);
+
+    // Attach ResizeObserver with debouncing
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+
+    if (typeof ResizeObserver !== 'undefined') {
+      let resizeTimeout = null;
+      this.resizeObserver = new ResizeObserver(() => {
+        if (resizeTimeout) clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          this.scheduleDrawAllCharts(state, cycleInfo, avgCycleLength, analytics);
+        }, 120);
+      });
+      this.resizeObserver.observe(containerElement);
+    }
+  }
+
+  scheduleDrawAllCharts(state, cycleInfo, avgCycleLength, analytics) {
+    if (typeof requestAnimationFrame !== 'undefined') {
+      requestAnimationFrame(() => {
+        this.drawSleepScheduleChart(state.dailyEntries);
+        this.drawHormoneChart(cycleInfo.cycleDay, avgCycleLength);
+        this.drawCycleLengthChart(analytics.cycleHistory);
+        this.drawMoodBreakdownChart(analytics.moodCounts, analytics.symptomCounts);
+      });
+    } else {
       this.drawSleepScheduleChart(state.dailyEntries);
       this.drawHormoneChart(cycleInfo.cycleDay, avgCycleLength);
       this.drawCycleLengthChart(analytics.cycleHistory);
       this.drawMoodBreakdownChart(analytics.moodCounts, analytics.symptomCounts);
-    }, 60);
+    }
+  }
+
+  destroy() {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
   }
 
   // Draw Sleep Schedule Canvas Chart (Bedtime to Wake time bars)

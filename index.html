@@ -121,10 +121,10 @@
     <main class="app-main container" id="main-content" tabindex="-1">
       
       <!-- Smart Morning Wake-Up Detection Notification Banner -->
-      <div id="smart-wake-banner" class="card" style="display: none; background: linear-gradient(135deg, var(--bg-surface), #F5EEFF); border-color: var(--border-subtle); margin-bottom: var(--space-md); box-shadow: var(--shadow-md);">
+      <div id="smart-wake-banner" class="card" role="region" aria-live="polite" aria-label="Morning wake-up confirmation" style="display: none; background: linear-gradient(135deg, var(--bg-surface), #F5EEFF); border-color: var(--border-subtle); margin-bottom: var(--space-md); box-shadow: var(--shadow-md);">
         <div class="flex justify-between items-center" style="flex-wrap: wrap; gap: 8px;">
           <div class="flex items-center gap-sm">
-            <span style="font-size: 1.6rem;">☀️</span>
+            <span style="font-size: 1.6rem;" aria-hidden="true">☀️</span>
             <div>
               <div style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">Good morning beautiful! First touch detected ✨</div>
               <div style="font-size: 0.8125rem; color: var(--text-secondary);">Did you wake up around <strong id="detected-wake-time-text" style="color: var(--color-primary);">07:15 AM</strong>?</div>
@@ -138,10 +138,10 @@
       </div>
 
       <!-- Smart Catch-Up Assistant for Missed Check-in Days -->
-      <div id="missed-days-catchup-banner" class="card" style="display: none; background: linear-gradient(135deg, var(--bg-surface), #FAF5FF); border: 2px dashed var(--border-card); margin-bottom: var(--space-md); box-shadow: var(--shadow-sm);">
+      <div id="missed-days-catchup-banner" class="card" role="region" aria-live="polite" aria-label="Missed check-in catch-up assistant" style="display: none; background: linear-gradient(135deg, var(--bg-surface), #FAF5FF); border: 2px dashed var(--border-card); margin-bottom: var(--space-md); box-shadow: var(--shadow-sm);">
         <div class="flex justify-between items-center" style="flex-wrap: wrap; gap: 10px;">
           <div class="flex items-center gap-sm">
-            <span style="font-size: 1.6rem; line-height: 1;">🧚‍♀️</span>
+            <span style="font-size: 1.6rem; line-height: 1;" aria-hidden="true">🧚‍♀️</span>
             <div>
               <div style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">Missed a few check-ins? We got you, Princess! ✨</div>
               <div style="font-size: 0.8125rem; color: var(--text-secondary);" id="missed-days-text">Your cycle progressed naturally. We estimated where you are in your rhythm!</div>
@@ -240,15 +240,15 @@
                 <span style="font-size: 0.875rem; font-weight: 700; color: var(--text-primary);">💧 Water Intake Goal:</span>
                 <span id="water-progress-text" style="font-size: 0.8125rem; font-weight: 700; color: var(--color-primary);">0 / 8 Glasses</span>
               </div>
-              <div class="flex justify-between items-center gap-xs" id="water-droplets-container" style="flex-wrap: wrap; gap: 6px;">
-                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="1" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
-                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="2" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
-                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="3" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
-                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="4" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
-                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="5" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
-                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="6" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
-                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="7" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
-                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="8" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
+              <div class="flex justify-between items-center gap-xs" id="water-droplets-container" style="flex-wrap: wrap; gap: 6px;" role="group" aria-label="Water intake glasses">
+                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="1" aria-label="Glass 1 of 8" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
+                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="2" aria-label="Glass 2 of 8" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
+                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="3" aria-label="Glass 3 of 8" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
+                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="4" aria-label="Glass 4 of 8" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
+                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="5" aria-label="Glass 5 of 8" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
+                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="6" aria-label="Glass 6 of 8" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
+                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="7" aria-label="Glass 7 of 8" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
+                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="8" aria-label="Glass 8 of 8" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
               </div>
             </div>
 

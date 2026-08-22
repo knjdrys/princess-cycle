@@ -1,19 +1,21 @@
 /**
  * PrincessCycle - Daily Check-In Drawer Controller
- * Handles check-in sheet lifecycle, sleep schedule calculations, chip selections, form serialization & saving.
+ * Handles check-in sheet lifecycle, sleep schedule calculations, chip selections,
+ * focus trapping, Escape key handling, and ARIA state management.
  */
 
 import { DOM } from './dom.js';
 import { SleepScheduleEngine } from './sleep.js';
 import { Validation } from './validation.js';
 import { soundFx } from './audio.js';
-import { UI } from './ui.js';
+import { UI, FocusTrap } from './ui.js';
 
 export class CheckinController {
   constructor(stateStore, onSavedCallback) {
     this.store = stateStore;
     this.onSaved = onSavedCallback;
     this.activeLogDate = this.store.formatDate(new Date());
+    this.focusTrapHandle = null;
   }
 
   init() {
@@ -47,55 +49,99 @@ export class CheckinController {
       if (e.target === backdrop) this.closeCheckin();
     });
 
-    // Chips & Selector Event Delegation
+    // Chips & Selector Event Handlers with ARIA-pressed
     DOM.checkin.moodChips().forEach(chip => {
-      chip.addEventListener('click', () => chip.classList.toggle('active'));
+      chip.setAttribute('role', 'button');
+      chip.setAttribute('aria-pressed', chip.classList.contains('active') ? 'true' : 'false');
+      chip.addEventListener('click', () => {
+        chip.classList.toggle('active');
+        chip.setAttribute('aria-pressed', chip.classList.contains('active') ? 'true' : 'false');
+      });
     });
 
     DOM.checkin.cravingsChips().forEach(chip => {
-      chip.addEventListener('click', () => chip.classList.toggle('active'));
+      chip.setAttribute('role', 'button');
+      chip.setAttribute('aria-pressed', chip.classList.contains('active') ? 'true' : 'false');
+      chip.addEventListener('click', () => {
+        chip.classList.toggle('active');
+        chip.setAttribute('aria-pressed', chip.classList.contains('active') ? 'true' : 'false');
+      });
     });
 
     DOM.checkin.energyBtns().forEach(btn => {
+      btn.setAttribute('role', 'button');
+      btn.setAttribute('aria-pressed', btn.classList.contains('active') ? 'true' : 'false');
       btn.addEventListener('click', () => {
-        DOM.checkin.energyBtns().forEach(b => b.classList.remove('active'));
+        DOM.checkin.energyBtns().forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-pressed', 'false');
+        });
         btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
       });
     });
 
     DOM.checkin.flowBtns().forEach(btn => {
+      btn.setAttribute('role', 'button');
+      btn.setAttribute('aria-pressed', btn.classList.contains('active') ? 'true' : 'false');
       btn.addEventListener('click', () => {
-        DOM.checkin.flowBtns().forEach(b => b.classList.remove('active'));
+        DOM.checkin.flowBtns().forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-pressed', 'false');
+        });
         btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
       });
     });
 
     DOM.checkin.fluidChips().forEach(chip => {
+      chip.setAttribute('role', 'button');
+      chip.setAttribute('aria-pressed', chip.classList.contains('active') ? 'true' : 'false');
       chip.addEventListener('click', () => {
-        DOM.checkin.fluidChips().forEach(c => c.classList.remove('active'));
+        DOM.checkin.fluidChips().forEach(c => {
+          c.classList.remove('active');
+          c.setAttribute('aria-pressed', 'false');
+        });
         chip.classList.add('active');
+        chip.setAttribute('aria-pressed', 'true');
       });
     });
 
     const symptomChips = DOM.checkin.symptomChips();
     symptomChips.forEach(chip => {
+      chip.setAttribute('role', 'button');
+      chip.setAttribute('aria-pressed', chip.classList.contains('active') ? 'true' : 'false');
       chip.addEventListener('click', () => {
         const val = chip.getAttribute('data-symptom');
         if (val === 'None') {
-          symptomChips.forEach(c => c.classList.remove('active'));
+          symptomChips.forEach(c => {
+            c.classList.remove('active');
+            c.setAttribute('aria-pressed', 'false');
+          });
           chip.classList.add('active');
+          chip.setAttribute('aria-pressed', 'true');
         } else {
           const noneChip = Array.from(symptomChips).find(c => c.getAttribute('data-symptom') === 'None');
-          if (noneChip) noneChip.classList.remove('active');
+          if (noneChip) {
+            noneChip.classList.remove('active');
+            noneChip.setAttribute('aria-pressed', 'false');
+          }
           chip.classList.toggle('active');
+          chip.setAttribute('aria-pressed', chip.classList.contains('active') ? 'true' : 'false');
         }
       });
     });
 
     DOM.checkin.qualityChips().forEach(chip => {
+      chip.setAttribute('role', 'button');
+      chip.setAttribute('aria-pressed', chip.classList.contains('active') ? 'true' : 'false');
       chip.addEventListener('click', () => {
-        DOM.checkin.qualityChips().forEach(c => c.classList.remove('active'));
+        DOM.checkin.qualityChips().forEach(c => {
+          c.classList.remove('active');
+          c.setAttribute('aria-pressed', 'false');
+        });
         chip.classList.add('active');
+        chip.setAttribute('aria-pressed', 'true');
       });
     });
 
@@ -132,25 +178,33 @@ export class CheckinController {
     // Hydrate Moods
     const currentMoods = entry.mood || [];
     DOM.checkin.moodChips().forEach(chip => {
-      chip.classList.toggle('active', currentMoods.includes(chip.getAttribute('data-mood')));
+      const active = currentMoods.includes(chip.getAttribute('data-mood'));
+      chip.classList.toggle('active', active);
+      chip.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
 
     // Hydrate Cravings
     const currentCravings = entry.cravings || [];
     DOM.checkin.cravingsChips().forEach(chip => {
-      chip.classList.toggle('active', currentCravings.includes(chip.getAttribute('data-craving')));
+      const active = currentCravings.includes(chip.getAttribute('data-craving'));
+      chip.classList.toggle('active', active);
+      chip.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
 
     // Hydrate Energy
     const currentEnergy = entry.energy || 3;
     DOM.checkin.energyBtns().forEach(btn => {
-      btn.classList.toggle('active', Number(btn.getAttribute('data-energy')) === currentEnergy);
+      const active = Number(btn.getAttribute('data-energy')) === currentEnergy;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
 
     // Hydrate Flow
     const currentFlow = entry.flow || 'None';
     DOM.checkin.flowBtns().forEach(btn => {
-      btn.classList.toggle('active', btn.getAttribute('data-flow') === currentFlow);
+      const active = btn.getAttribute('data-flow') === currentFlow;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
 
     // Hydrate BBT
@@ -160,13 +214,17 @@ export class CheckinController {
     // Hydrate Cervical Fluid
     const currentFluid = entry.cervicalFluid || 'Dry';
     DOM.checkin.fluidChips().forEach(chip => {
-      chip.classList.toggle('active', chip.getAttribute('data-fluid') === currentFluid);
+      const active = chip.getAttribute('data-fluid') === currentFluid;
+      chip.classList.toggle('active', active);
+      chip.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
 
     // Hydrate Symptoms
     const currentSymptoms = entry.symptoms || [];
     DOM.checkin.symptomChips().forEach(chip => {
-      chip.classList.toggle('active', currentSymptoms.includes(chip.getAttribute('data-symptom')));
+      const active = currentSymptoms.includes(chip.getAttribute('data-symptom'));
+      chip.classList.toggle('active', active);
+      chip.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
 
     // Hydrate Sleep
@@ -187,19 +245,34 @@ export class CheckinController {
 
     const currentQuality = entry.sleepQuality || 'Good';
     DOM.checkin.qualityChips().forEach(chip => {
-      chip.classList.toggle('active', chip.getAttribute('data-quality') === currentQuality);
+      const active = chip.getAttribute('data-quality') === currentQuality;
+      chip.classList.toggle('active', active);
+      chip.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
 
     // Hydrate Notes
     const notesInput = DOM.checkin.notesInput();
     if (notesInput) notesInput.value = entry.notes || '';
 
-    if (backdrop) backdrop.classList.add('active');
+    if (backdrop) {
+      backdrop.classList.add('active');
+      backdrop.setAttribute('role', 'dialog');
+      backdrop.setAttribute('aria-modal', 'true');
+      backdrop.setAttribute('aria-label', 'Daily Check-In Drawer');
+      // Trap keyboard focus & support Escape
+      this.focusTrapHandle = FocusTrap.trap(backdrop, () => this.closeCheckin());
+    }
   }
 
   closeCheckin() {
     const backdrop = DOM.checkin.backdrop();
-    if (backdrop) backdrop.classList.remove('active');
+    if (backdrop) {
+      backdrop.classList.remove('active');
+    }
+    if (this.focusTrapHandle) {
+      this.focusTrapHandle.release();
+      this.focusTrapHandle = null;
+    }
   }
 
   async handleSave() {
