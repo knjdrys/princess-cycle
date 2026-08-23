@@ -379,22 +379,37 @@
             </div>
             <div class="form-group">
               <label class="form-label">Theme Mode</label>
-              <div class="flex gap-xs" id="theme-selector-group">
-                <button class="btn btn-secondary btn-sm active" data-theme-val="system">✨ Lavender System</button>
-                <button class="btn btn-secondary btn-sm" data-theme-val="light">☀️ Lilac Dream Light</button>
-                <button class="btn btn-secondary btn-sm" data-theme-val="dark">🌙 Midnight Orchid Dark</button>
-                <button class="btn btn-secondary btn-sm" data-theme-val="rose">🌹 Rose Blush</button>
-                <button class="btn btn-secondary btn-sm" data-theme-val="mint">🌿 Mint Fresh</button>
-                <button class="btn btn-secondary btn-sm" data-theme-val="peach">🍑 Peach Cream</button>
-                <button class="btn btn-secondary btn-sm" data-theme-val="sky">🩵 Sky Baby</button>
-                <button class="btn btn-secondary btn-sm" data-theme-val="lemon">🍋 Lemon Sun</button>
-                <button class="btn btn-secondary btn-sm" data-theme-val="cocoa">🤎 Cocoa Cozy</button>
-                <button class="btn btn-secondary btn-sm" data-theme-val="rose-dark">🌹🌙 Rose Night</button>
-                <button class="btn btn-secondary btn-sm" data-theme-val="mint-dark">🌿🌙 Mint Night</button>
-                <button class="btn btn-secondary btn-sm" data-theme-val="peach-dark">🍑🌙 Peach Night</button>
-                <button class="btn btn-secondary btn-sm" data-theme-val="sky-dark">🩵🌙 Sky Night</button>
-                <button class="btn btn-secondary btn-sm" data-theme-val="lemon-dark">🍋🌙 Lemon Night</button>
-                <button class="btn btn-secondary btn-sm" data-theme-val="cocoa-dark">🤎🌙 Cocoa Night</button>
+              <div class="theme-groups" id="theme-selector-group">
+                <div class="theme-subgroup">
+                  <span class="theme-group-label">System</span>
+                  <div class="flex gap-xs theme-group-row" data-group="system">
+                    <button class="btn btn-secondary btn-sm active" data-theme-val="system">✨ Lavender System</button>
+                  </div>
+                </div>
+                <div class="theme-subgroup">
+                  <span class="theme-group-label">☀️ Light</span>
+                  <div class="flex gap-xs theme-group-row" data-group="light">
+                    <button class="btn btn-secondary btn-sm" data-theme-val="light">☀️ Lilac Dream Light</button>
+                    <button class="btn btn-secondary btn-sm" data-theme-val="rose">🌹 Rose Blush</button>
+                    <button class="btn btn-secondary btn-sm" data-theme-val="mint">🌿 Mint Fresh</button>
+                    <button class="btn btn-secondary btn-sm" data-theme-val="peach">🍑 Peach Cream</button>
+                    <button class="btn btn-secondary btn-sm" data-theme-val="sky">🩵 Sky Baby</button>
+                    <button class="btn btn-secondary btn-sm" data-theme-val="lemon">🍋 Lemon Sun</button>
+                    <button class="btn btn-secondary btn-sm" data-theme-val="cocoa">🤎 Cocoa Cozy</button>
+                  </div>
+                </div>
+                <div class="theme-subgroup">
+                  <span class="theme-group-label">🌙 Dark</span>
+                  <div class="flex gap-xs theme-group-row" data-group="dark">
+                    <button class="btn btn-secondary btn-sm" data-theme-val="dark">🌙 Midnight Orchid Dark</button>
+                    <button class="btn btn-secondary btn-sm" data-theme-val="rose-dark">🌹🌙 Rose Night</button>
+                    <button class="btn btn-secondary btn-sm" data-theme-val="mint-dark">🌿🌙 Mint Night</button>
+                    <button class="btn btn-secondary btn-sm" data-theme-val="peach-dark">🍑🌙 Peach Night</button>
+                    <button class="btn btn-secondary btn-sm" data-theme-val="sky-dark">🩵🌙 Sky Night</button>
+                    <button class="btn btn-secondary btn-sm" data-theme-val="lemon-dark">🍋🌙 Lemon Night</button>
+                    <button class="btn btn-secondary btn-sm" data-theme-val="cocoa-dark">🤎🌙 Cocoa Night</button>
+                  </div>
+                </div>
               </div>
             </div>
 
