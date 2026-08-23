@@ -143,6 +143,7 @@ class PrincessCycleApp {
     this.wirePeriodTodayButton();
     this.wireSleepTrackingActions();
     this.wireRelaxationTriggers();
+    this.wireHeaderSettingsButton();
     this.wireAffirmationsAndSpicyMode();
     this.wireHydrationAndCrystal();
     this.wirePWA();
@@ -603,18 +604,27 @@ class PrincessCycleApp {
   wireRelaxationTriggers() {
     const headerBtn = DOM.relaxation.headerBtn();
     const sidebarBtn = DOM.relaxation.sidebarBtn();
-    const closeBtn = DOM.relaxation.closeBtn();
-    const backdrop = DOM.relaxation.backdrop();
 
     const openRelaxation = () => {
-      relaxationPacer.start();
+      // showModal() builds the pacer modal, wires its controls, then
+      // auto-starts breathing. Calling start() alone targeted DOM that
+      // didn't exist yet — the button appeared completely dead.
+      relaxationPacer.showModal();
     };
 
     if (headerBtn) headerBtn.addEventListener('click', openRelaxation);
     if (sidebarBtn) sidebarBtn.addEventListener('click', openRelaxation);
-    if (closeBtn) closeBtn.addEventListener('click', () => relaxationPacer.stop());
-    if (backdrop) backdrop.addEventListener('click', (e) => {
-      if (e.target === backdrop) relaxationPacer.stop();
+  }
+
+  wireHeaderSettingsButton() {
+    // The mobile-header gear was never wired to any handler — dead button.
+    // Route it to the settings view like every other nav element.
+    const settingsBtn = DOM.nav.headerSettings();
+    if (!settingsBtn) return;
+
+    settingsBtn.addEventListener('click', () => {
+      soundFx.playChime('tap');
+      this.router.navigateTo('settings', true);
     });
   }
 

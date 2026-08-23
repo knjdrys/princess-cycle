@@ -68,7 +68,27 @@ export class RelaxationPacer {
     const closeModal = () => {
       this.stop();
       backdrop.classList.remove('active');
+      if (this.pacerEscapeHandler) {
+        document.removeEventListener('keydown', this.pacerEscapeHandler);
+        this.pacerEscapeHandler = null;
+      }
+      if (this.pacerBackdropHandler) {
+        backdrop.removeEventListener('click', this.pacerBackdropHandler);
+        this.pacerBackdropHandler = null;
+      }
     };
+
+    // Escape closes the pacer (accessibility: keyboard users can always exit)
+    this.pacerEscapeHandler = (e) => {
+      if (e.key === 'Escape') closeModal();
+    };
+    document.addEventListener('keydown', this.pacerEscapeHandler);
+
+    // Backdrop click closes (only when clicking the overlay itself)
+    this.pacerBackdropHandler = (e) => {
+      if (e.target === backdrop) closeModal();
+    };
+    backdrop.addEventListener('click', this.pacerBackdropHandler);
 
     backdrop.querySelector('#close-pacer-btn').addEventListener('click', closeModal);
     backdrop.querySelector('#btn-toggle-pacer').addEventListener('click', () => {
@@ -82,6 +102,10 @@ export class RelaxationPacer {
     backdrop.querySelector('#btn-reset-pacer').addEventListener('click', () => {
       this.reset();
     });
+
+    // Auto-start: opening the pacer means "guide me now".
+    this.reset();
+    this.start();
   }
 
   start() {

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>PrincessCycle — Cache Refresh</title></head>
+<body style="font-family: sans-serif; padding: 2rem; background:#FAF7FF; color:#28193D;">
+  <h2>Refreshing PrincessCycle…</h2>
+  <pre id="log">Starting…</pre>
+  <script>
+    (async () => {
+      const log = document.getElementById('log');
+      const lines = [];
+      try {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for (const r of regs) await r.unregister();
+        lines.push('Unregistered service workers: ' + regs.length);
+        const keys = await caches.keys();
+        for (const k of keys) await caches.delete(k);
+        lines.push('Deleted caches: ' + keys.join(', '));
+      } catch (e) {
+        lines.push('Error: ' + e.message);
+      }
+      log.textContent = lines.join('\n');
+      setTimeout(() => { location.href = '/index.html'; }, 900);
+    })();
+  </script>
+</body>
+</html>
