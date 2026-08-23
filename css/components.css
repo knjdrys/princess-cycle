@@ -4,6 +4,59 @@
  */
 
 /* ==========================================================================
+   Command Bar (21st.dev-inspired: search + inline actions)
+   ========================================================================== */
+.command-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin: var(--space-md) 0 var(--space-sm);
+  padding: 0 0.625rem;
+  height: 40px;
+  background: var(--bg-surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.command-bar:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-glow);
+}
+.command-bar-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+.command-bar-input {
+  flex: 1;
+  min-width: 0;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+}
+.command-bar-input::placeholder { color: var(--text-tertiary); }
+.command-bar-input:focus { outline: none !important; box-shadow: none !important; }
+.command-bar-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+.command-bar-action:hover { background: var(--bg-surface-hover); color: var(--color-primary); }
+
+/* ==========================================================================
    Card System
    ========================================================================== */
 .card {

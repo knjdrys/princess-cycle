@@ -144,6 +144,7 @@ class PrincessCycleApp {
     this.wireSleepTrackingActions();
     this.wireRelaxationTriggers();
     this.wireHeaderSettingsButton();
+    this.wireCommandBar();
     this.wireAffirmationsAndSpicyMode();
     this.wireHydrationAndCrystal();
     this.wirePWA();
@@ -626,6 +627,39 @@ class PrincessCycleApp {
       soundFx.playChime('tap');
       this.router.navigateTo('settings', true);
     });
+  }
+
+  wireCommandBar() {
+    const search = document.getElementById('global-search');
+    if (search) {
+      search.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && search.value.trim()) {
+          // Route to History filtered by the query (real, persisted behavior)
+          this.router.navigateTo('history', true);
+          const historySearch = document.getElementById('history-search');
+          if (historySearch) {
+            historySearch.value = search.value.trim();
+            historySearch.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+          search.value = '';
+        }
+      });
+    }
+
+    const themeToggle = document.getElementById('command-theme-toggle');
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        UI.applyTheme(next);
+        // Persist via the same path as the settings theme selector
+        try {
+          const user = store.getState().user || {};
+          store.updateState({ user: { ...user, theme: next } });
+          storage.saveState(store.getState());
+        } catch (_) { /* storage best-effort */ }
+      });
+    }
   }
 
   wirePWA() {
