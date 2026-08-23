@@ -66,7 +66,7 @@ export class FairySparkles {
   }
 
   burst(x, y, count = 10) {
-    const colors = ['#C4B5FD', '#F472B6', '#FDE047', '#9061F9', '#FFFFFF'];
+    const colors = ['#C4B5FD', '#EC4899', '#FDE047', '#7C3AED', '#FFFFFF'];
     for (let i = 0; i < count; i++) {
       const speed = Math.random() * 3 + 1;
       const angle = Math.random() * Math.PI * 2;

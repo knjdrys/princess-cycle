@@ -1,75 +1,78 @@
 /**
- * PrincessCycle - Dreamy Lilac & Artistic Pastel Design System
- * Tailored for a vibrant, artistic, emotional 21-year-old Princess
- * Palette: Lilac Purple, Lavender Mist, Pastel Orchid, Cotton Candy Violet & Soft Rose
+ * PrincessCycle — Design Tokens
+ * Modern product aesthetic (21st.dev / shadcn-inspired): calm neutrals,
+ * one confident primary, border-based elevation, tight radii.
+ *
+ * TOKEN NAMES ARE STABLE API: templates (HTML/JS) reference these names,
+ * so values can evolve without touching markup.
  */
 
 :root {
   /* ==========================================================================
-     Core Lilac & Violet Color Palette
+     Core Palette — Violet primary on quiet neutral-lilac surfaces
      ========================================================================== */
-  --color-primary: #9061F9;           /* Vibrant Dreamy Lilac */
-  --color-primary-hover: #7C3AED;     /* Deep Royal Lilac */
-  --color-primary-light: #EDE9FE;     /* Pastel Lilac Mist */
-  --color-primary-glow: rgba(144, 97, 249, 0.28);
-  --color-primary-soft: #DDD6FE;      /* Soft Lavender */
+  --color-primary: #7C3AED;            /* Violet 600 — AA on white */
+  --color-primary-hover: #6D28D9;      /* Violet 700 */
+  --color-primary-light: #EDE9FE;      /* Violet 100 — tint surfaces */
+  --color-primary-glow: rgba(124, 58, 237, 0.22);
+  --color-primary-soft: #DDD6FE;       /* Violet 200 */
 
-  --color-secondary: #C084FC;         /* Soft Pastel Orchid */
-  --color-accent: #F472B6;            /* Strawberry Blossom Pink */
-  --color-sparkle: #FDE047;           /* Fairy Gold Sparkle */
+  --color-secondary: #A78BFA;          /* Violet 400 — decorative accents */
+  --color-accent: #EC4899;             /* Pink 500 — highlights only */
+  --color-sparkle: #F59E0B;            /* Amber 500 */
 
-  /* Neutral Backgrounds (Cloud & Milk Lavender) */
-  --bg-app: #FAF7FF;                  /* Ethereal Lavender Ivory */
-  --bg-surface: #FFFFFF;              /* Cloud White */
-  --bg-surface-subtle: #F5EEFF;       /* Soft Lilac Tint */
-  --bg-surface-hover: #EFE5FD;        /* Lavender Petal */
-  --bg-surface-elevated: #FFFFFF;     /* Floating Card */
+  /* Neutrals (barely-lilac gray scale) */
+  --bg-app: #F7F6FB;
+  --bg-surface: #FFFFFF;
+  --bg-surface-subtle: #F4F2FA;
+  --bg-surface-hover: #ECE9F6;
+  --bg-surface-elevated: #FFFFFF;
 
-  /* Typography Colors */
-  --text-primary: #28193D;            /* Deep Midnight Plum */
-  --text-secondary: #5F4E75;          /* Muted Lilac Slate */
-  --text-tertiary: #6E5D88;           /* High-Contrast Soft Lavender Slate (WCAG AA Compliant) */
-  --text-inverse: #FFFFFF;            /* Pure White */
+  /* Typography colors */
+  --text-primary: #1B1727;             /* near-black plum */
+  --text-secondary: #56506B;
+  --text-tertiary: #6E6885;            /* AA on white */
+  --text-inverse: #FFFFFF;
 
   /* Borders & Dividers */
-  --border-subtle: #E9DEFA;           /* Whispering Lilac */
-  --border-medium: #D8C5F4;           /* Soft Lavender Outline */
-  --border-focus: #9061F9;
+  --border-subtle: #E7E4F2;
+  --border-medium: #D5D0E8;
+  --border-focus: #7C3AED;
 
   /* ==========================================================================
-     The 4 Menstrual Phase Accents (Artistic Pastel Tones)
+     The 4 Menstrual Phase Accents (soft filled badge system)
      ========================================================================== */
-  --phase-menstruation: #F472B6;       /* Blossom Rose Pink */
+  --phase-menstruation: #EC4899;
   --phase-menstruation-bg: #FDF2F8;
   --phase-menstruation-text: #BE185D;
   --phase-menstruation-border: #FBCFE8;
 
-  --phase-follicular: #A78BFA;         /* Radiant Lilac Fairy */
-  --phase-follicular-bg: #F5EEFF;
+  --phase-follicular: #8B5CF6;
+  --phase-follicular-bg: #F5F3FF;
   --phase-follicular-text: #6D28D9;
   --phase-follicular-border: #DDD6FE;
 
-  --phase-ovulation: #FBBF24;          /* Warm Sunbeam & Gold Honey */
-  --phase-ovulation-bg: #FEF3C7;
+  --phase-ovulation: #F59E0B;
+  --phase-ovulation-bg: #FFFBEB;
   --phase-ovulation-text: #B45309;
   --phase-ovulation-border: #FDE68A;
 
-  --phase-luteal: #818CF8;             /* Dreamy Twilight Periwinkle */
+  --phase-luteal: #6366F1;
   --phase-luteal-bg: #EEF2FF;
   --phase-luteal-text: #4338CA;
   --phase-luteal-border: #C7D2FE;
 
-  /* Success & Alert */
-  --color-success: #34D399;
+  /* Status */
+  --color-success: #059669;            /* AA text on light */
   --color-success-bg: #ECFDF5;
-  --color-danger: #FB7185;
+  --color-danger: #E11D48;
   --color-danger-bg: #FFF1F2;
 
   /* ==========================================================================
-     Typography
+     Typography — Plus Jakarta Sans (body) + Quicksand (display)
      ========================================================================== */
-  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Quicksand", "Nunito", "Outfit", sans-serif;
-  --font-family-display: -apple-system, BlinkMacSystemFont, "Quicksand", "Comfortaa", "Nunito", sans-serif;
+  --font-family-base: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-display: 'Quicksand', 'Plus Jakarta Sans', -apple-system, sans-serif;
 
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.84375rem;
@@ -81,12 +84,14 @@
   --font-size-3xl: 2.35rem;
 
   --font-weight-normal: 450;
-  --font-weight-medium: 600;
-  --font-weight-semibold: 700;
-  --font-weight-bold: 800;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --letter-spacing-wide: 0.025em;
 
   /* ==========================================================================
-     Spacings & Soft Pillow Radiuses
+     Spacing
      ========================================================================== */
   --space-2xs: 0.25rem;
   --space-xs: 0.5rem;
@@ -96,67 +101,103 @@
   --space-xl: 1.75rem;
   --space-2xl: 2.5rem;
 
-  --radius-xs: 8px;
-  --radius-sm: 12px;
-  --radius-md: 18px;
-  --radius-lg: 24px;
-  --radius-xl: 32px;
+  /* ==========================================================================
+     Radii — tight & modern (the single biggest "premium" signal)
+     ========================================================================== */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-btn: 10px;
   --radius-full: 9999px;
 
   /* ==========================================================================
-     Dreamy Lilac Glow Shadows
+     Elevation — quiet, border-first
      ========================================================================== */
-  --shadow-sm: 0 3px 12px rgba(144, 97, 249, 0.08);
-  --shadow-md: 0 8px 24px rgba(144, 97, 249, 0.12), 0 2px 8px rgba(0, 0, 0, 0.02);
-  --shadow-lg: 0 16px 36px rgba(144, 97, 249, 0.18), 0 4px 12px rgba(192, 132, 252, 0.15);
-  --shadow-sheet: 0 -12px 40px rgba(144, 97, 249, 0.2);
+  --shadow-sm: 0 1px 2px rgba(27, 23, 39, 0.05);
+  --shadow-md: 0 2px 6px rgba(27, 23, 39, 0.06), 0 8px 24px rgba(124, 58, 237, 0.07);
+  --shadow-lg: 0 4px 12px rgba(27, 23, 39, 0.08), 0 16px 40px rgba(124, 58, 237, 0.1);
+  --shadow-sheet: 0 -8px 32px rgba(27, 23, 39, 0.16);
 
-  --transition-fast: 160ms cubic-bezier(0.34, 1.56, 0.64, 1);
-  --transition-normal: 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: 240ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Motion */
+  --cute-bounce: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* App background — barely-there gradient */
+  --bg-cute-gradient: linear-gradient(180deg, #F8F7FC 0%, #F5F3FA 100%);
+  --bg-card-glass: rgba(255, 255, 255, 0.96);
+  --bg-header-glass: rgba(255, 255, 255, 0.85);
+  --bg-sidebar-glass: rgba(250, 249, 253, 0.94);
+  --bg-bottom-nav: rgba(255, 255, 255, 0.92);
+  --bg-chip: var(--bg-surface-subtle);
+  --bg-input: #FFFFFF;
+  --bg-modal: var(--bg-surface);
+  --border-card: var(--border-subtle);
+  --border-card-hover: var(--border-medium);
 
   --min-tap-target: 44px;
 }
 
 /* ==========================================================================
-   Dreamy Dark Mode (Midnight Lilac Orchid)
+   Dark Mode — true near-black, violet-forward
    ========================================================================== */
 [data-theme="dark"] {
-  --bg-app: #120D1D;                  /* Deep Violet Abyss */
-  --bg-surface: #1C152B;              /* Velvet Lilac */
-  --bg-surface-subtle: #271E3C;       /* Midnight Plum */
-  --bg-surface-hover: #342750;
-  --bg-surface-elevated: #241B37;
+  --bg-app: #0F0C16;
+  --bg-surface: #17131F;
+  --bg-surface-subtle: #1F1A2B;
+  --bg-surface-hover: #292138;
+  --bg-surface-elevated: #1D1826;
 
-  --text-primary: #F5EEFF;            /* Starlight Lavender */
-  --text-secondary: #C8B8E2;          /* Soft Lilac Mist */
-  --text-tertiary: #8F7CA8;           /* Muted Violet */
+  --text-primary: #F2EFFA;
+  --text-secondary: #B9B3CC;
+  --text-tertiary: #8B849F;
 
-  --border-subtle: #362953;
-  --border-medium: #4B3972;
-  --border-focus: #C084FC;
+  --border-subtle: #272036;
+  --border-medium: #382F4E;
+  --border-focus: #A78BFA;
 
   --color-primary: #A78BFA;
   --color-primary-hover: #C4B5FD;
-  --color-primary-light: rgba(167, 139, 250, 0.2);
-  --color-primary-glow: rgba(167, 139, 250, 0.4);
+  --color-primary-light: rgba(167, 139, 250, 0.14);
+  --color-primary-glow: rgba(167, 139, 250, 0.3);
+  --color-primary-soft: rgba(167, 139, 250, 0.25);
 
-  --phase-menstruation-bg: rgba(244, 114, 182, 0.18);
-  --phase-menstruation-text: #F472B6;
-  --phase-menstruation-border: rgba(244, 114, 182, 0.35);
+  --color-success: #4ADE80;
+  --color-success-bg: #10241A;
+  --color-danger: #FB7185;
+  --color-danger-bg: #2A1220;
 
-  --phase-follicular-bg: rgba(167, 139, 250, 0.18);
+  --phase-menstruation-bg: rgba(236, 72, 153, 0.14);
+  --phase-menstruation-text: #F9A8D4;
+  --phase-menstruation-border: rgba(236, 72, 153, 0.35);
+
+  --phase-follicular-bg: rgba(139, 92, 246, 0.14);
   --phase-follicular-text: #C4B5FD;
-  --phase-follicular-border: rgba(167, 139, 250, 0.35);
+  --phase-follicular-border: rgba(139, 92, 246, 0.35);
 
-  --phase-ovulation-bg: rgba(251, 191, 36, 0.18);
-  --phase-ovulation-text: #FDE68A;
-  --phase-ovulation-border: rgba(251, 191, 36, 0.35);
+  --phase-ovulation-bg: rgba(245, 158, 11, 0.14);
+  --phase-ovulation-text: #FCD34D;
+  --phase-ovulation-border: rgba(245, 158, 11, 0.35);
 
-  --phase-luteal-bg: rgba(129, 140, 248, 0.18);
-  --phase-luteal-text: #C7D2FE;
-  --phase-luteal-border: rgba(129, 140, 248, 0.35);
+  --phase-luteal-bg: rgba(99, 102, 241, 0.16);
+  --phase-luteal-text: #A5B4FC;
+  --phase-luteal-border: rgba(99, 102, 241, 0.4);
 
-  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.55);
-  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.65);
+  --bg-cute-gradient: linear-gradient(180deg, #0F0C16 0%, #120E1B 100%);
+  --bg-card-glass: rgba(23, 19, 31, 0.92);
+  --bg-header-glass: rgba(15, 12, 22, 0.85);
+  --bg-sidebar-glass: rgba(18, 14, 27, 0.95);
+  --bg-bottom-nav: rgba(18, 14, 27, 0.92);
+  --bg-chip: rgba(41, 33, 56, 0.7);
+  --bg-input: #1C1728;
+  --bg-modal: #17131F;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.55);
+  --shadow-sheet: 0 -8px 32px rgba(0, 0, 0, 0.6);
 }

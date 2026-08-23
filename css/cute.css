@@ -1,56 +1,13 @@
 /**
- * PrincessCycle — Design System Layer ✨
- * Loaded LAST: refines the base component styles into one cohesive,
- * premium visual language (modern product aesthetic — restrained
- * elevation, purposeful motion, glass reserved for navigation chrome).
+ * PrincessCycle — Design System Refinement Layer
+ * Loaded LAST. Applies the modern component aesthetic (21st.dev /
+ * shadcn-inspired): flat solid buttons, bordered calm cards, tight
+ * interactive states, glass reserved for navigation chrome.
  *
- * NOTE: This file loads after components.css, so equal-specificity rules
- * here win the cascade naturally. !important is used ONLY against inline
- * style attributes present in markup.
+ * !important appears ONLY where markup carries inline styles.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap');
-
-/* ============================================================
-   Design Tokens
-   ============================================================ */
-:root {
-  --font-family-base: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family-display: 'Comfortaa', 'Nunito', -apple-system, sans-serif;
-
-  /* Motion — quick and subtle; springs reserved for interactive elements */
-  --cute-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-
-  /* Surfaces */
-  --bg-cute-gradient: linear-gradient(160deg, #FAF7FF 0%, #FDF4FA 40%, #F5EEFF 100%);
-  --bg-card-glass: rgba(255, 255, 255, 0.94);
-  --bg-header-glass: rgba(255, 255, 255, 0.82);
-  --bg-sidebar-glass: rgba(252, 249, 255, 0.92);
-  --bg-bottom-nav: rgba(255, 255, 255, 0.9);
-  --bg-chip: var(--bg-surface-subtle);
-  --bg-input: #FFFFFF;
-  --bg-modal: var(--bg-surface);
-  --border-card: rgba(167, 139, 250, 0.22);
-  --border-card-hover: rgba(144, 97, 249, 0.45);
-
-  /* Elevation — layered, low-ambiance */
-  --elev-1: 0 1px 2px rgba(40, 25, 61, 0.04), 0 2px 8px rgba(144, 97, 249, 0.06);
-  --elev-2: 0 2px 6px rgba(40, 25, 61, 0.05), 0 8px 24px rgba(144, 97, 249, 0.1);
-  --elev-3: 0 4px 12px rgba(40, 25, 61, 0.08), 0 16px 40px rgba(144, 97, 249, 0.14);
-}
-
-[data-theme="dark"] {
-  --bg-cute-gradient: linear-gradient(160deg, #120D1D 0%, #161021 55%, #130E20 100%);
-  --bg-card-glass: rgba(30, 22, 47, 0.85);
-  --bg-header-glass: rgba(20, 14, 33, 0.85);
-  --bg-sidebar-glass: rgba(23, 16, 37, 0.94);
-  --bg-bottom-nav: rgba(23, 16, 37, 0.9);
-  --bg-chip: rgba(43, 31, 67, 0.7);
-  --bg-input: rgba(35, 25, 55, 0.9);
-  --border-card: rgba(167, 139, 250, 0.18);
-  --border-card-hover: rgba(192, 132, 252, 0.5);
-}
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Quicksand:wght@500;600;700&display=swap');
 
 /* ============================================================
    Foundation
@@ -59,41 +16,61 @@ body {
   background: var(--bg-cute-gradient) fixed !important;
   font-family: var(--font-family-base) !important;
   color: var(--text-primary) !important;
+  font-size: var(--font-size-base);
+  line-height: 1.55;
 }
 
-h1, h2, h3, h4, .brand-title {
+h1, h2, h3, h4 {
   font-family: var(--font-family-display) !important;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+.brand-title {
+  font-family: var(--font-family-display) !important;
+  font-weight: 700 !important;
   letter-spacing: -0.01em;
+  /* Solid brand color — no gradient text (AI-tell) */
+  background: none !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
 }
 
 /* ============================================================
-   Navigation Chrome — the ONLY glassmorphic surfaces
+   Navigation chrome — subtle glass, hairline borders
    ============================================================ */
 .app-header,
-.bottom-nav {
-  background: var(--bg-header-glass) !important;
-  backdrop-filter: blur(16px) saturate(1.5);
-  -webkit-backdrop-filter: blur(16px) saturate(1.5);
-  border-color: var(--border-card) !important;
-}
-.app-header { box-shadow: var(--elev-1); }
-.bottom-nav { background: var(--bg-bottom-nav) !important; box-shadow: 0 -4px 20px rgba(144, 97, 249, 0.08); }
-
+.bottom-nav,
 .sidebar {
-  background: var(--bg-sidebar-glass) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-right: 1px solid var(--border-card) !important;
+  background: var(--bg-header-glass) !important;
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+}
+.sidebar { background: var(--bg-sidebar-glass) !important; }
+.bottom-nav { background: var(--bg-bottom-nav) !important; }
+
+.app-header {
+  border-bottom: 1px solid var(--border-subtle) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+.bottom-nav {
+  border-top: 1px solid var(--border-subtle) !important;
+  border-radius: 16px 16px 0 0 !important;
+  box-shadow: 0 -4px 20px rgba(27, 23, 39, 0.06) !important;
+}
+.sidebar {
+  border-right: 1px solid var(--border-subtle) !important;
+  box-shadow: none !important;
 }
 
 .sidebar-link,
 .nav-item {
+  border-radius: var(--radius-md);
   color: var(--text-secondary);
-  transition: background-color 160ms var(--ease-out), color 160ms var(--ease-out);
+  transition: background-color 140ms var(--ease-out), color 140ms var(--ease-out);
 }
 .sidebar-link:hover,
 .nav-item:hover {
-  background: var(--bg-surface-subtle);
+  background: var(--bg-surface-hover);
   color: var(--text-primary);
 }
 .sidebar-link.active,
@@ -104,83 +81,104 @@ h1, h2, h3, h4, .brand-title {
 }
 
 /* ============================================================
-   Cards — calm by default; elevation is static, not animated.
-   (Hover-lift on static content cards reads as noise.)
+   Cards — bordered, calm, static elevation
    ============================================================ */
 .card {
-  background: var(--bg-card-glass) !important;
+  background: var(--bg-surface) !important;
   border: 1px solid var(--border-card) !important;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--elev-1);
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-sm) !important;
+  overflow: hidden;
 }
 
 .card-hero {
   background:
-    radial-gradient(120% 90% at 50% 0%, rgba(167, 139, 250, 0.08) 0%, transparent 60%),
+    radial-gradient(120% 100% at 50% 0%, var(--color-primary-light) 0%, transparent 55%),
     var(--bg-surface) !important;
   border: 1px solid var(--border-card) !important;
-  box-shadow: var(--elev-2);
+  box-shadow: var(--shadow-sm) !important;
 }
 
 /* ============================================================
-   Buttons — consistent anatomy, tactile but not bouncy
+   Buttons — shadcn-style anatomy: solid / outline / ghost / danger
    ============================================================ */
 .btn {
-  font-weight: 700;
-  transition: background-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out),
-              border-color 150ms var(--ease-out), transform 120ms var(--ease-out);
+  font-weight: 600;
+  border-radius: var(--radius-btn) !important;
+  transition: background-color 130ms var(--ease-out),
+              border-color 130ms var(--ease-out),
+              box-shadow 130ms var(--ease-out),
+              transform 100ms var(--ease-out);
 }
-.btn:active { transform: translateY(0) scale(0.98); }
+.btn:active { transform: translateY(0.5px); }
 
 .btn-primary {
-  background: linear-gradient(135deg, #9061F9 0%, #A855F7 100%) !important;
+  background: var(--color-primary) !important;
+  background-image: none !important;
   border: none !important;
   color: #fff !important;
-  box-shadow: 0 2px 10px rgba(144, 97, 249, 0.32);
+  box-shadow: var(--shadow-sm) !important;
 }
 .btn-primary:hover {
-  background: linear-gradient(135deg, #7C3AED 0%, #9061F9 100%) !important;
-  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
+  background: var(--color-primary-hover) !important;
+  box-shadow: var(--shadow-md) !important;
 }
 
 .btn-secondary {
-  background: var(--bg-chip) !important;
-  border: 1px solid var(--border-card) !important;
+  background: var(--bg-surface) !important;
+  background-image: none !important;
+  border: 1px solid var(--border-medium) !important;
+  color: var(--text-primary) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+.btn-secondary:hover {
+  background: var(--bg-surface-subtle) !important;
+  border-color: var(--border-medium) !important;
+}
+.btn-secondary.active {
+  background: var(--color-primary-light) !important;
+  border-color: var(--color-primary) !important;
   color: var(--color-primary) !important;
 }
-.btn-secondary:hover { border-color: var(--border-card-hover) !important; }
 
-.btn-ghost:hover { background: var(--bg-surface-subtle) !important; color: var(--text-primary) !important; }
+.btn-ghost {
+  background: transparent !important;
+  color: var(--text-secondary) !important;
+}
+.btn-ghost:hover {
+  background: var(--bg-surface-hover) !important;
+  color: var(--text-primary) !important;
+}
 
 .btn-danger {
-  background: var(--color-danger-bg) !important;
-  color: var(--color-danger) !important;
-  border: 1px solid rgba(251, 113, 133, 0.3) !important;
+  background: var(--color-danger) !important;
+  border: none !important;
+  color: #fff !important;
 }
-.btn-danger:hover { background: var(--color-danger) !important; color: #fff !important; }
+.btn-danger:hover { background: #BE123C !important; }
 
 /* ============================================================
-   Chips — solid selected state, no scale-jitter
+   Chips — quiet pills; selected = tinted fill + ring
    ============================================================ */
 .chip {
   background: var(--bg-chip) !important;
-  border: 1px solid var(--border-card) !important;
+  border: 1px solid transparent !important;
   color: var(--text-secondary) !important;
-  font-weight: 600;
-  transition: background-color 140ms var(--ease-out), border-color 140ms var(--ease-out),
-              color 140ms var(--ease-out);
+  font-weight: 500;
+  transition: background-color 120ms var(--ease-out), border-color 120ms var(--ease-out),
+              color 120ms var(--ease-out);
 }
 .chip:hover {
   background: var(--bg-surface-hover) !important;
-  border-color: var(--border-card-hover) !important;
   color: var(--text-primary) !important;
 }
 .chip.active,
 .chip[aria-pressed="true"] {
-  background: var(--color-primary) !important;
+  background: var(--color-primary-light) !important;
   border-color: var(--color-primary) !important;
-  color: #fff !important;
-  box-shadow: 0 2px 8px rgba(144, 97, 249, 0.3);
+  color: var(--color-primary) !important;
+  font-weight: 700;
+  box-shadow: none !important;
 }
 
 .energy-btn.active,
@@ -190,46 +188,49 @@ h1, h2, h3, h4, .brand-title {
 }
 
 /* ============================================================
-   Inputs
+   Inputs — flat, hairline, focus ring on primary
    ============================================================ */
 input[type="text"], input[type="date"], input[type="time"], input[type="number"],
 select, textarea, .form-control {
   background: var(--bg-input) !important;
   border: 1px solid var(--border-medium) !important;
-  border-radius: var(--radius-sm) !important;
+  border-radius: var(--radius-btn) !important;
   color: var(--text-primary) !important;
-  transition: border-color 140ms var(--ease-out), box-shadow 140ms var(--ease-out);
+  transition: border-color 130ms var(--ease-out), box-shadow 130ms var(--ease-out);
 }
+input::placeholder, textarea::placeholder { color: var(--text-tertiary); }
 input:focus, select:focus, textarea:focus, .form-control:focus {
   border-color: var(--color-primary) !important;
-  box-shadow: 0 0 0 3px rgba(144, 97, 249, 0.15) !important;
+  box-shadow: 0 0 0 3px var(--color-primary-glow) !important;
   outline: none !important;
 }
 
 /* ============================================================
-   Modals & Sheets
+   Modals & sheets — clean elevated panels
    ============================================================ */
 .sheet-backdrop, .modal-backdrop, .pin-lock-backdrop {
-  background-color: rgba(18, 13, 29, 0.55) !important;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background-color: rgba(15, 12, 22, 0.5) !important;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 .sheet-container, .modal-container {
   background: var(--bg-modal) !important;
-  border: 1px solid var(--border-card) !important;
-  box-shadow: var(--elev-3) !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: var(--shadow-lg) !important;
 }
+.sheet-handle { background: var(--border-medium) !important; }
 
 /* ============================================================
-   Toasts — quiet, readable
+   Toasts
    ============================================================ */
 .toast {
   background: var(--bg-surface-elevated) !important;
+  background-image: none !important;
   color: var(--text-primary) !important;
   border: 1px solid var(--border-card) !important;
   border-radius: var(--radius-md) !important;
-  box-shadow: var(--elev-3) !important;
-  font-weight: 600;
+  box-shadow: var(--shadow-lg) !important;
+  font-weight: 500;
 }
 
 /* ============================================================
@@ -237,31 +238,31 @@ input:focus, select:focus, textarea:focus, .form-control:focus {
    ============================================================ */
 .calendar-day {
   border-radius: var(--radius-sm) !important;
-  font-weight: 600;
-  transition: background-color 120ms var(--ease-out), box-shadow 120ms var(--ease-out);
+  font-weight: 500;
 }
 .calendar-day.today { box-shadow: inset 0 0 0 2px var(--color-primary) !important; }
 .calendar-day.selected { outline: 2px solid var(--color-primary); outline-offset: 1px; }
 
 /* ============================================================
-   Ambient decoration — soft, few, slow
+   Cycle dial — crisp ring, no glow
    ============================================================ */
-.cute-orb { animation: float-orb 18s ease-in-out infinite; }
+.beacon-orb { box-shadow: 0 0 0 3px var(--bg-surface), 0 0 0 5px var(--color-primary) !important; }
+
+/* Ambient orbs — nearly imperceptible depth */
+.cute-orb { opacity: 0.5; animation: float-orb 24s ease-in-out infinite; }
 @keyframes float-orb {
   0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-18px); }
+  50%      { transform: translateY(-14px); }
 }
 
+/* Scrollbar */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-  background: rgba(167, 139, 250, 0.4);
-  border-radius: 99px;
-}
-::-webkit-scrollbar-thumb:hover { background: rgba(144, 97, 249, 0.65); }
+::-webkit-scrollbar-thumb { background: rgba(124, 58, 237, 0.3); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(124, 58, 237, 0.55); }
 
 /* ============================================================
-   Accessibility — focus visibility & reduced motion
+   Accessibility
    ============================================================ */
 :focus-visible {
   outline: 2px solid var(--color-primary);

@@ -389,13 +389,13 @@ export class InsightsController {
     drawCurve('#818CF8', 'fshNorm', 2.0);
     drawCurve('#FBBF24', 'lhNorm', 2.0);
     drawCurve('#C084FC', 'progesteroneNorm', 3.0);
-    drawCurve('#F472B6', 'estrogenNorm', 3.0);
+    drawCurve('#EC4899', 'estrogenNorm', 3.0);
 
     const safeDay = Math.max(1, Math.min(currentDay, cycleLength));
     const currentX = padding.left + ((safeDay - 1) / (cycleLength - 1)) * chartW;
 
     const computedStyle = getComputedStyle(document.documentElement);
-    const primaryColor = computedStyle.getPropertyValue('--color-primary').trim() || '#9061F9';
+    const primaryColor = computedStyle.getPropertyValue('--color-primary').trim() || '#7C3AED';
     const textSecondary = computedStyle.getPropertyValue('--text-secondary').trim() || '#C8B8E2';
 
     ctx.strokeStyle = primaryColor;
@@ -465,7 +465,7 @@ export class InsightsController {
     const textTertiary = computedStyle.getPropertyValue('--text-tertiary').trim() || '#8F7CA8';
     const textSecondary = computedStyle.getPropertyValue('--text-secondary').trim() || '#C8B8E2';
     const textPrimary = computedStyle.getPropertyValue('--text-primary').trim() || '#F5EEFF';
-    const primaryColor = computedStyle.getPropertyValue('--color-primary').trim() || '#9061F9';
+    const primaryColor = computedStyle.getPropertyValue('--color-primary').trim() || '#7C3AED';
 
     ctx.strokeStyle = borderSubtle;
     ctx.lineWidth = 1;
@@ -545,7 +545,7 @@ export class InsightsController {
     const computedStyle = getComputedStyle(document.documentElement);
     const textColor = computedStyle.getPropertyValue('--text-primary').trim() || '#F5EEFF';
     const textSecondary = computedStyle.getPropertyValue('--text-secondary').trim() || '#C8B8E2';
-    const moodBarColor = '#F472B6';
+    const moodBarColor = '#EC4899';
     const symptomBarColor = '#C084FC';
 
     items.forEach((item, index) => {
