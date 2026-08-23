@@ -113,7 +113,7 @@
         <div class="flex items-center gap-xs" style="margin-bottom: 4px; color: var(--color-primary);">
           <span>💜 100% Private on Your Device</span>
         </div>
-        <div>PrincessCycle v1.0.0</div>
+        <div id="app-version-label">PrincessCycle v1.1.0</div>
       </div>
     </aside>
 
@@ -389,6 +389,27 @@
             </div>
           </div>
 
+          <!-- Gentle Reminders -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Gentle Reminders 🔔</h3>
+                <p class="card-subtitle">Optional, respectful nudges — never alarms</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="switch-label">
+                <div>
+                  <span style="font-size: 0.875rem; font-weight: 600;">Upcoming Period Reminder</span>
+                  <div style="font-size: 0.75rem; color: var(--text-tertiary);">A gentle heads-up ~2 days before your estimated period</div>
+                </div>
+                <input type="checkbox" class="switch-input" id="setting-notifications-toggle">
+                <div class="switch-track"><div class="switch-thumb"></div></div>
+              </label>
+            </div>
+            <p class="form-hint" id="notifications-permission-hint">Uses your device's notification permission. Everything stays on-device.</p>
+          </div>
+
           <!-- Privacy & Data Management -->
           <div class="card">
             <div class="card-header">
@@ -420,7 +441,7 @@
           <div class="card">
             <div class="card-header">
               <h3 class="card-title">About PrincessCycle 🌸</h3>
-              <span style="font-size: 0.75rem; color: var(--text-tertiary);">v1.0.0</span>
+              <span style="font-size: 0.75rem; color: var(--text-tertiary);" id="about-version-label">v1.1.0</span>
             </div>
             <p style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: var(--space-sm);">
               PrincessCycle is designed for personal menstrual and sleep awareness. Predictions are mathematical estimations based on past logged cycles and vary from cycle to cycle.
@@ -661,64 +682,5 @@
 
   <!-- Main JavaScript App Entrypoint (ES6 Module) -->
   <script type="module" src="./js/app.js"></script>
-
-  <!-- ✨ Kawaii Sparkle Click & Floating Petals Effect -->
-  <script>
-    // Sparkle emojis that burst on click
-    const SPARKLES = ['✨','💜','🌸','💫','🦋','💝','🌷','⭐','🩷','🌙','💐','🫧'];
-    const PETALS   = ['🌸','🌷','💜','🦋','💫','✨','🩷'];
-
-    // Click burst — emit 5–7 sparkles at cursor
-    document.addEventListener('click', (e) => {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      const count = 5 + Math.floor(Math.random() * 3);
-      for (let i = 0; i < count; i++) {
-        const el = document.createElement('span');
-        el.className = 'sparkle-star';
-        el.textContent = SPARKLES[Math.floor(Math.random() * SPARKLES.length)];
-        const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.8;
-        const dist  = 30 + Math.random() * 50;
-        const dx    = Math.cos(angle) * dist;
-        const dy    = Math.sin(angle) * dist - 30;
-        el.style.left   = `${e.clientX}px`;
-        el.style.top    = `${e.clientY}px`;
-        el.style.fontSize = `${0.7 + Math.random() * 0.7}rem`;
-        el.style.setProperty('--dx', `${dx}px`);
-        el.style.setProperty('--dy', `${dy}px`);
-        el.style.transform = `translate(-50%, -50%)`;
-        el.style.animation = `sparkle-burst 0.9s ease-out forwards`;
-        document.body.appendChild(el);
-        el.addEventListener('animationend', () => el.remove());
-      }
-    });
-
-    // Floating petals from top — gentle ambient
-    function spawnPetal() {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      const el = document.createElement('span');
-      el.className = 'floating-petal';
-      el.textContent = PETALS[Math.floor(Math.random() * PETALS.length)];
-      el.style.left     = `${Math.random() * 100}vw`;
-      el.style.bottom   = '-30px';
-      el.style.fontSize = `${0.8 + Math.random() * 1.2}rem`;
-      const dur = 6000 + Math.random() * 8000;
-      el.style.animationDuration = `${dur}ms`;
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), dur + 200);
-    }
-    // Spawn a petal every 2.5–5s
-    function schedulePetal() {
-      spawnPetal();
-      setTimeout(schedulePetal, 2500 + Math.random() * 2500);
-    }
-    setTimeout(schedulePetal, 1500);
-  </script>
-  <style>
-    @keyframes sparkle-burst {
-      0%   { opacity: 1; transform: translate(-50%, -50%) translate(0, 0) scale(0.5); }
-      60%  { opacity: 0.9; }
-      100% { opacity: 0; transform: translate(-50%, -50%) translate(var(--dx), var(--dy)) scale(1.4); }
-    }
-  </style>
 </body>
 </html>

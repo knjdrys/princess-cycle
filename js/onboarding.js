@@ -4,7 +4,6 @@
  */
 
 import { DOM } from './dom.js';
-import { Validation } from './validation.js';
 import { storage } from './storage.js';
 import { soundFx } from './audio.js';
 import { UI } from './ui.js';
@@ -256,8 +255,11 @@ export class OnboardingController {
         const activeCats = Array.from(container.querySelectorAll('#onboard-categories .chip.active'))
           .map(c => c.getAttribute('data-cat'));
 
+        // Store raw (trimmed, length-capped) — templates escape at render time.
+        const safeName = (this.onboardState.name || 'Princess').trim().slice(0, 40) || 'Princess';
+
         this.store.setUserProfile({
-          name: this.onboardState.name || 'Princess',
+          name: safeName,
           lastPeriodStart: this.onboardState.lastPeriodStart,
           typicalCycleLength: this.onboardState.typicalCycleLength,
           typicalPeriodLength: this.onboardState.typicalPeriodLength,

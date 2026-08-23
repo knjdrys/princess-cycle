@@ -176,9 +176,23 @@ export class CycleEngine {
     return this.formatLocalDate(d);
   }
 
+  static clampCycleLength(length) {
+    const num = Number(length);
+    if (!Number.isFinite(num)) return 28;
+    return Math.max(18, Math.min(60, Math.round(num)));
+  }
+
+  static clampPeriodLength(length, cycleLength = 28) {
+    const num = Number(length);
+    if (!Number.isFinite(num)) return 5;
+    return Math.max(1, Math.min(15, Math.min(cycleLength - 10, Math.round(num))));
+  }
+
   static getEffectiveCycleMetrics(user, cycles = []) {
-    const defaultCycle = user?.typicalCycleLength || 28;
-    const defaultPeriod = user?.typicalPeriodLength || 5;
+    // Clamp user-typed defaults FIRST so an out-of-range profile value
+    // can never leak into phase math or the UI.
+    const defaultCycle = this.clampCycleLength(user?.typicalCycleLength || 28);
+    const defaultPeriod = this.clampPeriodLength(user?.typicalPeriodLength || 5, defaultCycle);
 
     const completedCycles = (cycles || []).filter(c => c.cycleLength && c.cycleLength >= 18 && c.cycleLength <= 60);
 
@@ -245,7 +259,26 @@ export class CycleEngine {
     }
 
     const dayDiff = this.diffInDays(lastPeriodStartStr, targetDateStr);
-    const cycleDay = dayDiff + 1;
+
+    // Continuous cycle rollover: predictions never break, even if the user
+    // misses many check-ins (product promise). The anchor advances in whole
+    // cycles so every date maps to a stable cycle day & phase — future AND
+    // past dates alike. Lateness is surfaced by getCycleOverview(), not here.
+    let effectiveAnchor = lastPeriodStartStr;
+    if (dayDiff >= 0 && cycleLength > 0 && dayDiff >= cycleLength) {
+      const cyclesElapsed = Math.floor(dayDiff / cycleLength);
+      const advanced = this.addDays(lastPeriodStartStr, cyclesElapsed * cycleLength);
+      if (advanced) effectiveAnchor = advanced;
+    } else if (dayDiff < 0) {
+      // Dates before the anchor (past calendar months): walk backwards.
+      while (this.diffInDays(effectiveAnchor, targetDateStr) < 0) {
+        const prev = this.addDays(effectiveAnchor, -cycleLength);
+        if (!prev) break;
+        effectiveAnchor = prev;
+      }
+    }
+
+    const cycleDay = this.diffInDays(effectiveAnchor, targetDateStr) + 1;
     const boundaries = this.getPhaseBoundaries(cycleLength, periodLength);
 
     let phase = PHASES.LUTEAL;
@@ -259,17 +292,55 @@ export class CycleEngine {
       phase = PHASES.LUTEAL;
     }
 
-    const nextPeriodDate = this.addDays(lastPeriodStartStr, cycleLength);
+    const nextPeriodDate = this.addDays(effectiveAnchor, cycleLength);
     const daysUntilNextPeriod = this.diffInDays(targetDateStr, nextPeriodDate);
+    const isOnPeriod = cycleDay <= periodLength;
 
     return {
       cycleDay: Math.max(1, cycleDay),
       totalCycleLength: cycleLength,
       phase,
-      isEstimated: cycleDay > periodLength,
+      // Only the menstruation window itself counts as "logged" —
+      // everything after Day 1 of bleeding is an estimate.
+      isEstimated: !isOnPeriod,
       daysUntilNextPeriod,
       nextPeriodDate,
-      boundaries
+      boundaries,
+      isOverdue: false
+    };
+  }
+
+  /**
+   * Single source of truth for "where is the user right now".
+   * Resolves effective metrics + today's cycle position in one call so
+   * views stop re-deriving averages with inconsistent clamping.
+   */
+  static getCycleOverview(user, cycles = [], targetDateStr = null) {
+    const { avgCycleLength, avgPeriodLength, confidenceMargin, totalCyclesLogged } =
+      this.getEffectiveCycleMetrics(user, cycles);
+    const today = targetDateStr || this.formatLocalDate(new Date());
+    const info = this.getCycleDayAndPhase(today, user?.lastPeriodStart, avgCycleLength, avgPeriodLength);
+
+    // Lateness is a presentation concern: with continuous rollover, an
+    // overdue period shows up as one or more FULLY elapsed estimated
+    // cycles since the anchor. Count elapsed cycles, not days into cycle.
+    const totalDays = this.diffInDays(user?.lastPeriodStart, today);
+    const graceDays = 3; // natural variation tolerance
+    const cyclesElapsed = (totalDays >= 0 && avgCycleLength > 0)
+      ? Math.floor(totalDays / avgCycleLength)
+      : 0;
+    const isOverdue = Boolean(user?.lastPeriodStart) &&
+      cyclesElapsed >= 1 && (totalDays - cyclesElapsed * avgCycleLength) >= graceDays;
+
+    return {
+      ...info,
+      isOverdue,
+      daysLate: isOverdue ? totalDays - cyclesElapsed * avgCycleLength : 0,
+      avgCycleLength,
+      avgPeriodLength,
+      confidenceMargin,
+      totalCyclesLogged,
+      lastPeriodStart: user?.lastPeriodStart || null
     };
   }
 
@@ -278,37 +349,40 @@ export class CycleEngine {
     const day = Math.max(1, Math.min(cycleDay, cLen));
     const ovDay = cLen - 14;
 
-    let estrogen = 0.15;
+    // All hormone values are on a 0–100 (percent of typical peak) scale.
+    let estrogen = 15;
     if (day <= 5) {
-      estrogen = 0.15 + (day / 5) * 0.1;
+      estrogen = 15 + (day / 5) * 10;
     } else if (day < ovDay) {
       const progress = (day - 5) / (ovDay - 5);
-      estrogen = 0.25 + Math.sin(progress * (Math.PI / 2)) * 0.7;
+      estrogen = 25 + Math.sin(progress * (Math.PI / 2)) * 70;
+    } else if (day === ovDay || day === ovDay + 1) {
+      estrogen = 93; // Peak holds through the LH surge window before collapsing
     } else if (day <= ovDay + 2) {
-      estrogen = 0.65;
+      estrogen = 65;
     } else {
       const lutealProgress = (day - (ovDay + 2)) / (cLen - (ovDay + 2));
-      estrogen = 0.35 + Math.sin(lutealProgress * Math.PI) * 0.35;
+      estrogen = 35 + Math.sin(lutealProgress * Math.PI) * 35;
     }
 
-    let progesterone = 0.05;
+    let progesterone = 5;
     if (day > ovDay) {
       const lutealProgress = (day - ovDay) / (cLen - ovDay);
-      progesterone = 0.1 + Math.sin(lutealProgress * Math.PI) * 0.85;
+      progesterone = 10 + Math.sin(lutealProgress * Math.PI) * 85;
     }
 
-    let lh = 0.1;
+    let lh = 10;
     if (Math.abs(day - (ovDay - 1)) <= 1) {
-      lh = 0.92;
+      lh = 100; // LH surge peaks at ovulation eve
     } else if (Math.abs(day - ovDay) <= 2) {
-      lh = 0.45;
+      lh = 45;
     }
 
-    let fsh = 0.2;
+    let fsh = 20;
     if (day <= 4) {
-      fsh = 0.45;
+      fsh = 45;
     } else if (Math.abs(day - (ovDay - 1)) <= 1) {
-      fsh = 0.6;
+      fsh = 60;
     }
 
     // Basal Body Temperature (BBT in Celsius)
@@ -317,11 +391,18 @@ export class CycleEngine {
       bbt = 36.65 + (Math.sin(((day - ovDay) / (cLen - ovDay)) * Math.PI) * 0.15);
     }
 
+    const clamp01 = (v) => Math.min(100, Math.max(5, v));
     return {
-      estrogen: Math.min(1, Math.max(0.05, Number(estrogen.toFixed(2)))),
-      progesterone: Math.min(1, Math.max(0.05, Number(progesterone.toFixed(2)))),
-      lh: Math.min(1, Math.max(0.05, Number(lh.toFixed(2)))),
-      fsh: Math.min(1, Math.max(0.05, Number(fsh.toFixed(2)))),
+      // Percent scale (0–100)
+      estrogen: Number(clamp01(estrogen).toFixed(1)),
+      progesterone: Number(clamp01(progesterone).toFixed(1)),
+      lh: Number(clamp01(lh).toFixed(1)),
+      fsh: Number(clamp01(fsh).toFixed(1)),
+      // Normalized 0–1 convenience values for canvas plotting
+      estrogenNorm: Number((clamp01(estrogen) / 100).toFixed(3)),
+      progesteroneNorm: Number((clamp01(progesterone) / 100).toFixed(3)),
+      lhNorm: Number((clamp01(lh) / 100).toFixed(3)),
+      fshNorm: Number((clamp01(fsh) / 100).toFixed(3)),
       bbtCelsius: Number(bbt.toFixed(2)),
       bbtFahrenheit: Number(((bbt * 9/5) + 32).toFixed(2))
     };
@@ -539,6 +620,19 @@ export class CycleEngine {
       isAutoEstimated: true,
       notes: `Auto-predicted based on Cycle Day ${cycleInfo.cycleDay} (${PHASE_META[phase]?.title || 'Cycle'}).`
     };
+  }
+
+  // -------------------------------------------------------------
+  // Canonical API (single names) + legacy aliases kept for the
+  // existing test suite and any older callers.
+  // -------------------------------------------------------------
+  static calculateHormoneLevels(cycleDay, cycleLength = 28) {
+    return this.getHormoneLevels(cycleDay, cycleLength);
+  }
+
+  static estimateBasalBodyTemperature(cycleDay, cycleLength = 28) {
+    const levels = this.getHormoneLevels(cycleDay, cycleLength);
+    return { celsius: levels.bbtCelsius, fahrenheit: levels.bbtFahrenheit };
   }
 }
 

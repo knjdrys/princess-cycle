@@ -10,6 +10,7 @@ import { storage } from './storage.js';
 import { soundFx } from './audio.js';
 import { UI, FocusTrap } from './ui.js';
 import { generateDemoData } from './demo-data.js';
+import { Notifications } from './notifications.js';
 
 export class SettingsController {
   constructor(stateStore, onDataResetCallback) {
@@ -21,6 +22,7 @@ export class SettingsController {
     this.wirePreferences();
     this.wireThemeSelector();
     this.wireSoundToggle();
+    this.wireNotificationsToggle();
     this.wireBackupAndDataManagement();
   }
 
@@ -45,6 +47,14 @@ export class SettingsController {
     if (soundToggle) {
       soundToggle.checked = user.soundEffectsEnabled !== false;
     }
+
+    const notifToggle = DOM.settings.notificationsToggle();
+    if (notifToggle) {
+      notifToggle.checked = Boolean(user.notifications?.enabled);
+      if (!notifToggle.disabled && typeof Notification !== 'undefined' && this.syncNotificationsHint) {
+        this.syncNotificationsHint();
+      }
+    }
   }
 
   wirePreferences() {
@@ -52,7 +62,9 @@ export class SettingsController {
     if (!saveBtn) return;
 
     saveBtn.addEventListener('click', () => {
-      const name = Validation.sanitizeText(DOM.settings.nameInput()?.value || 'Princess');
+      const nameInput = DOM.settings.nameInput();
+      // Store raw — every template escapes at render time via UI.esc.
+      const name = (nameInput?.value || 'Princess').trim().slice(0, 40) || 'Princess';
       const cycleLength = Number(DOM.settings.cycleLengthInput()?.value || 28);
       const periodLength = Number(DOM.settings.periodLengthInput()?.value || 5);
       const lastPeriod = DOM.settings.lastPeriodInput()?.value || null;
@@ -105,6 +117,61 @@ export class SettingsController {
     });
   }
 
+  wireNotificationsToggle() {
+    const toggle = DOM.settings.notificationsToggle();
+    if (!toggle) return;
+
+    const hint = DOM.settings.notificationsHint();
+    const supported = typeof window !== 'undefined' && 'Notification' in window;
+
+    if (!supported) {
+      toggle.disabled = true;
+      if (hint) hint.textContent = "This browser doesn't support notifications — in-app reminders still work.";
+    }
+
+    const syncPermissionHint = () => {
+      if (!hint || !supported) return;
+      if (Notification.permission === 'granted') {
+        hint.textContent = 'Permission granted — reminders will appear even when the app is in the background.';
+      } else if (Notification.permission === 'denied') {
+        hint.textContent = 'Notification permission is blocked in your browser settings. In-app reminders still work.';
+      } else {
+        hint.textContent = "Enabling this asks for your device's notification permission. Everything stays on-device.";
+      }
+    };
+    syncPermissionHint();
+    this.syncNotificationsHint = syncPermissionHint;
+
+    toggle.addEventListener('change', async () => {
+      const enabled = toggle.checked;
+
+      if (enabled && supported && Notification.permission === 'default') {
+        const granted = await Notifications.requestPermission();
+        if (!granted) {
+          toggle.checked = false;
+          this.store.setUserProfile({ notifications: { ...this.store.getState().user.notifications, enabled: false } });
+          UI.showToast('Notification permission was not granted.', 'warning');
+          syncPermissionHint();
+          return;
+        }
+      }
+
+      const current = this.store.getState().user.notifications || {};
+      this.store.setUserProfile({
+        notifications: { ...current, enabled }
+      });
+
+      soundFx.playChime(enabled ? 'sparkle' : 'tap');
+      UI.showToast(
+        enabled
+          ? 'Gentle reminders on — we will nudge you softly 🌸'
+          : 'Gentle reminders turned off.',
+        'info'
+      );
+      syncPermissionHint();
+    });
+  }
+
   wireBackupAndDataManagement() {
     // Export JSON
     const exportJsonBtn = DOM.settings.exportJsonBtn();
@@ -112,7 +179,7 @@ export class SettingsController {
       exportJsonBtn.addEventListener('click', () => {
         storage.exportAsJSON(this.store.getState());
         soundFx.playChime('sparkle');
-        UI.showToast('Encrypted JSON backup downloaded ✨', 'success');
+        UI.showToast('JSON backup downloaded — stored unencrypted on your device ✨', 'success');
       });
     }
 

@@ -19,21 +19,23 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Validate Calculation Engine & Test Suite
+      - name: Syntax-check all ES modules
         run: |
-          node -e "
-            import('./js/cycle.js').then(async (cycleMod) => {
-              const testMod = await import('./tests/cycle-engine.test.js');
-              const results = testMod.runAllTests();
-              const passed = results.filter(r => r.passed).length;
-              const total = results.length;
-              console.log(\`✅ \${passed}/\${total} Unit Test Assertions Passed.\`);
-              if (passed !== total) {
-                console.error('❌ Some tests failed:', results.filter(r => !r.passed));
-                process.exit(1);
-              }
-            }).catch(err => {
-              console.error('❌ Engine Import Error:', err);
-              process.exit(1);
-            });
-          "
+          for f in js/*.js sw.js; do
+            node --check "$f"
+          done
+          echo "✅ All modules parse cleanly."
+
+      - name: Run unit test suite (fails on any assertion failure)
+        run: |
+          node --input-type=module -e "
+            const testMod = await import('./tests/cycle-engine.test.js');
+            const results = await testMod.runAllTests();
+            const passed = results.filter(r => r.passed).length;
+            const total = results.length;
+            console.log(\`✅ \${passed}/\${total} Unit Test Assertions Passed.\`);
+            for (const f of results.filter(r => !r.passed)) {
+              console.error('❌ FAIL:', f.testName, f.details || '');
+            }
+            if (passed !== total) process.exit(1);
+          " || exit 1

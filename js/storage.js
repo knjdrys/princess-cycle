@@ -4,21 +4,24 @@
  * safe transaction rollback, localStorage backup/migration, and JSON/CSV export.
  */
 
-import { Validation } from './validation.js';
+import { APP_CONFIG } from './config.js';
 
-const DB_NAME = 'PrincessCycleDB';
-const DB_VERSION = 1;
+const DB_NAME = APP_CONFIG.dbName;
+const DB_VERSION = APP_CONFIG.dbVersion;
 const STORE_USER = 'user';
 const STORE_CYCLES = 'cycles';
 const STORE_ENTRIES = 'daily_entries';
 
-const LOCAL_STORAGE_KEY = 'princess_cycle_app_data_v1';
+const LOCAL_STORAGE_KEY = APP_CONFIG.localStorageBackupKey;
 
 class StorageEngine {
   constructor() {
     this.db = null;
     this.useIndexedDB = typeof window !== 'undefined' && 'indexedDB' in window;
     this.isReady = false;
+    // Last-resort in-memory tier: used when neither IndexedDB nor
+    // localStorage is available (headless CI, Safari private mode).
+    this.memoryStore = { user: null, cycles: [], dailyEntries: {} };
   }
 
   async init() {
@@ -76,7 +79,7 @@ class StorageEngine {
         if (hasIdbData) {
           // Sync backup cache to localStorage
           this.syncToLocalStorage(idbData);
-          return idbData;
+          return this.migrateLegacyEscapedText(idbData);
         }
       } catch (err) {
         console.warn('Error reading from IndexedDB, trying fallback:', err);
@@ -84,26 +87,37 @@ class StorageEngine {
     }
 
     // Fallback or Legacy Migration from localStorage
-    try {
-      const localBackup = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (localBackup) {
-        const parsed = JSON.parse(localBackup);
-        const data = {
-          user: parsed.user || null,
-          cycles: Array.isArray(parsed.cycles) ? parsed.cycles : [],
-          dailyEntries: (parsed.dailyEntries && typeof parsed.dailyEntries === 'object') ? parsed.dailyEntries : {}
-        };
+    if (typeof localStorage !== 'undefined') {
+      try {
+        const localBackup = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (localBackup) {
+          const parsed = JSON.parse(localBackup);
+          const data = {
+            user: parsed.user || null,
+            cycles: Array.isArray(parsed.cycles) ? parsed.cycles : [],
+            dailyEntries: (parsed.dailyEntries && typeof parsed.dailyEntries === 'object') ? parsed.dailyEntries : {}
+          };
 
-        // If IndexedDB is available, migrate legacy localStorage data into IndexedDB
-        if (this.db && this.useIndexedDB) {
-          await this.saveAllData(data);
-          console.log('✨ Migrated legacy localStorage data to IndexedDB.');
+          // If IndexedDB is available, migrate legacy localStorage data into IndexedDB
+          if (this.db && this.useIndexedDB) {
+            await this.saveAllData(data);
+            console.log('✨ Migrated legacy localStorage data to IndexedDB.');
+          }
+
+          return this.migrateLegacyEscapedText(data);
         }
-
-        return data;
+      } catch (err) {
+        console.error('Error reading localStorage backup:', err);
       }
-    } catch (err) {
-      console.error('Error reading localStorage backup:', err);
+    }
+
+    // In-memory tier (session-only persistence)
+    if (this.memoryStore.user || this.memoryStore.cycles.length > 0 || Object.keys(this.memoryStore.dailyEntries).length > 0) {
+      return this.migrateLegacyEscapedText({
+        user: this.memoryStore.user,
+        cycles: [...this.memoryStore.cycles],
+        dailyEntries: { ...this.memoryStore.dailyEntries }
+      });
     }
 
     return {
@@ -162,13 +176,29 @@ class StorageEngine {
   async saveUser(userObj) {
     if (!userObj) return;
 
+    const payload = { ...userObj, id: userObj.id || 'user_default' };
+
     if (this.db && this.useIndexedDB) {
       try {
         const tx = this.db.transaction([STORE_USER], 'readwrite');
-        tx.objectStore(STORE_USER).put({ ...userObj, id: userObj.id || 'user_default' });
+        tx.objectStore(STORE_USER).put(payload);
         await this.txPromise(tx);
       } catch (err) {
         console.warn('IndexedDB saveUser error:', err);
+      }
+    } else {
+      // Fallback tier: localStorage backup when available, otherwise the
+      // in-memory store (headless CI, Safari private mode).
+      if (typeof localStorage === 'undefined') {
+        this.memoryStore.user = payload;
+      } else {
+        try {
+          const backup = this.readLocalStorageBackup();
+          backup.user = payload;
+          this.syncToLocalStorage(backup);
+        } catch (e) {
+          this.memoryStore.user = payload;
+        }
       }
     }
   }
@@ -186,6 +216,18 @@ class StorageEngine {
       } catch (err) {
         console.warn('IndexedDB saveDailyEntry error:', err);
       }
+    } else {
+      if (typeof localStorage === 'undefined') {
+        this.memoryStore.dailyEntries[dateStr] = payload;
+      } else {
+        try {
+          const backup = this.readLocalStorageBackup();
+          backup.dailyEntries[dateStr] = payload;
+          this.syncToLocalStorage(backup);
+        } catch (e) {
+          this.memoryStore.dailyEntries[dateStr] = payload;
+        }
+      }
     }
   }
 
@@ -199,6 +241,18 @@ class StorageEngine {
         await this.txPromise(tx);
       } catch (err) {
         console.warn('IndexedDB deleteDailyEntry error:', err);
+      }
+    } else {
+      if (typeof localStorage === 'undefined') {
+        delete this.memoryStore.dailyEntries[dateStr];
+      } else {
+        try {
+          const backup = this.readLocalStorageBackup();
+          delete backup.dailyEntries[dateStr];
+          this.syncToLocalStorage(backup);
+        } catch (e) {
+          delete this.memoryStore.dailyEntries[dateStr];
+        }
       }
     }
   }
@@ -216,7 +270,63 @@ class StorageEngine {
       } catch (err) {
         console.warn('IndexedDB saveCycles error:', err);
       }
+    } else {
+      if (typeof localStorage === 'undefined') {
+        this.memoryStore.cycles = [...cyclesList];
+      } else {
+        try {
+          const backup = this.readLocalStorageBackup();
+          backup.cycles = cyclesList;
+          this.syncToLocalStorage(backup);
+        } catch (e) {
+          this.memoryStore.cycles = [...cyclesList];
+        }
+      }
     }
+  }
+
+  readLocalStorageBackup() {
+    try {
+      const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return {
+          user: parsed.user || null,
+          cycles: Array.isArray(parsed.cycles) ? parsed.cycles : [],
+          dailyEntries: (parsed.dailyEntries && typeof parsed.dailyEntries === 'object') ? parsed.dailyEntries : {}
+        };
+      }
+    } catch (e) {}
+    return { user: null, cycles: [], dailyEntries: {} };
+  }
+
+  /**
+   * One-time migration: versions prior to the render-time escaping pipeline
+   * stored user text pre-escaped (&lt; &amp; &#x27;). Unescape exactly once
+   * on load so the new pipeline doesn't double-escape on render.
+   */
+  migrateLegacyEscapedText(data) {
+    const unescape = (str) => {
+      if (typeof str !== 'string') return str;
+      if (!/[&]/.test(str)) return str;
+      return str
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#x27;/g, "'")
+        .replace(/&#x2F;/g, '/')
+        .replace(/&amp;/g, '&');
+    };
+
+    if (data.user && typeof data.user.name === 'string') {
+      data.user.name = unescape(data.user.name);
+    }
+    Object.values(data.dailyEntries || {}).forEach(entry => {
+      if (entry && typeof entry.notes === 'string') {
+        entry.notes = unescape(entry.notes);
+      }
+    });
+    return data;
   }
 
   // Bulk save (used on import, demo load, or initial setup)
@@ -265,6 +375,7 @@ class StorageEngine {
   }
 
   syncToLocalStorage(state) {
+    if (typeof localStorage === 'undefined') return;
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
         user: state.user,

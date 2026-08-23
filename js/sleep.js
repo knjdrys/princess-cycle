@@ -31,7 +31,8 @@ export class SleepScheduleEngine {
     return {
       totalMinutes: diffMinutes,
       hours: Number((diffMinutes / 60).toFixed(1)),
-      formatted: `${hours}h ${minutes > 0 ? `${minutes}m` : ''}`.trim()
+      // Always include minutes so durations read consistently ("8h 0m").
+      formatted: `${hours}h ${minutes}m`
     };
   }
 

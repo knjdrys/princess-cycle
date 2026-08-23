@@ -2,19 +2,25 @@
   "name": "PrincessCycle - Menstrual Cycle & Wellness Tracker",
   "short_name": "PrincessCycle",
   "description": "A gentler way to understand your cycle. Private, offline-first personal wellness tracker.",
+  "version": "1.1.0",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#FAF8F5",
-  "theme_color": "#FAF8F5",
+  "background_color": "#FAF7FF",
+  "theme_color": "#FAF7FF",
   "categories": ["health", "lifestyle", "wellness"],
   "icons": [
     {
       "src": "./assets/fairy-icon.jpg",
       "sizes": "512x512",
       "type": "image/jpeg",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/fairy-icon.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable"
     }
   ]
 }

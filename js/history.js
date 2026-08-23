@@ -5,7 +5,6 @@
 
 import { Validation } from './validation.js';
 import { FocusTrap, UI } from './ui.js';
-
 export class HistoryController {
   constructor(stateStore, onSaveNewCycle, onDeleteCycle) {
     this.store = stateStore;
@@ -39,11 +38,12 @@ export class HistoryController {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </div>
           <h4 class="empty-state-title">${this.searchQuery ? 'No matching cycles found' : 'No Previous Cycles Recorded'}</h4>
-          <p class="empty-state-desc">Your logged cycle history will appear here as you record periods over time.</p>
+          <p class="empty-state-desc">${this.searchQuery ? 'Try a different year, month, or cycle length.' : 'Your logged cycle history will appear here as you record periods over time.'}</p>
           <button class="btn btn-secondary btn-sm" id="btn-add-past-cycle">+ Log Past Period</button>
         </div>
       `;
     } else {
+      const esc = UI.esc;
       cyclesHtml = `
         <div class="flex justify-between items-center" style="margin-bottom: var(--space-md);">
           <h3 class="card-title">Completed Cycles (${cycles.length})</h3>
@@ -51,16 +51,16 @@ export class HistoryController {
         </div>
 
         <div style="margin-bottom: var(--space-md);">
-          <input type="text" class="form-control" id="history-search-input" placeholder="🔍 Search cycles by year, month, or length..." value="${this.searchQuery}" aria-label="Search past cycles" />
+          <input type="text" class="form-control" id="history-search-input" placeholder="🔍 Search cycles by year, month, or length..." value="${esc(this.searchQuery)}" aria-label="Search past cycles" />
         </div>
 
-        <div class="flex flex-col gap-md">
+        <div id="history-cycles-list" class="flex flex-col gap-md">
           ${cycles.map((c, i) => `
-            <div class="card cycle-history-item" data-cycle-id="${c.id || i}">
+            <div class="card cycle-history-item" data-cycle-id="${esc(c.id || String(i))}">
               <div class="flex justify-between items-center">
                 <div>
                   <div style="font-weight: 600; font-size: 1rem; color: var(--text-primary);">
-                    ${c.startDate} <span style="font-size: 0.8125rem; color: var(--text-tertiary); font-weight: 400;">to</span> ${c.endDate || 'Next Period'}
+                    ${esc(c.startDate)} <span style="font-size: 0.8125rem; color: var(--text-tertiary); font-weight: 400;">to</span> ${esc(c.endDate || 'Next Period')}
                   </div>
                   <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-top: 2px;">
                     ${c.periodLength || 5} days period flow
@@ -71,7 +71,7 @@ export class HistoryController {
                     <div style="font-size: 1.35rem; font-weight: 700; color: var(--color-primary);">${c.cycleLength || '--'}</div>
                     <div style="font-size: 0.6875rem; color: var(--text-tertiary); text-transform: uppercase;">days</div>
                   </div>
-                  <button class="btn btn-ghost btn-icon-only btn-delete-cycle" data-cycle-id="${c.id}" aria-label="Delete cycle starting ${c.startDate}" style="color: var(--text-tertiary);">
+                  <button class="btn btn-ghost btn-icon-only btn-delete-cycle" data-cycle-id="${esc(c.id)}" aria-label="Delete cycle starting ${esc(c.startDate)}" style="color: var(--text-tertiary);">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
                   </button>
                 </div>
@@ -104,7 +104,61 @@ export class HistoryController {
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
         this.searchQuery = e.target.value;
-        this.render(container);
+        // Update ONLY the cycle list region so the search input keeps focus
+        // between keystrokes (full re-render used to destroy it after 1 char).
+        const listMount = container.querySelector('#history-cycles-list');
+        if (!listMount) {
+          // Search field not yet rendered alongside a list (empty state) —
+          // a full render is safe here because there is no input to lose.
+          this.render(container);
+          return;
+        }
+
+        const state = this.store.getState();
+        let cycles = state.cycles || [];
+        const q = this.searchQuery.trim().toLowerCase();
+        if (q) {
+          cycles = cycles.filter(c =>
+            (c.startDate && c.startDate.includes(q)) ||
+            (c.endDate && c.endDate.includes(q)) ||
+            (c.cycleLength && String(c.cycleLength).includes(q))
+          );
+        }
+
+        const esc = UI.esc;
+        if (cycles.length === 0) {
+          listMount.innerHTML = `
+            <div class="card text-center" style="padding: var(--space-xl);">
+              <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: var(--space-md);">
+                No cycles match "${esc(this.searchQuery)}". Try a different year, month, or length.
+              </p>
+            </div>
+          `;
+        } else {
+          listMount.innerHTML = cycles.map((c, i) => `
+            <div class="card cycle-history-item" data-cycle-id="${esc(c.id || String(i))}">
+              <div class="flex justify-between items-center">
+                <div>
+                  <div style="font-weight: 600; font-size: 1rem; color: var(--text-primary);">
+                    ${esc(c.startDate)} <span style="font-size: 0.8125rem; color: var(--text-tertiary); font-weight: 400;">to</span> ${esc(c.endDate || 'Next Period')}
+                  </div>
+                  <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-top: 2px;">
+                    ${c.periodLength || 5} days period flow
+                  </div>
+                </div>
+                <div class="flex items-center gap-md">
+                  <div class="text-center">
+                    <div style="font-size: 1.35rem; font-weight: 700; color: var(--color-primary);">${c.cycleLength || '--'}</div>
+                    <div style="font-size: 0.6875rem; color: var(--text-tertiary); text-transform: uppercase;">days</div>
+                  </div>
+                  <button class="btn btn-ghost btn-icon-only btn-delete-cycle" data-cycle-id="${esc(c.id)}" aria-label="Delete cycle starting ${esc(c.startDate)}" style="color: var(--text-tertiary);">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }
       });
     }
 

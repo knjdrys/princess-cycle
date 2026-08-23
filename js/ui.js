@@ -69,6 +69,21 @@ export class FocusTrap {
 }
 
 export const UI = {
+  /**
+   * Escape untrusted text for safe interpolation into innerHTML templates.
+   * THE canonical escaper: all view templates must route user-derived
+   * strings through this at render time. Data is stored raw.
+   */
+  esc(value) {
+    if (value === null || value === undefined) return '';
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;');
+  },
+
   // SVG Icon Map
   icons: {
     crown: `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14v2H5z"/></svg>`,

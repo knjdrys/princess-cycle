@@ -4,6 +4,7 @@
  */
 
 import { CycleEngine, PHASES, PHASE_META, SEED_CYCLING_GUIDE, PHASE_GROCERY_LISTS } from './cycle.js';
+import { UI } from './ui.js';
 
 export class InsightsController {
   constructor(stateStore) {
@@ -49,7 +50,7 @@ export class InsightsController {
 
           <div class="card text-center" style="padding: var(--space-md);">
             <div style="font-size: 0.75rem; color: var(--text-tertiary); text-transform: uppercase; font-weight: 600;">Top Feeling</div>
-            <div style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin: 8px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${analytics.topMood}</div>
+            <div style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin: 8px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${UI.esc(analytics.topMood)}">${UI.esc(analytics.topMood)}</div>
             <div class="tag-logged">Most logged</div>
           </div>
 
@@ -258,16 +259,20 @@ export class InsightsController {
 
     ctx.clearRect(0, 0, width, height);
 
-    const entries = Object.values(dailyEntries || {}).slice(-7);
-    const data = entries.length > 0 ? entries : [
-      { date: '2026-08-12', bedtime: '23:00', wakeTime: '07:15', sleepHours: 8.25 },
-      { date: '2026-08-13', bedtime: '23:30', wakeTime: '07:30', sleepHours: 8.0 },
-      { date: '2026-08-14', bedtime: '22:45', wakeTime: '06:45', sleepHours: 8.0 },
-      { date: '2026-08-15', bedtime: '00:00', wakeTime: '08:30', sleepHours: 8.5 },
-      { date: '2026-08-16', bedtime: '23:15', wakeTime: '07:00', sleepHours: 7.75 },
-      { date: '2026-08-17', bedtime: '22:30', wakeTime: '07:00', sleepHours: 8.5 },
-      { date: '2026-08-18', bedtime: '23:00', wakeTime: '07:30', sleepHours: 8.5 }
-    ];
+    const entries = Object.values(dailyEntries || {})
+      .filter(e => e && e.sleepHours)
+      .sort((a, b) => (a.date || '').localeCompare(b.date || ''))
+      .slice(-7);
+
+    // Honest empty state: never fabricate sleep numbers.
+    if (entries.length === 0) {
+      const cs = getComputedStyle(document.documentElement);
+      ctx.fillStyle = cs.getPropertyValue('--text-secondary').trim() || '#8F7CA8';
+      ctx.font = '13px Nunito, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('No sleep logs yet — save a check-in with bedtime & wake time to see your rhythm.', width / 2, height / 2);
+      return;
+    }
 
     const chartW = width - padding.left - padding.right;
     const chartH = height - padding.top - padding.bottom;
@@ -372,6 +377,7 @@ export class InsightsController {
       ctx.lineWidth = lineWidth;
       ctx.beginPath();
       points.forEach((p, index) => {
+        // Normalized 0–1 values (percent / 100)
         const val = p.levels[propKey];
         const y = padding.top + chartH - (val * chartH * 0.85);
         if (index === 0) ctx.moveTo(p.x, y);
@@ -380,10 +386,10 @@ export class InsightsController {
       ctx.stroke();
     };
 
-    drawCurve('#818CF8', 'fsh', 2.0);
-    drawCurve('#FBBF24', 'lh', 2.0);
-    drawCurve('#C084FC', 'progesterone', 3.0);
-    drawCurve('#F472B6', 'estrogen', 3.0);
+    drawCurve('#818CF8', 'fshNorm', 2.0);
+    drawCurve('#FBBF24', 'lhNorm', 2.0);
+    drawCurve('#C084FC', 'progesteroneNorm', 3.0);
+    drawCurve('#F472B6', 'estrogenNorm', 3.0);
 
     const safeDay = Math.max(1, Math.min(currentDay, cycleLength));
     const currentX = padding.left + ((safeDay - 1) / (cycleLength - 1)) * chartW;
@@ -434,12 +440,17 @@ export class InsightsController {
 
     ctx.clearRect(0, 0, width, height);
 
-    const data = history.length > 0 ? history : [
-      { startDate: '2026-04-10', cycleLength: 28 },
-      { startDate: '2026-05-08', cycleLength: 29 },
-      { startDate: '2026-06-07', cycleLength: 28 },
-      { startDate: '2026-07-05', cycleLength: 30 }
-    ];
+    const data = history.length > 0 ? history : [];
+
+    // Honest empty state: never fabricate cycle history.
+    if (data.length === 0) {
+      const cs = getComputedStyle(document.documentElement);
+      ctx.fillStyle = cs.getPropertyValue('--text-secondary').trim() || '#8F7CA8';
+      ctx.font = '13px Nunito, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Log two period starts (Home → 🩸 Period Started) to see your history here.', width / 2, height / 2);
+      return;
+    }
 
     const maxVal = Math.max(35, ...data.map(d => d.cycleLength + 2));
     const minVal = 20;
@@ -518,12 +529,12 @@ export class InsightsController {
     ].sort((a, b) => b.count - a.count).slice(0, 4);
 
     if (items.length === 0) {
-      items.push(
-        { label: 'Calm', count: 8, type: 'mood' },
-        { label: 'Energetic', count: 5, type: 'mood' },
-        { label: 'Tired', count: 4, type: 'mood' },
-        { label: 'Cramps', count: 3, type: 'symptom' }
-      );
+      const cs = getComputedStyle(document.documentElement);
+      ctx.fillStyle = cs.getPropertyValue('--text-secondary').trim() || '#8F7CA8';
+      ctx.font = '13px Nunito, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('No mood or symptom logs yet — your daily check-ins will paint this chart.', width / 2, height / 2);
+      return;
     }
 
     const maxCount = Math.max(1, ...items.map(i => i.count));
@@ -571,6 +582,7 @@ export class InsightsController {
     const user = state.user;
     const cycles = state.cycles || [];
     const todayStr = this.store.formatDate(new Date());
+    const esc = UI.esc;
 
     modalBackdrop.innerHTML = `
       <div class="modal-container" style="max-width: 600px; max-height: 90vh;">
@@ -588,8 +600,8 @@ export class InsightsController {
           <div style="border-bottom: 2px solid var(--border-medium); padding-bottom: 12px; margin-bottom: 16px;">
             <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">Menstrual Cycle & Sleep Tracking Record</h2>
             <div class="flex justify-between" style="font-size: 0.8125rem; color: var(--text-secondary);">
-              <span>Patient/User: <strong>${user.name || 'Princess'}</strong></span>
-              <span>Generated: ${todayStr}</span>
+              <span>Patient/User: <strong>${esc(user.name || 'Princess')}</strong></span>
+              <span>Generated: ${esc(todayStr)}</span>
             </div>
           </div>
 
@@ -598,10 +610,10 @@ export class InsightsController {
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: var(--bg-surface-subtle); padding: 12px; border-radius: var(--radius-md);">
               <div>Average Cycle Length: <strong>${analytics.avgCycleLength} days</strong></div>
               <div>Average Bleeding Duration: <strong>${analytics.avgPeriodLength} days</strong></div>
-              <div>Cycle Regularity: <strong>${analytics.regularity} (±${analytics.stdDev}d)</strong></div>
+              <div>Cycle Regularity: <strong>${esc(analytics.regularity)} (±${analytics.stdDev}d)</strong></div>
               <div>Average Logged Sleep: <strong>${analytics.avgSleep} hrs/night</strong></div>
               <div>Completed Cycles Logged: <strong>${analytics.totalCycles}</strong></div>
-              <div>Most Logged Physical Symptom: <strong>${analytics.topSymptom}</strong></div>
+              <div>Most Logged Physical Symptom: <strong>${esc(analytics.topSymptom)}</strong></div>
             </div>
           </div>
 
@@ -618,7 +630,7 @@ export class InsightsController {
               <tbody>
                 ${cycles.slice(0, 6).map(c => `
                   <tr style="border-bottom: 1px solid var(--border-subtle);">
-                    <td style="padding: 6px 10px;">${c.startDate}</td>
+                    <td style="padding: 6px 10px;">${esc(c.startDate)}</td>
                     <td style="padding: 6px 10px;">${c.cycleLength || '--'} days</td>
                     <td style="padding: 6px 10px;">${c.periodLength || 5} days</td>
                   </tr>

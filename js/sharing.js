@@ -4,6 +4,7 @@
  */
 
 import { CycleEngine, PHASE_META, PHASES } from './cycle.js';
+import { UI } from './ui.js';
 
 export class SharingController {
   constructor(stateStore, onUpdateSettings) {
@@ -177,6 +178,7 @@ export class SharingController {
     const user = state.user;
     const lastPeriod = user?.lastPeriodStart;
     const todayStr = this.store.formatDate(new Date());
+    const esc = UI.esc;
     const { avgCycleLength, avgPeriodLength } = CycleEngine.getEffectiveCycleMetrics(user, state.cycles);
     const cycleInfo = CycleEngine.getCycleDayAndPhase(todayStr, lastPeriod, avgCycleLength, avgPeriodLength);
     const phaseMeta = PHASE_META[cycleInfo.phase] || PHASE_META[PHASES.FOLLICULAR];
@@ -192,9 +194,9 @@ export class SharingController {
 
         <div style="margin-bottom: var(--space-md);">
           <h4 style="font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">
-            ${sharing.sharePhase ? `${user.name || 'Princess'} is in her ${phaseMeta.title}` : `${user.name || 'Princess'}'s Cycle Overview`}
+            ${sharing.sharePhase ? `${esc(user.name || 'Princess')} is in her ${esc(phaseMeta.title)}` : `${esc(user.name || 'Princess')}'s Cycle Overview`}
           </h4>
-          ${sharing.sharePhase ? `<p style="font-size: 0.8125rem; color: var(--text-secondary);">${phaseMeta.gentleTip}</p>` : ''}
+          ${sharing.sharePhase ? `<p style="font-size: 0.8125rem; color: var(--text-secondary);">${esc(phaseMeta.gentleTip)}</p>` : ''}
         </div>
 
         <div class="flex flex-col gap-xs" style="font-size: 0.875rem; color: var(--text-primary);">
@@ -208,26 +210,26 @@ export class SharingController {
           ${sharing.shareMood && todayEntry.mood && todayEntry.mood.length > 0 ? `
             <div class="flex justify-between" style="padding: 4px 0;">
               <span style="color: var(--text-secondary);">Feeling today:</span>
-              <span style="font-weight: 500;">${todayEntry.mood.join(', ')}</span>
+              <span style="font-weight: 500;">${esc(todayEntry.mood.join(', '))}</span>
             </div>
           ` : ''}
 
           ${sharing.shareSymptoms && todayEntry.symptoms && todayEntry.symptoms.length > 0 ? `
             <div class="flex justify-between" style="padding: 4px 0;">
               <span style="color: var(--text-secondary);">Physical sensations:</span>
-              <span style="font-weight: 500;">${todayEntry.symptoms.join(', ')}</span>
+              <span style="font-weight: 500;">${esc(todayEntry.symptoms.join(', '))}</span>
             </div>
           ` : ''}
 
           ${sharing.shareNotes && todayEntry.notes ? `
             <div style="margin-top: 8px; padding: 8px; background: var(--bg-surface-subtle); border-radius: var(--radius-sm); font-size: 0.8125rem;">
-              "${todayEntry.notes}"
+              "${esc(todayEntry.notes)}"
             </div>
           ` : ''}
         </div>
 
         <div style="margin-top: var(--space-md); text-align: center; font-size: 0.6875rem; color: var(--text-tertiary);">
-          🔒 ${user.name || 'Princess'} controls what you can see at all times.
+          🔒 ${esc(user.name || 'Princess')} controls what you can see at all times.
         </div>
       </div>
     `;
@@ -267,10 +269,15 @@ export class SharingController {
       copyTokenBtn.addEventListener('click', () => {
         const user = this.store.getState().user;
         const token = `PC-PAIR-${(user.id || 'DEMO').slice(0, 6).toUpperCase()}-PASS`;
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(token);
+        const showCopied = () => UI.showToast('Pairing token copied to clipboard ✨', 'success');
+
+        if (navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText(token).then(showCopied).catch(() => {
+            UI.showToast(`Copy failed — your token: ${token}`, 'warning', 6000);
+          });
+        } else {
+          UI.showToast(`Your token: ${token}`, 'info', 6000);
         }
-        alert('Pairing token copied: ' + token);
       });
     }
   }

@@ -294,9 +294,18 @@ export async function runAllTests() {
     assert('Metrics clamp period length to <= 15 days', metricsExtreme.avgPeriodLength <= 15);
     assert('Confidence margin is explicitly provided', typeof metricsExtreme.confidenceMargin === 'number');
 
-    // Overdue period calculation
-    const overdueCycle = CycleEngine.getCycleDayAndPhase('2026-09-05', '2026-08-01', 28, 5);
-    assert('Overdue cycle indicates negative daysUntilNextPeriod', overdueCycle.daysUntilNextPeriod < 0);
+    // Overdue handling: raw phase math rolls over continuously (stable
+    // cycle days even if the user misses check-ins), while lateness is
+    // surfaced by getCycleOverview() as isOverdue/daysLate.
+    const rolledCycle = CycleEngine.getCycleDayAndPhase('2026-09-05', '2026-08-01', 28, 5);
+    assert('Elapsed cycles roll over continuously (Day 36 of 28 = Day 8)', rolledCycle.cycleDay === 8);
+
+    const overdueOverview = CycleEngine.getCycleOverview(
+      { lastPeriodStart: '2026-08-01', typicalCycleLength: 28 },
+      [],
+      '2026-09-05'
+    );
+    assert('Overdue cycle flagged by overview (isOverdue + daysLate)', overdueOverview.isOverdue === true && overdueOverview.daysLate > 0);
   } catch (e) {
     assert('Symptothermal domain tests threw exception', false, e.message);
   }

@@ -4,6 +4,7 @@
  */
 
 import { CycleEngine, PHASES, PHASE_META } from './cycle.js';
+import { UI } from './ui.js';
 
 export class CalendarController {
   constructor(stateStore, onSelectDateCallback, onMarkPeriodStartCallback) {
@@ -155,38 +156,39 @@ export class CalendarController {
     const entry = state.dailyEntries[dateStr] || {};
     const hasEntry = Object.keys(entry).length > 0;
     const todayStr = this.store.formatDate(new Date());
+    const esc = UI.esc;
 
     return `
       <div class="card" style="border-left: 4px solid var(${phaseMeta.colorVar});">
         <div class="card-header">
           <div>
-            <h4 class="card-title">${dateStr === todayStr ? `Today (${dateStr})` : dateStr}</h4>
-            <p class="card-subtitle">Cycle Day ${cycleInfo.cycleDay} • ${phaseMeta.title}</p>
+            <h4 class="card-title">${esc(dateStr === todayStr ? `Today (${dateStr})` : dateStr)}</h4>
+            <p class="card-subtitle">Cycle Day ${cycleInfo.cycleDay} • ${esc(phaseMeta.title)}</p>
           </div>
-          <span class="badge ${phaseMeta.badgeClass}">${phaseMeta.title}</span>
+          <span class="badge ${phaseMeta.badgeClass}">${esc(phaseMeta.title)}</span>
         </div>
 
         <div class="flex flex-col gap-sm" style="font-size: 0.875rem;">
           <div class="flex justify-between items-center" style="padding: 4px 0; border-bottom: 1px solid var(--border-subtle);">
             <span style="color: var(--text-secondary);">Period Flow:</span>
-            <strong>${entry.flow || (cycleInfo.phase === PHASES.MENSTRUATION ? 'Estimated Flow' : 'None')}</strong>
+            <strong>${entry.flow ? esc(entry.flow) : (cycleInfo.phase === PHASES.MENSTRUATION ? 'Estimated Flow' : 'None')}</strong>
           </div>
 
           <div class="flex justify-between items-center" style="padding: 4px 0; border-bottom: 1px solid var(--border-subtle);">
             <span style="color: var(--text-secondary);">Logged Feelings:</span>
-            <strong>${(entry.mood && entry.mood.length > 0) ? entry.mood.join(', ') : 'None logged'}</strong>
+            <strong>${(entry.mood && entry.mood.length > 0) ? esc(entry.mood.join(', ')) : 'None logged'}</strong>
           </div>
 
           ${(entry.cravings && entry.cravings.length > 0) ? `
           <div class="flex justify-between items-center" style="padding: 4px 0; border-bottom: 1px solid var(--border-subtle);">
             <span style="color: var(--text-secondary);">Pinay Cravings:</span>
-            <strong style="color: var(--color-primary);">${entry.cravings.join(', ')}</strong>
+            <strong style="color: var(--color-primary);">${esc(entry.cravings.join(', '))}</strong>
           </div>
           ` : ''}
 
           <div class="flex justify-between items-center" style="padding: 4px 0; border-bottom: 1px solid var(--border-subtle);">
             <span style="color: var(--text-secondary);">Physical Sensations:</span>
-            <strong>${(entry.symptoms && entry.symptoms.length > 0) ? entry.symptoms.join(', ') : 'None logged'}</strong>
+            <strong>${(entry.symptoms && entry.symptoms.length > 0) ? esc(entry.symptoms.join(', ')) : 'None logged'}</strong>
           </div>
 
           <div class="flex justify-between items-center" style="padding: 4px 0; border-bottom: 1px solid var(--border-subtle);">
@@ -203,7 +205,7 @@ export class CalendarController {
 
           ${entry.notes ? `
             <div style="background: var(--bg-surface-subtle); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 0.8125rem; margin-top: 4px;">
-              "${entry.notes}"
+              "${esc(entry.notes)}"
             </div>
           ` : ''}
         </div>

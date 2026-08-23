@@ -210,9 +210,8 @@ class PrincessCycleApp {
     });
 
     // Notifications check
-    const { avgCycleLength, avgPeriodLength } = CycleEngine.getEffectiveCycleMetrics(user, store.getState().cycles);
-    const cycleInfo = CycleEngine.getCycleDayAndPhase(store.formatDate(new Date()), user.lastPeriodStart, avgCycleLength, avgPeriodLength);
-    const reminder = Notifications.checkUpcomingPeriodReminder(cycleInfo);
+    const overview = CycleEngine.getCycleOverview(user, store.getState().cycles);
+    const reminder = Notifications.checkUpcomingPeriodReminder(overview);
     if (reminder && user.notifications?.enabled) {
       Notifications.sendGentleNotification(reminder.title, reminder.body);
     }
@@ -234,8 +233,7 @@ class PrincessCycleApp {
       greetingEl.textContent = UI.getGreeting(user.name || 'Princess');
     }
 
-    const { avgCycleLength, avgPeriodLength } = CycleEngine.getEffectiveCycleMetrics(user, state.cycles);
-    const cycleInfo = CycleEngine.getCycleDayAndPhase(todayStr, user.lastPeriodStart, avgCycleLength, avgPeriodLength);
+    const cycleInfo = CycleEngine.getCycleOverview(user, state.cycles, todayStr);
     const phaseMeta = PHASE_META[cycleInfo.phase] || PHASE_META[PHASES.FOLLICULAR];
 
     const dialContainer = DOM.home.dialContainer();
@@ -258,7 +256,9 @@ class PrincessCycleApp {
     const nextPeriodEl = DOM.home.nextPeriodText();
     if (nextPeriodEl) {
       if (cycleInfo.daysUntilNextPeriod !== null) {
-        if (cycleInfo.daysUntilNextPeriod > 0) {
+        if (cycleInfo.isOverdue) {
+          nextPeriodEl.textContent = `${cycleInfo.daysLate} days late — log your period when it starts 🩸`;
+        } else if (cycleInfo.daysUntilNextPeriod > 0) {
           nextPeriodEl.textContent = `Estimated in ${cycleInfo.daysUntilNextPeriod} days ✨`;
         } else if (cycleInfo.daysUntilNextPeriod === 0) {
           nextPeriodEl.textContent = `Estimated today 🌸`;
@@ -282,10 +282,10 @@ class PrincessCycleApp {
     });
 
     this.updateHydrationUI(todayEntry.waterGlasses || 0);
-    this.checkMissedDaysGap(state, user, todayStr, avgCycleLength, avgPeriodLength);
+    this.checkMissedDaysGap(state, cycleInfo);
   }
 
-  checkMissedDaysGap(state, user, todayStr, avgCycleLength, avgPeriodLength) {
+  checkMissedDaysGap(state, cycleInfo) {
     const banner = DOM.home.missedDaysBanner();
     if (!banner) return;
 
@@ -294,9 +294,10 @@ class PrincessCycleApp {
       return;
     }
 
+    const user = state.user;
+    const todayStr = store.formatDate(new Date());
     const gapResult = CycleEngine.detectLoggingGaps(state.dailyEntries, user.lastPeriodStart, todayStr);
     if (gapResult.hasGap && gapResult.gapDates.length > 0) {
-      const cycleInfo = CycleEngine.getCycleDayAndPhase(todayStr, user.lastPeriodStart, avgCycleLength, avgPeriodLength);
       const textEl = DOM.home.missedDaysText();
       if (textEl) {
         textEl.textContent = `You missed ${gapResult.missedCount} check-in ${gapResult.missedCount === 1 ? 'day' : 'days'}, but your rhythm is on track! Today is Cycle Day ${cycleInfo.cycleDay} (${PHASE_META[cycleInfo.phase]?.title || 'Cycle'}).`;
@@ -309,7 +310,7 @@ class PrincessCycleApp {
       if (autofillBtn) {
         autofillBtn.onclick = () => {
           gapResult.gapDates.forEach(dateStr => {
-            const pred = CycleEngine.generatePredictedEntryForDate(dateStr, user.lastPeriodStart, avgCycleLength, avgPeriodLength);
+            const pred = CycleEngine.generatePredictedEntryForDate(dateStr, user.lastPeriodStart, cycleInfo.avgCycleLength, cycleInfo.avgPeriodLength);
             store.setDailyEntry(dateStr, pred);
           });
           soundFx.playChime('sparkle');

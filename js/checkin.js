@@ -6,7 +6,6 @@
 
 import { DOM } from './dom.js';
 import { SleepScheduleEngine } from './sleep.js';
-import { Validation } from './validation.js';
 import { soundFx } from './audio.js';
 import { UI, FocusTrap } from './ui.js';
 
@@ -308,7 +307,9 @@ export class CheckinController {
     const sleepQuality = activeQualityChip ? activeQualityChip.getAttribute('data-quality') : 'Good';
 
     const notesInput = DOM.checkin.notesInput();
-    const notes = Validation.sanitizeText(notesInput ? notesInput.value : '');
+    // Store raw — rendering escapes at paint time. Storing escaped text
+    // corrupts CSV exports and double-escapes after re-render.
+    const notes = notesInput ? notesInput.value.trim() : '';
 
     const existingEntry = this.store.getState().dailyEntries[this.activeLogDate] || {};
 
