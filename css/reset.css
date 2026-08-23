@@ -14,10 +14,17 @@ html {
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
   font-size: 16px;
+  /* Dynamic viewport: page never sized behind the mobile URL bar / home indicator.
+     vh line is the fallback for browsers without dvh support. */
+  height: 100vh;
+  height: 100dvh;
+  /* Stop pull-to-refresh / scroll chaining into neighbouring areas on touch */
+  overscroll-behavior-y: none;
 }
 
 body {
   min-height: 100vh;
+  min-height: 100dvh;
   line-height: 1.5;
   text-rendering: optimizeLegibility;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;

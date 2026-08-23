@@ -99,6 +99,34 @@ h1, h2, h3, h4 {
   box-shadow: var(--shadow-sm) !important;
 }
 
+/* Gentle interactive lift — cards feel alive without being heavy.
+   Pointer-only (no lift on touch) to avoid sticky-press on mobile. */
+@media (hover: hover) and (pointer: fine) {
+  .card {
+    transition: transform 160ms var(--ease-out), box-shadow 160ms var(--ease-out), border-color 160ms var(--ease-out);
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md) !important;
+    border-color: var(--border-card-hover) !important;
+  }
+  /* The hero card keeps its radial wash on hover */
+  .card-hero:hover {
+    box-shadow: var(--shadow-md) !important;
+  }
+}
+
+/* Floating action button — soft themed glow so it reads as "tap me" */
+.nav-fab {
+  box-shadow: 0 4px 14px rgba(200, 109, 124, 0.4), 0 0 0 0 var(--color-primary-glow);
+  transition: transform var(--transition-fast), background-color var(--transition-fast), box-shadow 200ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .nav-fab:hover {
+    box-shadow: 0 6px 18px rgba(200, 109, 124, 0.45), 0 0 18px 2px var(--color-primary-glow);
+  }
+}
+
 /* ============================================================
    Buttons — shadcn-style anatomy: solid / outline / ghost / danger
    ============================================================ */

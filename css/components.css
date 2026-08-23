@@ -534,16 +534,24 @@ body.privacy-shield-active {
   background-color: var(--bg-surface);
   width: 100%;
   max-width: 580px;
+  /* Dynamic viewport so the sheet never sits behind the mobile URL bar / home indicator.
+     The vh line is the fallback for browsers without dvh support. */
   max-height: 90vh;
+  max-height: 90dvh;
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   box-shadow: var(--shadow-sheet);
   border: 1px solid var(--border-subtle);
   border-bottom: none;
   display: flex;
   flex-direction: column;
+  /* CRITICAL: let the column shrink so .sheet-body can actually scroll
+     instead of overflowing the capped height on short screens / large fonts */
+  min-height: 0;
   transform: translateY(100%);
   transition: transform var(--transition-normal);
   overflow: hidden;
+  /* Keep inner scrolling from leaking into the page behind the sheet */
+  overscroll-behavior: contain;
 }
 
 .sheet-backdrop.active .sheet-container {
@@ -570,6 +578,11 @@ body.privacy-shield-active {
   padding: var(--space-lg);
   overflow-y: auto;
   flex: 1;
+  /* Allow the scrollable body to shrink below content height so it scrolls
+     instead of pushing the footer off-screen on short viewports */
+  min-height: 0;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .sheet-footer {
@@ -604,18 +617,60 @@ body.privacy-shield-active {
   width: 100%;
   max-width: 480px;
   max-height: 90vh;
+  max-height: 90dvh;
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
+  min-height: 0;
   transform: scale(0.96);
   transition: transform var(--transition-normal);
   overflow: hidden;
+  overscroll-behavior: contain;
 }
 
 .modal-backdrop.active .modal-container {
   transform: scale(1);
+}
+
+/* ==========================================================================
+   Theme / Appearance Selectors — horizontal scroll strip
+   The parent .card uses overflow:hidden (cute.css), so a wrapping flex row of
+   pills would clip the off-screen options. Make these selectors their own
+   scrollable strips with a visible scrollbar so every option is reachable.
+   ========================================================================== */
+#theme-selector-group,
+#ambient-sound-group {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  padding-bottom: 6px;
+  /* Persuade flex children not to shrink below content width */
+  gap: var(--space-xs);
+}
+
+#theme-selector-group > .btn,
+#ambient-sound-group > .btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* Visible scrollbar affordance on the strip (WebKit) */
+#theme-selector-group::-webkit-scrollbar,
+#ambient-sound-group::-webkit-scrollbar {
+  height: 6px;
+}
+#theme-selector-group::-webkit-scrollbar-thumb,
+#ambient-sound-group::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: var(--radius-full);
+}
+#theme-selector-group::-webkit-scrollbar-thumb:hover,
+#ambient-sound-group::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
 }
 
 /* ==========================================================================

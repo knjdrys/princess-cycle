@@ -7,6 +7,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* ==========================================================================
@@ -82,7 +83,10 @@
    ========================================================================== */
 .app-main {
   flex: 1;
-  padding-bottom: calc(var(--bottom-nav-height) + var(--space-2xl));
+  /* Generous bottom buffer so the last card (About / disclaimer) clears the
+     fixed mobile bottom-nav AND the iOS home-indicator on every device.
+     Uses dynamic + safe-area units with a static fallback. */
+  padding-bottom: calc(var(--bottom-nav-height) + var(--space-2xl) + env(safe-area-inset-bottom, 0px));
   padding-top: var(--space-md);
 }
 
