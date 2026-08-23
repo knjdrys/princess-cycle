@@ -8,7 +8,7 @@
  * index.html + js/app.js — a missing file breaks the app offline entirely.
  */
 
-const CACHE_VERSION = 'v1.1.0';
+const CACHE_VERSION = 'v1.1.1';
 const CACHE_NAME = `princess-cycle-${CACHE_VERSION}`;
 
 const ASSETS_TO_CACHE = [

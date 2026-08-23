@@ -109,6 +109,8 @@ export class RelaxationPacer {
   }
 
   start() {
+    // Guard against stacked intervals when reopening the modal
+    if (this.timer) clearInterval(this.timer);
     this.isRunning = true;
     const toggleBtn = document.getElementById('btn-toggle-pacer');
     if (toggleBtn) toggleBtn.textContent = 'Pause';

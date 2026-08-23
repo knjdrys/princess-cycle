@@ -1,445 +1,269 @@
 /**
- * PrincessCycle — Kawaii Cute Design System ✨
- * Seamless Light Mode (Lilac Milk) & Dark Mode (Midnight Orchid)
- * Floating petals · Sparkle twinkles · Bouncy animations · Sticker badges · Dreamy glassmorphism
+ * PrincessCycle — Design System Layer ✨
+ * Loaded LAST: refines the base component styles into one cohesive,
+ * premium visual language (modern product aesthetic — restrained
+ * elevation, purposeful motion, glass reserved for navigation chrome).
+ *
+ * NOTE: This file loads after components.css, so equal-specificity rules
+ * here win the cascade naturally. !important is used ONLY against inline
+ * style attributes present in markup.
  */
 
-/* ============================================================
-   Google Fonts: Comfortaa (Display) + Nunito (Body)
-   ============================================================ */
 @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap');
 
 /* ============================================================
-   Light Mode Design Tokens (Default)
+   Design Tokens
    ============================================================ */
 :root {
-  --font-family-base: 'Nunito', 'Comfortaa', -apple-system, sans-serif;
+  --font-family-base: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-family-display: 'Comfortaa', 'Nunito', -apple-system, sans-serif;
 
-  /* Cute Glow & Motion */
-  --cute-glow-primary: 0 0 20px rgba(144, 97, 249, 0.35), 0 0 40px rgba(192, 132, 252, 0.15);
-  --cute-glow-pink:    0 0 20px rgba(244, 114, 182, 0.35), 0 0 40px rgba(244, 114, 182, 0.15);
+  /* Motion — quick and subtle; springs reserved for interactive elements */
   --cute-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --cute-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* Light Theme Background Gradient */
-  --bg-cute-gradient: linear-gradient(135deg, #FAF7FF 0%, #FDF2F8 35%, #F5EEFF 70%, #FAF5FF 100%);
-  --bg-card-glass: rgba(255, 255, 255, 0.92);
-  --bg-card-hero: linear-gradient(145deg, rgba(255,255,255,0.96) 0%, rgba(248,238,255,0.92) 50%, rgba(253,242,248,0.92) 100%);
-  --bg-header-glass: rgba(255, 255, 255, 0.85);
-  --bg-sidebar-glass: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,238,255,0.95) 100%);
-  --bg-bottom-nav: rgba(255, 255, 255, 0.94);
-  --bg-chip: rgba(255, 255, 255, 0.85);
-  --bg-input: rgba(255, 255, 255, 0.95);
-  --bg-modal: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,238,255,0.98) 100%);
-  --bg-affirmation: linear-gradient(135deg, #FAF7FF 0%, #FDF2F8 60%, #F5EEFF 100%);
-  --bg-wake-banner: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 50%, #FAF5FF 100%);
-  --border-card: rgba(196, 168, 255, 0.3);
-  --border-card-hover: rgba(144, 97, 249, 0.45);
-}
-
-/* ============================================================
-   Dark Mode Design Tokens (Midnight Orchid)
-   ============================================================ */
-[data-theme="dark"] {
-  --bg-cute-gradient: linear-gradient(135deg, #120D1D 0%, #1A1229 50%, #140E20 100%);
-  --bg-card-glass: rgba(30, 22, 47, 0.88);
-  --bg-card-hero: linear-gradient(145deg, rgba(35, 25, 55, 0.95) 0%, rgba(28, 20, 44, 0.9) 60%, rgba(38, 24, 52, 0.9) 100%);
-  --bg-header-glass: rgba(22, 15, 36, 0.88);
-  --bg-sidebar-glass: linear-gradient(180deg, rgba(24, 17, 39, 0.96) 0%, rgba(19, 13, 31, 0.96) 100%);
-  --bg-bottom-nav: rgba(24, 17, 39, 0.94);
-  --bg-chip: rgba(43, 31, 67, 0.85);
-  --bg-input: rgba(35, 25, 55, 0.95);
-  --bg-modal: linear-gradient(180deg, rgba(32, 23, 50, 0.98) 0%, rgba(22, 15, 36, 0.98) 100%);
-  --bg-affirmation: linear-gradient(135deg, rgba(39, 28, 62, 0.9) 0%, rgba(48, 28, 56, 0.9) 100%);
-  --bg-wake-banner: linear-gradient(135deg, rgba(45, 35, 25, 0.9) 0%, rgba(35, 25, 55, 0.9) 100%);
+  /* Surfaces */
+  --bg-cute-gradient: linear-gradient(160deg, #FAF7FF 0%, #FDF4FA 40%, #F5EEFF 100%);
+  --bg-card-glass: rgba(255, 255, 255, 0.94);
+  --bg-header-glass: rgba(255, 255, 255, 0.82);
+  --bg-sidebar-glass: rgba(252, 249, 255, 0.92);
+  --bg-bottom-nav: rgba(255, 255, 255, 0.9);
+  --bg-chip: var(--bg-surface-subtle);
+  --bg-input: #FFFFFF;
+  --bg-modal: var(--bg-surface);
   --border-card: rgba(167, 139, 250, 0.22);
-  --border-card-hover: rgba(192, 132, 252, 0.45);
+  --border-card-hover: rgba(144, 97, 249, 0.45);
+
+  /* Elevation — layered, low-ambiance */
+  --elev-1: 0 1px 2px rgba(40, 25, 61, 0.04), 0 2px 8px rgba(144, 97, 249, 0.06);
+  --elev-2: 0 2px 6px rgba(40, 25, 61, 0.05), 0 8px 24px rgba(144, 97, 249, 0.1);
+  --elev-3: 0 4px 12px rgba(40, 25, 61, 0.08), 0 16px 40px rgba(144, 97, 249, 0.14);
+}
+
+[data-theme="dark"] {
+  --bg-cute-gradient: linear-gradient(160deg, #120D1D 0%, #161021 55%, #130E20 100%);
+  --bg-card-glass: rgba(30, 22, 47, 0.85);
+  --bg-header-glass: rgba(20, 14, 33, 0.85);
+  --bg-sidebar-glass: rgba(23, 16, 37, 0.94);
+  --bg-bottom-nav: rgba(23, 16, 37, 0.9);
+  --bg-chip: rgba(43, 31, 67, 0.7);
+  --bg-input: rgba(35, 25, 55, 0.9);
+  --border-card: rgba(167, 139, 250, 0.18);
+  --border-card-hover: rgba(192, 132, 252, 0.5);
 }
 
 /* ============================================================
-   Body & Background
+   Foundation
    ============================================================ */
 body {
-  background: var(--bg-cute-gradient) !important;
-  background-attachment: fixed !important;
+  background: var(--bg-cute-gradient) fixed !important;
   font-family: var(--font-family-base) !important;
   color: var(--text-primary) !important;
-  transition: background var(--transition-normal), color var(--transition-normal);
 }
 
-/* Ambient Radial Glow */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background-image:
-    radial-gradient(circle at 15% 20%, rgba(167, 139, 250, 0.12) 0%, transparent 45%),
-    radial-gradient(circle at 85% 80%, rgba(244, 114, 182, 0.1) 0%, transparent 45%),
-    radial-gradient(circle at 50% 50%, rgba(192, 132, 252, 0.06) 0%, transparent 60%);
-  animation: bg-breathe 8s ease-in-out infinite alternate;
-}
-
-@keyframes bg-breathe {
-  from { opacity: 0.6; transform: scale(1); }
-  to   { opacity: 1;   transform: scale(1.02); }
-}
-
-/* ============================================================
-   Floating Ambient Orbs
-   ============================================================ */
-.cute-orb {
-  position: fixed;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
-  animation: float-orb 12s ease-in-out infinite;
-}
-.cute-orb-1 { width: 180px; height: 180px; top: 5%;  left: -60px;  background: radial-gradient(circle, rgba(167,139,250,0.2) 0%, transparent 70%); animation-delay: 0s;  }
-.cute-orb-2 { width: 220px; height: 220px; top: 60%; right: -80px; background: radial-gradient(circle, rgba(244,114,182,0.15) 0%, transparent 70%); animation-delay: -4s; }
-.cute-orb-3 { width: 140px; height: 140px; top: 35%; left: 50%;   background: radial-gradient(circle, rgba(251,191,36,0.1) 0%, transparent 70%);  animation-delay: -8s; }
-
-@keyframes float-orb {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33%       { transform: translateY(-25px) rotate(10deg); }
-  66%       { transform: translateY(15px) rotate(-8deg); }
-}
-
-/* ============================================================
-   Header & Sidebar Glassmorphism
-   ============================================================ */
-.app-header {
-  background: var(--bg-header-glass) !important;
-  backdrop-filter: blur(18px) saturate(1.6) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(1.6) !important;
-  border-bottom: 1.5px solid var(--border-card) !important;
-  box-shadow: 0 4px 20px rgba(144, 97, 249, 0.08) !important;
-}
-
-.brand-title {
+h1, h2, h3, h4, .brand-title {
   font-family: var(--font-family-display) !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.01em;
 }
+
+/* ============================================================
+   Navigation Chrome — the ONLY glassmorphic surfaces
+   ============================================================ */
+.app-header,
+.bottom-nav {
+  background: var(--bg-header-glass) !important;
+  backdrop-filter: blur(16px) saturate(1.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  border-color: var(--border-card) !important;
+}
+.app-header { box-shadow: var(--elev-1); }
+.bottom-nav { background: var(--bg-bottom-nav) !important; box-shadow: 0 -4px 20px rgba(144, 97, 249, 0.08); }
 
 .sidebar {
   background: var(--bg-sidebar-glass) !important;
-  backdrop-filter: blur(24px) !important;
-  -webkit-backdrop-filter: blur(24px) !important;
-  border-right: 1.5px solid var(--border-card) !important;
-  box-shadow: 4px 0 30px rgba(144, 97, 249, 0.08) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-right: 1px solid var(--border-card) !important;
 }
 
-.sidebar-link {
-  border-radius: var(--radius-full) !important;
-  color: var(--text-secondary) !important;
-  transition: all 200ms var(--cute-bounce) !important;
+.sidebar-link,
+.nav-item {
+  color: var(--text-secondary);
+  transition: background-color 160ms var(--ease-out), color 160ms var(--ease-out);
 }
-.sidebar-link:hover {
-  background: linear-gradient(135deg, rgba(167, 139, 250, 0.18), rgba(244, 114, 182, 0.12)) !important;
-  color: var(--text-primary) !important;
-  transform: translateX(4px) !important;
+.sidebar-link:hover,
+.nav-item:hover {
+  background: var(--bg-surface-subtle);
+  color: var(--text-primary);
 }
-.sidebar-link.active {
-  background: linear-gradient(135deg, rgba(144, 97, 249, 0.22), rgba(192, 132, 252, 0.16)) !important;
-  color: var(--color-primary) !important;
-  font-weight: 700 !important;
-  box-shadow: inset 0 0 0 1.5px rgba(144, 97, 249, 0.35) !important;
+.sidebar-link.active,
+.nav-item.active {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-weight: 700;
 }
 
 /* ============================================================
-   Cards
+   Cards — calm by default; elevation is static, not animated.
+   (Hover-lift on static content cards reads as noise.)
    ============================================================ */
 .card {
   background: var(--bg-card-glass) !important;
-  backdrop-filter: blur(14px) !important;
-  -webkit-backdrop-filter: blur(14px) !important;
-  border: 1.5px solid var(--border-card) !important;
-  border-radius: var(--radius-xl) !important;
-  box-shadow: 0 6px 24px rgba(144, 97, 249, 0.08), 0 1px 4px rgba(0,0,0,0.02) !important;
-  transition: all 250ms var(--cute-spring) !important;
-}
-
-.card:hover {
-  transform: translateY(-3px) !important;
-  box-shadow: 0 10px 34px rgba(144, 97, 249, 0.16), 0 2px 8px rgba(0,0,0,0.04) !important;
-  border-color: var(--border-card-hover) !important;
+  border: 1px solid var(--border-card) !important;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-1);
 }
 
 .card-hero {
-  background: var(--bg-card-hero) !important;
-  border: 2px solid var(--border-card) !important;
-  box-shadow: 0 10px 40px rgba(144, 97, 249, 0.14) !important;
-}
-
-.card-title, h1, h2, h3, h4 {
-  font-family: var(--font-family-display) !important;
-  color: var(--text-primary) !important;
-}
-
-.card-subtitle, p {
-  color: var(--text-secondary) !important;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(167, 139, 250, 0.08) 0%, transparent 60%),
+    var(--bg-surface) !important;
+  border: 1px solid var(--border-card) !important;
+  box-shadow: var(--elev-2);
 }
 
 /* ============================================================
-   Buttons
+   Buttons — consistent anatomy, tactile but not bouncy
    ============================================================ */
 .btn {
-  font-family: var(--font-family-base) !important;
-  font-weight: 700 !important;
-  border-radius: var(--radius-full) !important;
-  transition: all 200ms var(--cute-bounce) !important;
-  letter-spacing: 0.01em;
+  font-weight: 700;
+  transition: background-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out),
+              border-color 150ms var(--ease-out), transform 120ms var(--ease-out);
 }
-
-.btn:active {
-  transform: scale(0.94) !important;
-}
+.btn:active { transform: translateY(0) scale(0.98); }
 
 .btn-primary {
-  background: linear-gradient(135deg, #9061F9 0%, #C084FC 100%) !important;
-  color: #FFFFFF !important;
-  box-shadow: 0 4px 16px rgba(144, 97, 249, 0.35) !important;
+  background: linear-gradient(135deg, #9061F9 0%, #A855F7 100%) !important;
   border: none !important;
+  color: #fff !important;
+  box-shadow: 0 2px 10px rgba(144, 97, 249, 0.32);
 }
 .btn-primary:hover {
   background: linear-gradient(135deg, #7C3AED 0%, #9061F9 100%) !important;
-  box-shadow: 0 6px 22px rgba(144, 97, 249, 0.5) !important;
-  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
 }
 
 .btn-secondary {
   background: var(--bg-chip) !important;
-  border: 1.5px solid var(--border-card) !important;
+  border: 1px solid var(--border-card) !important;
   color: var(--color-primary) !important;
 }
-.btn-secondary:hover {
-  background: rgba(167, 139, 250, 0.25) !important;
-  border-color: var(--color-primary) !important;
-  transform: translateY(-1px) !important;
-}
+.btn-secondary:hover { border-color: var(--border-card-hover) !important; }
 
-.btn-ghost {
-  color: var(--text-secondary) !important;
-}
-.btn-ghost:hover {
-  background: rgba(167, 139, 250, 0.18) !important;
-  color: var(--text-primary) !important;
-}
+.btn-ghost:hover { background: var(--bg-surface-subtle) !important; color: var(--text-primary) !important; }
 
-.btn-ghost.btn-icon-only:hover {
-  transform: scale(1.15) rotate(5deg) !important;
+.btn-danger {
+  background: var(--color-danger-bg) !important;
+  color: var(--color-danger) !important;
+  border: 1px solid rgba(251, 113, 133, 0.3) !important;
 }
+.btn-danger:hover { background: var(--color-danger) !important; color: #fff !important; }
 
 /* ============================================================
-   Chips & Mood Selectors
+   Chips — solid selected state, no scale-jitter
    ============================================================ */
 .chip {
-  font-family: var(--font-family-base) !important;
-  font-weight: 700 !important;
-  border-radius: var(--radius-full) !important;
-  border: 1.5px solid var(--border-card) !important;
   background: var(--bg-chip) !important;
+  border: 1px solid var(--border-card) !important;
   color: var(--text-secondary) !important;
-  transition: all 200ms var(--cute-bounce) !important;
-  box-shadow: 0 2px 8px rgba(144, 97, 249, 0.06) !important;
+  font-weight: 600;
+  transition: background-color 140ms var(--ease-out), border-color 140ms var(--ease-out),
+              color 140ms var(--ease-out);
 }
 .chip:hover {
-  background: linear-gradient(135deg, rgba(167,139,250,0.2), rgba(244,114,182,0.15)) !important;
-  border-color: var(--color-primary) !important;
+  background: var(--bg-surface-hover) !important;
+  border-color: var(--border-card-hover) !important;
   color: var(--text-primary) !important;
-  transform: scale(1.05) translateY(-2px) !important;
-  box-shadow: 0 4px 14px rgba(144, 97, 249, 0.2) !important;
 }
-.chip.active, .chip[aria-pressed="true"] {
-  background: linear-gradient(135deg, #9061F9, #C084FC) !important;
-  color: #FFFFFF !important;
-  border-color: transparent !important;
-  box-shadow: 0 4px 16px rgba(144, 97, 249, 0.4) !important;
-  transform: scale(1.04) !important;
+.chip.active,
+.chip[aria-pressed="true"] {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px rgba(144, 97, 249, 0.3);
+}
+
+.energy-btn.active,
+.flow-btn.active {
+  box-shadow: inset 0 0 0 1.5px currentColor;
+  font-weight: 700;
 }
 
 /* ============================================================
-   Affirmation Card (Sticker Style)
-   ============================================================ */
-#daily-affirmation-card {
-  background: var(--bg-affirmation) !important;
-  border: 2px dashed var(--border-card) !important;
-  border-radius: 28px !important;
-  position: relative;
-  overflow: visible !important;
-}
-#daily-affirmation-card::before {
-  content: '💜';
-  position: absolute;
-  top: -12px;
-  right: 18px;
-  font-size: 1.5rem;
-  animation: bounce-heart 2s ease-in-out infinite;
-}
-#daily-affirmation-card::after {
-  content: '✨';
-  position: absolute;
-  bottom: -10px;
-  left: 18px;
-  font-size: 1.2rem;
-  animation: bounce-heart 2.4s ease-in-out infinite reverse;
-}
-
-@keyframes bounce-heart {
-  0%, 100% { transform: translateY(0) rotate(-5deg); }
-  50%       { transform: translateY(-8px) rotate(5deg); }
-}
-
-/* ============================================================
-   Bottom Navigation Bar
-   ============================================================ */
-.bottom-nav {
-  background: var(--bg-bottom-nav) !important;
-  backdrop-filter: blur(20px) saturate(1.8) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(1.8) !important;
-  border-top: 1.5px solid var(--border-card) !important;
-  box-shadow: 0 -8px 30px rgba(144, 97, 249, 0.12) !important;
-  border-radius: 24px 24px 0 0 !important;
-}
-
-.nav-item {
-  border-radius: var(--radius-lg) !important;
-  color: var(--text-secondary) !important;
-  transition: all 200ms var(--cute-bounce) !important;
-}
-.nav-item.active {
-  background: linear-gradient(135deg, rgba(144, 97, 249, 0.16), rgba(192, 132, 252, 0.12)) !important;
-  color: var(--color-primary) !important;
-}
-.nav-item:hover {
-  transform: translateY(-3px) !important;
-}
-
-/* ============================================================
-   Inputs & Form Controls
+   Inputs
    ============================================================ */
 input[type="text"], input[type="date"], input[type="time"], input[type="number"],
-input[type="email"], select, textarea, .form-control {
-  font-family: var(--font-family-base) !important;
-  border-radius: var(--radius-md) !important;
-  border: 1.5px solid var(--border-card) !important;
+select, textarea, .form-control {
   background: var(--bg-input) !important;
+  border: 1px solid var(--border-medium) !important;
+  border-radius: var(--radius-sm) !important;
   color: var(--text-primary) !important;
-  transition: all 200ms var(--cute-bounce) !important;
+  transition: border-color 140ms var(--ease-out), box-shadow 140ms var(--ease-out);
 }
 input:focus, select:focus, textarea:focus, .form-control:focus {
   border-color: var(--color-primary) !important;
-  box-shadow: 0 0 0 3px rgba(144, 97, 249, 0.2), 0 2px 12px rgba(144, 97, 249, 0.1) !important;
+  box-shadow: 0 0 0 3px rgba(144, 97, 249, 0.15) !important;
   outline: none !important;
 }
 
 /* ============================================================
-   Modals & Bottom Sheets
+   Modals & Sheets
    ============================================================ */
-.sheet-backdrop, .modal-backdrop {
-  background-color: rgba(18, 13, 29, 0.65) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
+.sheet-backdrop, .modal-backdrop, .pin-lock-backdrop {
+  background-color: rgba(18, 13, 29, 0.55) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
-
 .sheet-container, .modal-container {
   background: var(--bg-modal) !important;
-  border: 1.5px solid var(--border-card) !important;
-  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.35) !important;
-  color: var(--text-primary) !important;
-}
-
-.sheet-header, .sheet-footer {
-  border-color: var(--border-card) !important;
+  border: 1px solid var(--border-card) !important;
+  box-shadow: var(--elev-3) !important;
 }
 
 /* ============================================================
-   Toast Notifications
+   Toasts — quiet, readable
    ============================================================ */
 .toast {
-  font-family: var(--font-family-base) !important;
-  font-weight: 700 !important;
-  border-radius: var(--radius-full) !important;
-  background: var(--bg-modal) !important;
+  background: var(--bg-surface-elevated) !important;
   color: var(--text-primary) !important;
-  border: 1.5px solid var(--border-card) !important;
-  box-shadow: 0 8px 32px rgba(144, 97, 249, 0.25) !important;
+  border: 1px solid var(--border-card) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--elev-3) !important;
+  font-weight: 600;
 }
 
 /* ============================================================
-   Calendar Day Buttons
+   Calendar
    ============================================================ */
 .calendar-day {
-  border-radius: var(--radius-md) !important;
-  font-family: var(--font-family-base) !important;
-  font-weight: 700 !important;
-  transition: all 180ms var(--cute-spring) !important;
+  border-radius: var(--radius-sm) !important;
+  font-weight: 600;
+  transition: background-color 120ms var(--ease-out), box-shadow 120ms var(--ease-out);
 }
-.calendar-day:hover {
-  transform: scale(1.08) !important;
-}
-.calendar-day.today {
-  box-shadow: 0 0 0 2px var(--color-primary) !important;
-}
+.calendar-day.today { box-shadow: inset 0 0 0 2px var(--color-primary) !important; }
+.calendar-day.selected { outline: 2px solid var(--color-primary); outline-offset: 1px; }
 
 /* ============================================================
-   Smart Wake Banner
+   Ambient decoration — soft, few, slow
    ============================================================ */
-#smart-wake-banner {
-  border: 2px solid rgba(251, 191, 36, 0.4) !important;
-  background: var(--bg-wake-banner) !important;
-  border-radius: var(--radius-xl) !important;
+.cute-orb { animation: float-orb 18s ease-in-out infinite; }
+@keyframes float-orb {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-18px); }
 }
 
-/* ============================================================
-   Interactive Sparkles on Click
-   ============================================================ */
-.sparkle-star {
-  position: fixed;
-  pointer-events: none;
-  z-index: 9999;
-  user-select: none;
-}
-
-.floating-petal {
-  position: fixed;
-  pointer-events: none;
-  z-index: 0;
-  animation: petal-float linear forwards;
-  user-select: none;
-  opacity: 0.65;
-}
-@keyframes petal-float {
-  0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 0.65; }
-  100% { transform: translateY(-100vh) rotate(720deg) scale(0.5); opacity: 0; }
-}
-
-/* ============================================================
-   Scrollbar
-   ============================================================ */
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #C4B5FD, #C084FC);
+  background: rgba(167, 139, 250, 0.4);
   border-radius: 99px;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #9061F9, #7C3AED);
-}
+::-webkit-scrollbar-thumb:hover { background: rgba(144, 97, 249, 0.65); }
 
 /* ============================================================
-   Accessibility: Reduced Motion & Focus Visibility
+   Accessibility — focus visibility & reduced motion
    ============================================================ */
 :focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-  border-radius: var(--radius-sm);
-}
-
-button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
@@ -451,9 +275,5 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .cute-orb, body::before, #daily-affirmation-card::before, #daily-affirmation-card::after,
-  .floating-petal, .sparkle-star, .beacon-orb {
-    animation: none !important;
-  }
+  .cute-orb, .beacon-orb { animation: none !important; }
 }
-
