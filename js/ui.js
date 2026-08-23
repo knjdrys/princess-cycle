@@ -214,13 +214,15 @@ export const UI = {
   // Apply Theme Preference
   applyTheme(theme) {
     const root = document.documentElement;
-    // Explicit named themes (all light-base): rose, mint, peach, sky, lemon, cocoa.
-    // 'light'/'dark' are explicit palette modes; 'system' follows the OS.
+    // Explicit named themes: rose/mint/peach/sky/lemon/cocoa (light) and their
+    // -dark variants. 'light'/'dark' are explicit palette modes; 'system' follows OS.
+    const namedThemes = ['rose','mint','peach','sky','lemon','cocoa',
+      'rose-dark','mint-dark','peach-dark','sky-dark','lemon-dark','cocoa-dark'];
     if (theme === 'dark') {
       root.setAttribute('data-theme', 'dark');
     } else if (theme === 'light') {
       root.setAttribute('data-theme', 'light');
-    } else if (['rose', 'mint', 'peach', 'sky', 'lemon', 'cocoa'].includes(theme)) {
+    } else if (namedThemes.includes(theme)) {
       root.setAttribute('data-theme', theme);
     } else {
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;

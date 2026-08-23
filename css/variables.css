@@ -601,3 +601,391 @@
   --shadow-lg: 0 4px 12px rgba(112, 74, 40, 0.08), 0 16px 40px rgba(139, 94, 52, 0.1);
   --shadow-sheet: 0 -8px 32px rgba(112, 74, 40, 0.16);
 }
+
+/* ==========================================================================
+   DARK CUTE THEMES — each a full dark palette tinted to its accent
+   ========================================================================== */
+
+/* Rose Dark — moody blush night */
+[data-theme="rose-dark"] {
+  --color-primary: #F472B6;
+  --color-primary-hover: #F06595;
+  --color-primary-light: #3A2230;
+  --color-primary-glow: rgba(244, 114, 182, 0.28);
+  --color-primary-soft: #4A2A3A;
+  --color-secondary: #F783AC;
+  --color-accent: #F59E0B;
+  --color-sparkle: #F9A8D4;
+
+  --bg-app: #1A141C;
+  --bg-surface: #251C24;
+  --bg-surface-subtle: #2E2229;
+  --bg-surface-hover: #382A33;
+  --bg-surface-elevated: #2E2229;
+
+  --text-primary: #FBEFF4;
+  --text-secondary: #D9C4CF;
+  --text-tertiary: #A98B98;
+  --text-inverse: #1A141C;
+
+  --border-subtle: #3D2E37;
+  --border-medium: #4F3A45;
+  --border-focus: #F472B6;
+  --color-success: #38D9A9;
+  --color-success-bg: #142B25;
+  --color-danger: #FF8787;
+  --color-danger-bg: #2E1A1A;
+
+  --phase-menstruation: #F472B6;
+  --phase-menstruation-bg: #2A1A24;
+  --phase-menstruation-text: #F9A8D4;
+  --phase-menstruation-border: #3A2630;
+  --phase-follicular: #DA77F2;
+  --phase-follicular-bg: #261A2E;
+  --phase-follicular-text: #E599F7;
+  --phase-follicular-border: #362840;
+  --phase-ovulation: #FFD43B;
+  --phase-ovulation-bg: #2A2616;
+  --phase-ovulation-text: #FFE066;
+  --phase-ovulation-border: #3A3426;
+  --phase-luteal: #FF922B;
+  --phase-luteal-bg: #2A2016;
+  --phase-luteal-text: #FFA94D;
+  --phase-luteal-border: #3A3026;
+
+  --bg-cute-gradient: linear-gradient(180deg, #1A141C 0%, #251A22 100%);
+  --bg-card-glass: rgba(37, 28, 36, 0.96);
+  --bg-header-glass: rgba(26, 20, 28, 0.86);
+  --bg-sidebar-glass: rgba(46, 34, 41, 0.95);
+  --bg-bottom-nav: rgba(26, 20, 28, 0.92);
+  --bg-chip: var(--bg-surface-subtle);
+  --bg-input: #2E2229;
+  --bg-modal: var(--bg-surface);
+  --border-card: var(--border-subtle);
+  --border-card-hover: var(--border-medium);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.45), 0 8px 24px rgba(244, 114, 182, 0.08);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.5), 0 16px 40px rgba(244, 114, 182, 0.1);
+  --shadow-sheet: 0 -8px 32px rgba(0, 0, 0, 0.6);
+}
+
+/* Mint Dark — cool forest night */
+[data-theme="mint-dark"] {
+  --color-primary: #38D9A9;
+  --color-primary-hover: #20C997;
+  --color-primary-light: #16302A;
+  --color-primary-glow: rgba(56, 217, 169, 0.28);
+  --color-primary-soft: #1F4038;
+  --color-secondary: #63E6BE;
+  --color-accent: #FFD43B;
+  --color-sparkle: #8CE6C8;
+
+  --bg-app: #0F1E18;
+  --bg-surface: #16271F;
+  --bg-surface-subtle: #1C3027;
+  --bg-surface-hover: #243A30;
+  --bg-surface-elevated: #1C3027;
+
+  --text-primary: #EAFBF4;
+  --text-secondary: #BFDBCF;
+  --text-tertiary: #84A99B;
+  --text-inverse: #0F1E18;
+
+  --border-subtle: #254236;
+  --border-medium: #356354;
+  --border-focus: #38D9A9;
+  --color-success: #38D9A9;
+  --color-success-bg: #142B25;
+  --color-danger: #FF8787;
+  --color-danger-bg: #2E1A1A;
+
+  --phase-menstruation: #F783AC;
+  --phase-menstruation-bg: #2A1A24;
+  --phase-menstruation-text: #F9A8D4;
+  --phase-menstruation-border: #3A2630;
+  --phase-follicular: #38D9A9;
+  --phase-follicular-bg: #15291F;
+  --phase-follicular-text: #63E6BE;
+  --phase-follicular-border: #254336;
+  --phase-ovulation: #FFD43B;
+  --phase-ovulation-bg: #2A2616;
+  --phase-ovulation-text: #FFE066;
+  --phase-ovulation-border: #3A3426;
+  --phase-luteal: #748FFC;
+  --phase-luteal-bg: #1A2030;
+  --phase-luteal-text: #A5B4FC;
+  --phase-luteal-border: #28324A;
+
+  --bg-cute-gradient: linear-gradient(180deg, #0F1E18 0%, #16271F 100%);
+  --bg-card-glass: rgba(22, 39, 31, 0.96);
+  --bg-header-glass: rgba(15, 30, 24, 0.86);
+  --bg-sidebar-glass: rgba(28, 48, 39, 0.95);
+  --bg-bottom-nav: rgba(15, 30, 24, 0.92);
+  --bg-chip: var(--bg-surface-subtle);
+  --bg-input: #1C3027;
+  --bg-modal: var(--bg-surface);
+  --border-card: var(--border-subtle);
+  --border-card-hover: var(--border-medium);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.45), 0 8px 24px rgba(56, 217, 169, 0.08);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.5), 0 16px 40px rgba(56, 217, 169, 0.1);
+  --shadow-sheet: 0 -8px 32px rgba(0, 0, 0, 0.6);
+}
+
+/* Peach Dark — warm ember night */
+[data-theme="peach-dark"] {
+  --color-primary: #FFA94D;
+  --color-primary-hover: #FF922B;
+  --color-primary-light: #332415;
+  --color-primary-glow: rgba(255, 169, 77, 0.28);
+  --color-primary-soft: #432E1C;
+  --color-secondary: #FFC078;
+  --color-accent: #F783AC;
+  --color-sparkle: #FFD8A8;
+
+  --bg-app: #1E1410;
+  --bg-surface: #271C16;
+  --bg-surface-subtle: #31241C;
+  --bg-surface-hover: #3D2D22;
+  --bg-surface-elevated: #31241C;
+
+  --text-primary: #FCEEE4;
+  --text-secondary: #E0C8B7;
+  --text-tertiary: #A98B78;
+  --text-inverse: #1E1410;
+
+  --border-subtle: #42301F;
+  --border-medium: #56412C;
+  --border-focus: #FFA94D;
+  --color-success: #38D9A9;
+  --color-success-bg: #142B25;
+  --color-danger: #FF8787;
+  --color-danger-bg: #2E1A1A;
+
+  --phase-menstruation: #F783AC;
+  --phase-menstruation-bg: #2A1A24;
+  --phase-menstruation-text: #F9A8D4;
+  --phase-menstruation-border: #3A2630;
+  --phase-follicular: #FFA94D;
+  --phase-follicular-bg: #2E2114;
+  --phase-follicular-text: #FFC078;
+  --phase-follicular-border: #3D2E1C;
+  --phase-ovulation: #FFD43B;
+  --phase-ovulation-bg: #2A2616;
+  --phase-ovulation-text: #FFE066;
+  --phase-ovulation-border: #3A3426;
+  --phase-luteal: #DA77F2;
+  --phase-luteal-bg: #261A2E;
+  --phase-luteal-text: #E599F7;
+  --phase-luteal-border: #362840;
+
+  --bg-cute-gradient: linear-gradient(180deg, #1E1410 0%, #271C16 100%);
+  --bg-card-glass: rgba(39, 28, 22, 0.96);
+  --bg-header-glass: rgba(30, 20, 16, 0.86);
+  --bg-sidebar-glass: rgba(49, 36, 28, 0.95);
+  --bg-bottom-nav: rgba(30, 20, 16, 0.92);
+  --bg-chip: var(--bg-surface-subtle);
+  --bg-input: #31241C;
+  --bg-modal: var(--bg-surface);
+  --border-card: var(--border-subtle);
+  --border-card-hover: var(--border-medium);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.45), 0 8px 24px rgba(255, 169, 77, 0.08);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.5), 0 16px 40px rgba(255, 169, 77, 0.1);
+  --shadow-sheet: 0 -8px 32px rgba(0, 0, 0, 0.6);
+}
+
+/* Sky Dark — deep midnight blue */
+[data-theme="sky-dark"] {
+  --color-primary: #4DABF7;
+  --color-primary-hover: #339AF0;
+  --color-primary-light: #15263A;
+  --color-primary-glow: rgba(77, 171, 247, 0.28);
+  --color-primary-soft: #1E3450;
+  --color-secondary: #74C0FC;
+  --color-accent: #FFD43B;
+  --color-sparkle: #A5D8FF;
+
+  --bg-app: #0F1822;
+  --bg-surface: #172431;
+  --bg-surface-subtle: #1E2E3E;
+  --bg-surface-hover: #26384A;
+  --bg-surface-elevated: #1E2E3E;
+
+  --text-primary: #EAF4FE;
+  --text-secondary: #BCD3E8;
+  --text-tertiary: #82A0BC;
+  --text-inverse: #0F1822;
+
+  --border-subtle: #25394E;
+  --border-medium: #34506B;
+  --border-focus: #4DABF7;
+  --color-success: #38D9A9;
+  --color-success-bg: #142B25;
+  --color-danger: #FF8787;
+  --color-danger-bg: #2E1A1A;
+
+  --phase-menstruation: #F783AC;
+  --phase-menstruation-bg: #2A1A24;
+  --phase-menstruation-text: #F9A8D4;
+  --phase-menstruation-border: #3A2630;
+  --phase-follicular: #4DABF7;
+  --phase-follicular-bg: #152A3E;
+  --phase-follicular-text: #74C0FC;
+  --phase-follicular-border: #25394E;
+  --phase-ovulation: #FFD43B;
+  --phase-ovulation-bg: #2A2616;
+  --phase-ovulation-text: #FFE066;
+  --phase-ovulation-border: #3A3426;
+  --phase-luteal: #DA77F2;
+  --phase-luteal-bg: #261A2E;
+  --phase-luteal-text: #E599F7;
+  --phase-luteal-border: #362840;
+
+  --bg-cute-gradient: linear-gradient(180deg, #0F1822 0%, #172431 100%);
+  --bg-card-glass: rgba(23, 36, 49, 0.96);
+  --bg-header-glass: rgba(15, 24, 34, 0.86);
+  --bg-sidebar-glass: rgba(30, 46, 62, 0.95);
+  --bg-bottom-nav: rgba(15, 24, 34, 0.92);
+  --bg-chip: var(--bg-surface-subtle);
+  --bg-input: #1E2E3E;
+  --bg-modal: var(--bg-surface);
+  --border-card: var(--border-subtle);
+  --border-card-hover: var(--border-medium);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.45), 0 8px 24px rgba(77, 171, 247, 0.08);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.5), 0 16px 40px rgba(77, 171, 247, 0.1);
+  --shadow-sheet: 0 -8px 32px rgba(0, 0, 0, 0.6);
+}
+
+/* Lemon Dark — warm honey night */
+[data-theme="lemon-dark"] {
+  --color-primary: #FFD43B;
+  --color-primary-hover: #FCC419;
+  --color-primary-light: #332C12;
+  --color-primary-glow: rgba(255, 212, 59, 0.28);
+  --color-primary-soft: #433915;
+  --color-secondary: #FFE066;
+  --color-accent: #F783AC;
+  --color-sparkle: #FFF3BF;
+
+  --bg-app: #1E1A0E;
+  --bg-surface: #272215;
+  --bg-surface-subtle: #312B1A;
+  --bg-surface-hover: #3D3622;
+  --bg-surface-elevated: #312B1A;
+
+  --text-primary: #FBF6E4;
+  --text-secondary: #E2D7B4;
+  --text-tertiary: #A99E78;
+  --text-inverse: #1E1A0E;
+
+  --border-subtle: #423A1F;
+  --border-medium: #564C2C;
+  --border-focus: #FFD43B;
+  --color-success: #38D9A9;
+  --color-success-bg: #142B25;
+  --color-danger: #FF8787;
+  --color-danger-bg: #2E1A1A;
+
+  --phase-menstruation: #F783AC;
+  --phase-menstruation-bg: #2A1A24;
+  --phase-menstruation-text: #F9A8D4;
+  --phase-menstruation-border: #3A2630;
+  --phase-follicular: #FFD43B;
+  --phase-follicular-bg: #2E2814;
+  --phase-follicular-text: #FFE066;
+  --phase-follicular-border: #3D3626;
+  --phase-ovulation: #FF922B;
+  --phase-ovulation-bg: #2A2016;
+  --phase-ovulation-text: #FFA94D;
+  --phase-ovulation-border: #3A3026;
+  --phase-luteal: #DA77F2;
+  --phase-luteal-bg: #261A2E;
+  --phase-luteal-text: #E599F7;
+  --phase-luteal-border: #362840;
+
+  --bg-cute-gradient: linear-gradient(180deg, #1E1A0E 0%, #272215 100%);
+  --bg-card-glass: rgba(39, 34, 21, 0.96);
+  --bg-header-glass: rgba(30, 26, 14, 0.86);
+  --bg-sidebar-glass: rgba(49, 43, 26, 0.95);
+  --bg-bottom-nav: rgba(30, 26, 14, 0.92);
+  --bg-chip: var(--bg-surface-subtle);
+  --bg-input: #312B1A;
+  --bg-modal: var(--bg-surface);
+  --border-card: var(--border-subtle);
+  --border-card-hover: var(--border-medium);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.45), 0 8px 24px rgba(255, 212, 59, 0.08);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.5), 0 16px 40px rgba(255, 212, 59, 0.1);
+  --shadow-sheet: 0 -8px 32px rgba(0, 0, 0, 0.6);
+}
+
+/* Cocoa Dark — deep mocha night */
+[data-theme="cocoa-dark"] {
+  --color-primary: #C9A27E;
+  --color-primary-hover: #B08968;
+  --color-primary-light: #2E2418;
+  --color-primary-glow: rgba(201, 162, 126, 0.28);
+  --color-primary-soft: #3D3020;
+  --color-secondary: #D8BEA3;
+  --color-accent: #E07A5F;
+  --color-sparkle: #E6CDB0;
+
+  --bg-app: #1A140E;
+  --bg-surface: #261D14;
+  --bg-surface-subtle: #302419;
+  --bg-surface-hover: #3C2E20;
+  --bg-surface-elevated: #302419;
+
+  --text-primary: #F5ECE3;
+  --text-secondary: #DBCDBD;
+  --text-tertiary: #A88F78;
+  --text-inverse: #1A140E;
+
+  --border-subtle: #3D3020;
+  --border-medium: #52412C;
+  --border-focus: #C9A27E;
+  --color-success: #38D9A9;
+  --color-success-bg: #142B25;
+  --color-danger: #FF8787;
+  --color-danger-bg: #2E1A1A;
+
+  --phase-menstruation: #E07A5F;
+  --phase-menstruation-bg: #2E1E18;
+  --phase-menstruation-text: #F0A98E;
+  --phase-menstruation-border: #3D2A20;
+  --phase-follicular: #C9A27E;
+  --phase-follicular-bg: #2C2418;
+  --phase-follicular-text: #D8BEA3;
+  --phase-follicular-border: #3D3020;
+  --phase-ovulation: #E0A100;
+  --phase-ovulation-bg: #2E2614;
+  --phase-ovulation-text: #F0C84D;
+  --phase-ovulation-border: #3D3426;
+  --phase-luteal: #B08968;
+  --phase-luteal-bg: #2A2218;
+  --phase-luteal-text: #C9AFA0;
+  --phase-luteal-border: #3D3020;
+
+  --bg-cute-gradient: linear-gradient(180deg, #1A140E 0%, #261D14 100%);
+  --bg-card-glass: rgba(38, 29, 20, 0.96);
+  --bg-header-glass: rgba(26, 20, 14, 0.86);
+  --bg-sidebar-glass: rgba(48, 36, 25, 0.95);
+  --bg-bottom-nav: rgba(26, 20, 14, 0.92);
+  --bg-chip: var(--bg-surface-subtle);
+  --bg-input: #302419;
+  --bg-modal: var(--bg-surface);
+  --border-card: var(--border-subtle);
+  --border-card-hover: var(--border-medium);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.45), 0 8px 24px rgba(201, 162, 126, 0.08);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.5), 0 16px 40px rgba(201, 162, 126, 0.1);
+  --shadow-sheet: 0 -8px 32px rgba(0, 0, 0, 0.6);
+}
