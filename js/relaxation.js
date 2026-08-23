@@ -12,11 +12,12 @@ export class RelaxationPacer {
     this.secondsLeft = 4;
     this.cyclesCompleted = 0;
     this.isRunning = false;
+    // 4-7-8 breathing: inhale 4s, hold 7s, exhale 8s — a calming pattern
+    // shown to ease anxiety, slow the heart rate, and help with sleep & cramps.
     this.pattern = [
-      { name: 'Inhale', duration: 4, audio: 'breath-in' },
-      { name: 'Hold', duration: 4, audio: null },
-      { name: 'Exhale', duration: 4, audio: 'breath-out' },
-      { name: 'Rest', duration: 4, audio: null }
+      { name: 'Inhale', duration: 4, expand: true, audio: 'breath-in' },
+      { name: 'Hold', duration: 7, expand: true, audio: null },
+      { name: 'Exhale', duration: 8, expand: false, audio: 'breath-out' }
     ];
   }
 
@@ -29,6 +30,8 @@ export class RelaxationPacer {
       document.body.appendChild(backdrop);
     }
 
+    // Visual breathing sphere — scale driven per-phase so motion follows
+    // the actual breath (expand over the full inhale, hold, contract on exhale).
     backdrop.innerHTML = `
       <div class="modal-container text-center" style="max-width: 440px; padding: var(--space-xl) var(--space-lg);">
         <div class="flex justify-between items-center" style="margin-bottom: var(--space-md);">
@@ -38,16 +41,15 @@ export class RelaxationPacer {
           </button>
         </div>
 
-        <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">Guided Breathing</h3>
+        <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">Guided Breathing · 4-7-8</h3>
         <p style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: var(--space-xl);">
-          Box breathing helps downregulate the nervous system, easing pelvic tension and emotional stress.
+          Inhale 4s · Hold 7s · Exhale 8s. This calming pattern eases anxiety, slows the heart rate, and soothes cramps. Press start and follow the orb.
         </p>
 
-        <!-- Visual Breathing Sphere -->
-        <div class="breathing-circle-container" style="position: relative; width: 180px; height: 180px; margin: 0 auto var(--space-xl); display: flex; align-items: center; justify-content: center;">
-          <div id="breathing-glow-ring" class="breathing-ring" style="position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, var(--color-primary-light) 0%, transparent 70%); transform: scale(0.85); transition: transform 4s ease-in-out, opacity 4s ease-in-out; opacity: 0.6;"></div>
-          <div id="breathing-orb" style="position: relative; width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, var(--phase-follicular), var(--color-primary)); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #FFFFFF; box-shadow: var(--shadow-lg); transition: transform 4s ease-in-out;">
-            <div id="pacer-action-label" style="font-size: 1.1rem; font-weight: 700; line-height: 1;">Ready</div>
+        <div class="breathing-circle-container" style="position: relative; width: 200px; height: 200px; margin: 0 auto var(--space-xl); display: flex; align-items: center; justify-content: center;">
+          <div id="breathing-glow-ring" class="breathing-ring" style="position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, var(--color-primary-light) 0%, transparent 68%); opacity: 0.4; transition: transform 4s cubic-bezier(0.37, 0, 0.63, 1), opacity 4s ease-in-out;"></div>
+          <div id="breathing-orb" style="position: relative; width: 130px; height: 130px; border-radius: 50%; background: linear-gradient(135deg, var(--phase-follicular), var(--color-primary)); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #FFFFFF; box-shadow: var(--shadow-lg); transition: transform 4s cubic-bezier(0.37, 0, 0.63, 1); will-change: transform;">
+            <div id="pacer-action-label" style="font-size: 1.15rem; font-weight: 700; line-height: 1;">Ready</div>
             <div id="pacer-seconds-label" style="font-size: 0.8125rem; opacity: 0.9; margin-top: 2px;">--</div>
           </div>
         </div>
@@ -103,9 +105,8 @@ export class RelaxationPacer {
       this.reset();
     });
 
-    // Auto-start: opening the pacer means "guide me now".
+    // Open in a paused, ready state — the user presses Start to begin.
     this.reset();
-    this.start();
   }
 
   start() {
@@ -143,18 +144,22 @@ export class RelaxationPacer {
 
   tick() {
     const currentPhase = this.pattern[this.phaseIndex];
-    const actionLabel = currentPhase.name;
 
-    if (this.secondsLeft === currentPhase.duration) {
-      if (currentPhase.audio) {
-        soundFx.playChime(currentPhase.audio);
-      }
+    // Set the orb's transition duration to this phase's length so the
+    // expand/contract animation exactly follows the breath timing.
+    const orb = document.getElementById('breathing-orb');
+    const ring = document.getElementById('breathing-glow-ring');
+    const dur = `${currentPhase.duration}s`;
+    if (orb) orb.style.transition = `transform ${dur} cubic-bezier(0.37, 0, 0.63, 1)`;
+    if (ring) ring.style.transition = `transform ${dur} cubic-bezier(0.37, 0, 0.63, 1), opacity ${dur} ease-in-out`;
+
+    // Fire the phase sound at the start of the phase (not every second).
+    if (this.secondsLeft === currentPhase.duration && currentPhase.audio) {
+      soundFx.playChime(currentPhase.audio);
     }
 
-    const isExpand = currentPhase.name === 'Inhale' || currentPhase.name === 'Hold';
-    const scale = isExpand ? 1.25 : 0.85;
-
-    this.updateDOM(actionLabel, `${this.secondsLeft}s`, scale);
+    const scale = currentPhase.expand ? 1.25 : 0.85;
+    this.updateDOM(currentPhase.name, `${this.secondsLeft}s`, scale);
 
     this.secondsLeft--;
     if (this.secondsLeft < 1) {
@@ -177,7 +182,11 @@ export class RelaxationPacer {
     if (actionEl) actionEl.textContent = actionText;
     if (secondsEl) secondsEl.textContent = secondsText;
     if (orb) orb.style.transform = `scale(${scale})`;
-    if (ring) ring.style.transform = `scale(${scale * 1.2})`;
+    // Glow ring widens further than the orb for a soft halo on inhale/hold.
+    if (ring) {
+      ring.style.transform = `scale(${scale * 1.15})`;
+      ring.style.opacity = scale > 1 ? '0.55' : '0.35';
+    }
   }
 }
 

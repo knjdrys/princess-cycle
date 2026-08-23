@@ -23,6 +23,59 @@ class AmbientAudioEngine {
     this.soundFxEnabled = !!val;
   }
 
+  // Sustained, soothing breath sound that lasts the full inhale/exhale phase.
+  // 'in' = rising tone + gentle "air swell"; 'out' = falling tone + soft release.
+  playBreath(direction = 'in', duration = 4) {
+    if (!this.soundFxEnabled) return;
+    try {
+      this.init();
+      if (!this.ctx) return;
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+
+      const now = this.ctx.currentTime;
+      const d = Math.max(1.5, duration);
+
+      // Tone layer: smooth frequency glide (E4 -> B4 on inhale, reverse on exhale)
+      const osc = this.ctx.createOscillator();
+      const toneGain = this.ctx.createGain();
+      osc.type = 'sine';
+      if (direction === 'in') {
+        osc.frequency.setValueAtTime(196, now);              // G3 root
+        osc.frequency.exponentialRampToValueAtTime(392, now + d * 0.85); // G4
+      } else {
+        osc.frequency.setValueAtTime(392, now);
+        osc.frequency.exponentialRampToValueAtTime(196, now + d * 0.85);
+      }
+      // Soft attack, hold, gentle release — like a real breath, not a blip
+      toneGain.gain.setValueAtTime(0.0001, now);
+      toneGain.gain.exponentialRampToValueAtTime(0.06, now + d * 0.35);
+      toneGain.gain.exponentialRampToValueAtTime(0.04, now + d * 0.75);
+      toneGain.gain.exponentialRampToValueAtTime(0.0001, now + d);
+
+      // Air/swish layer: filtered noise that swells inward on inhale, out on exhale
+      const noiseBuf = this.ctx.createBuffer(1, this.ctx.sampleRate * d, this.ctx.sampleRate);
+      const bufData = noiseBuf.getChannelData(0);
+      for (let i = 0; i < bufData.length; i++) bufData[i] = Math.random() * 2 - 1;
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = noiseBuf;
+      const noiseFilter = this.ctx.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.setValueAtTime(direction === 'in' ? 500 : 900, now);
+      noiseFilter.frequency.exponentialRampToValueAtTime(direction === 'in' ? 900 : 500, now + d * 0.85);
+      noiseFilter.Q.value = 0.8;
+      const noiseGain = this.ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.0001, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.018, now + d * 0.4);
+      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + d);
+
+      osc.connect(toneGain); toneGain.connect(this.ctx.destination);
+      noise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(this.ctx.destination);
+
+      osc.start(now); osc.stop(now + d + 0.05);
+      noise.start(now); noise.stop(now + d + 0.05);
+    } catch (e) {}
+  }
+
   // Play gentle fairy chimes
   playChime(type = 'success') {
     if (!this.soundFxEnabled) return;
@@ -53,32 +106,13 @@ class AmbientAudioEngine {
           osc.stop(now + (i * 0.05) + 0.5);
         });
       } else if (type === 'breath-in') {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(329.63, now); // E4
-        osc.frequency.exponentialRampToValueAtTime(493.88, now + 0.4); // B4
-        gain.gain.setValueAtTime(0.001, now);
-        gain.gain.exponentialRampToValueAtTime(0.05, now + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.65);
+        this.playBreath('in', 4);
+        return;
       } else if (type === 'breath-out') {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(493.88, now); // B4
-        osc.frequency.exponentialRampToValueAtTime(329.63, now + 0.4); // E4
-        gain.gain.setValueAtTime(0.001, now);
-        gain.gain.exponentialRampToValueAtTime(0.05, now + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.65);
+        this.playBreath('out', 4);
+        return;
       } else if (type === 'tap') {
+
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = 'sine';
