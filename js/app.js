@@ -556,12 +556,12 @@ class PrincessCycleApp {
       const g = Number(btn.getAttribute('data-glass'));
       if (g <= glasses) {
         btn.textContent = '💧';
-        btn.classList.add('active');
-        btn.style.filter = 'drop-shadow(0 2px 6px rgba(144, 97, 249, 0.5))';
+        btn.classList.add('is-filled');
+        btn.classList.remove('active');
       } else {
         btn.textContent = '🥛';
+        btn.classList.remove('is-filled');
         btn.classList.remove('active');
-        btn.style.filter = 'none';
       }
     });
   }

@@ -22,8 +22,16 @@
       padding: var(--space-sm) var(--space-md);
       margin-bottom: var(--space-xs);
       border-radius: var(--radius-md);
-      font-size: var(--font-size-sm);
+      font-size: 0.9375rem;
+      line-height: 1.4;
     }
+    #test-summary {
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .test-title { font-size: 2rem; font-weight: 800; line-height: 1.1; margin: 0; }
+    .test-sub { font-size: 1rem; margin: 4px 0 0; }
     .test-pass {
       background-color: var(--color-success-bg);
       color: var(--color-success);
@@ -40,8 +48,8 @@
   <div class="card" style="margin-bottom: var(--space-xl);">
     <div class="card-header">
       <div>
-        <h1 style="font-size: 1.5rem;">PrincessCycle Test Suite</h1>
-        <p class="card-subtitle">Automated unit and integration checks</p>
+        <h1 class="test-title">PrincessCycle Test Suite</h1>
+        <p class="card-subtitle test-sub">Automated unit and integration checks</p>
       </div>
       <button class="btn btn-primary btn-sm" id="btn-rerun">Re-run Tests</button>
     </div>
