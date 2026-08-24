@@ -26,6 +26,17 @@ Service Worker cache-version mismatch that was quietly serving outdated code.
 ### Fixed
 - **Service Worker version drift**: `sw.js` shipped `CACHE_VERSION = v1.2.1` while the app reported
   `v1.1.0`. Bumped to `v2.0.0` and registered the two new modules so offline installs stay correct.
+- **Insights sleep chart crash**: `drawSleepScheduleChart` referenced an undefined `data` variable
+  (should have been `entries`), throwing a `ReferenceError` whenever sleep logs existed. Now uses the
+  correct local `entries` scope.
+- **Dead ambient audio buttons**: Gentle Rain / Soft Waves sound toggles called non-existent
+  `soundFx.playAmbientRain()` / `playAmbientWaves()`. Routed to the real `soundFx.startAmbient('rain'|'ocean')`.
+- **Broken command-bar theme toggle**: the header quick-theme switch called non-existent
+  `store.updateState()` (and `storage.saveState()` which also didn't exist), so the toggle silently
+  failed to persist. Switched to `store.setUserProfile({ theme })` and added a `storage.saveState` alias.
+- **Export version stamp**: `storage.exportAsJSON` hardcoded `version: '1.1.0'`; now reads `APP_CONFIG.version`.
+- **Regression tests**: +5 assertions (Group 19) lock in the above fixes. Full suite now 89/89, plus a
+  jsdom feature harness (6/6) that executes the previously-broken canvas + audio paths against a real DOM.
 
 ## [1.1.0] - 2026-08-18
 

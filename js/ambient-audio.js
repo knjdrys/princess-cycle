@@ -25,9 +25,9 @@ export class AudioAmbienceController {
   setMode(mode) {
     this.currentMode = mode;
     if (mode === 'rain') {
-      soundFx.playAmbientRain(0.18);
+      soundFx.startAmbient('rain');
     } else if (mode === 'ocean') {
-      soundFx.playAmbientWaves(0.18);
+      soundFx.startAmbient('ocean');
     } else {
       soundFx.stopAmbient();
     }

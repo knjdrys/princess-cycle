@@ -688,7 +688,7 @@ class PrincessCycleApp {
         // Persist via the same path as the settings theme selector
         try {
           const user = store.getState().user || {};
-          store.updateState({ user: { ...user, theme: next } });
+          store.setUserProfile({ theme: next });
           storage.saveState(store.getState());
         } catch (_) { /* storage best-effort */ }
       });

@@ -374,6 +374,12 @@ class StorageEngine {
     return true;
   }
 
+  // Convenience alias for callers that persist the full state object
+  // (e.g. settings / command-bar theme persistence).
+  async saveState(state) {
+    return this.saveAllData(state);
+  }
+
   syncToLocalStorage(state) {
     if (typeof localStorage === 'undefined') return;
     try {
@@ -426,7 +432,7 @@ class StorageEngine {
 
     const exportData = {
       app: 'PrincessCycle',
-      version: '1.1.0',
+      version: APP_CONFIG.version,
       exportDate: new Date().toISOString(),
       user: safeUser,
       cycles: state.cycles || [],

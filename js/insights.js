@@ -276,7 +276,7 @@ export class InsightsController {
 
     const chartW = width - padding.left - padding.right;
     const chartH = height - padding.top - padding.bottom;
-    const gap = chartW / data.length;
+    const gap = chartW / entries.length;
     const barW = Math.min(28, gap * 0.55);
 
     const computedStyle = getComputedStyle(document.documentElement);
