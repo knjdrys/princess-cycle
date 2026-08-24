@@ -1071,10 +1071,12 @@ textarea.form-control {
 
     .ritual-progress-fill {
     height: 100%;
-    width: 0%;
+    width: 100%;
     border-radius: var(--radius-full);
     background: linear-gradient(90deg, var(--color-primary), #C084FC);
-    transition: width var(--transition-normal);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--transition-normal);
     }
 
     .ritual-progress-label {

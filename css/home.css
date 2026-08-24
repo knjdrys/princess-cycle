@@ -1,0 +1,313 @@
+/**
+ * PrincessCycle - Home Dashboard Redesign (phone-first)
+ * Applied via the design-taste-frontend skill (preserve-mode): same content,
+ * same DOM IDs, same IA. Visual layer modernised using the app's token system.
+ *
+ * Design read: redesigning the Home of a privacy-first menstrual/wellness PWA for
+ * a young Filipina user, calm/supportive/premium-cute language, leaning on the
+ * existing violet + pink token system. Phone-first. Dials: VARIANCE 5 / MOTION 5 / DENSITY 4.
+ *
+ * Locks honoured: one accent (violet primary, pink highlight), one radius scale,
+ * dark + light parity via tokens, motivated entrance + tactile motion only,
+ * reduced-motion guarded. No em-dashes, no decorative status dots.
+ */
+
+/* ---- Layout shell: phone-first single column, breathes on larger screens ---- */
+.home-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg, 18px);
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding-bottom: var(--space-xl, 28px);
+}
+
+@media (min-width: 768px) {
+  .home-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xl, 28px);
+    align-items: start;
+    max-width: 1100px;
+  }
+  /* Hero spans full width; greeter + affirmation flow above it on desktop */
+  .home-greeting { grid-column: 1 / -1; }
+  .card-affirmation { grid-column: 1 / -1; }
+  #hero-cycle-card { grid-column: 1 / -1; }
+  #phase-guide-card { grid-column: 1 / -1; }
+}
+
+/* ---- Greeting header ---- */
+.home-greeting {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm, 10px);
+}
+.home-greeting-title {
+  font-family: var(--font-family-display, inherit);
+  font-size: clamp(1.3rem, 6vw, 1.7rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.15;
+}
+.home-greeting-sub {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+.home-greeting-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs, 6px);
+}
+.home-greeting-actions .btn { flex: 1 1 auto; }
+
+/* ---- Affirmation card ---- */
+.card-affirmation {
+  background: linear-gradient(135deg, var(--color-primary-light, #ede9fe), var(--bg-surface));
+  border: 1px solid var(--border-subtle);
+  border-top: 3px solid var(--color-accent, #ec4899);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-affirmation:active { transform: scale(0.985); }
+.card-affirmation-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs, 6px);
+  margin-bottom: 8px;
+}
+.badge-affirm {
+  background: var(--bg-surface-subtle);
+  color: var(--color-primary, #7c3aed);
+  font-weight: 700;
+}
+.card-affirmation-hint {
+  font-size: 0.72rem;
+  color: var(--color-primary, #7c3aed);
+  font-weight: 600;
+}
+.card-affirmation-quote {
+  font-family: var(--font-family-display, inherit);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+.card-affirmation-tip {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ---- Hero cycle card ---- */
+.card-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-sm, 10px);
+}
+.hero-dial {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.hero-phase-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs, 6px);
+  flex-wrap: wrap;
+  margin: var(--space-xs, 6px) 0;
+}
+.hero-next {
+  width: 100%;
+  max-width: 380px;
+  background: var(--bg-surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg, 16px);
+  padding: var(--space-md, 14px);
+  text-align: center;
+}
+.hero-next-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.hero-next-value {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--color-primary, #7c3aed);
+  margin: 2px 0;
+}
+.hero-next-note {
+  font-size: 0.74rem;
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+/* ---- Card footer row (mood card) ---- */
+.card-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm, 10px);
+  margin-top: var(--space-lg, 18px);
+  padding-top: var(--space-md, 14px);
+  border-top: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+.card-footer-note {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primary, #7c3aed);
+}
+
+/* ---- Hydration ---- */
+.hydration-box {
+  background: var(--bg-surface-subtle);
+  padding: 12px 14px;
+  border-radius: var(--radius-lg, 16px);
+  margin-bottom: var(--space-md, 14px);
+}
+.hydration-box-head { margin-bottom: 8px; }
+.hydration-label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.hydration-count {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-primary, #7c3aed);
+}
+.water-droplets {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+}
+.water-glass-btn {
+  font-size: 1.15rem;
+  padding: 4px 0;
+  border-radius: var(--radius-md, 10px);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.water-glass-btn:active { transform: scale(0.9); }
+.water-glass-btn.is-filled {
+  background: var(--color-primary-light, #ede9fe);
+  box-shadow: inset 0 0 0 1px var(--color-primary-soft, #ddd6fe);
+}
+
+/* ---- Crystal ---- */
+.crystal-box {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md, 14px);
+  padding: 12px 16px;
+  border-radius: var(--radius-lg, 16px);
+  border: 1.5px dashed var(--border-card, #e9d5ff);
+  background: linear-gradient(135deg, rgba(167,139,250,0.14), rgba(244,114,182,0.12));
+}
+.crystal-icon {
+  font-size: 2rem;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+.crystal-name {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.crystal-desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+
+/* ---- Catch-up banner ---- */
+.card-catchup {
+  background: linear-gradient(135deg, var(--bg-surface), var(--color-primary-light, #ede9fe));
+  border: 2px dashed var(--border-card, #e9d5ff);
+  box-shadow: var(--shadow-sm, none);
+}
+.card-catchup-inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm, 10px);
+}
+.catchup-fairy { font-size: 1.6rem; line-height: 1; }
+.catchup-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.catchup-text {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+.catchup-actions { flex-wrap: wrap; }
+
+/* ---- Phase guide ---- */
+.phase-tabs {
+  display: flex;
+  gap: var(--space-xs, 6px);
+  margin-bottom: var(--space-md, 14px);
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+.phase-tabs .phase-tab-btn { flex: 0 0 auto; }
+.phase-body { display: block; }
+.phase-desc {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-sm, 10px);
+  line-height: 1.5;
+}
+.phase-facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs, 6px);
+  font-size: 0.8125rem;
+}
+.phase-fact {
+  background: var(--bg-surface-subtle);
+  padding: 10px 14px;
+  border-radius: var(--radius-md, 10px);
+  line-height: 1.4;
+}
+
+/* ---- Entrance motion (motivated: draw attention to the top of the dashboard) ---- */
+@media (prefers-reduced-motion: no-preference) {
+  .home-wrap > * {
+    animation: home-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .home-wrap > *:nth-child(1) { animation-delay: 0.02s; }
+  .home-wrap > *:nth-child(2) { animation-delay: 0.06s; }
+  .home-wrap > *:nth-child(3) { animation-delay: 0.10s; }
+  .home-wrap > *:nth-child(4) { animation-delay: 0.14s; }
+  .home-wrap > *:nth-child(5) { animation-delay: 0.18s; }
+  .home-wrap > *:nth-child(6) { animation-delay: 0.22s; }
+  .home-wrap > *:nth-child(7) { animation-delay: 0.26s; }
+}
+@keyframes home-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Dark mode: tags/badges already tokenised; ensure cards keep depth */
+[data-theme="dark"] .card-affirmation {
+  background: linear-gradient(135deg, rgba(124,58,237,0.18), var(--bg-surface));
+}
+[data-theme="dark"] .hero-next,
+[data-theme="dark"] .hydration-box,
+[data-theme="dark"] .phase-fact {
+  background: var(--bg-surface-subtle);
+}

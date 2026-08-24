@@ -19,7 +19,7 @@
   <!-- Google Fonts: Cute Rounded Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Stylesheets -->
   <link rel="stylesheet" href="./css/reset.css" />
@@ -28,6 +28,8 @@
   <link rel="stylesheet" href="./css/components.css" />
   <link rel="stylesheet" href="./css/layout.css" />
   <link rel="stylesheet" href="./css/responsive.css" />
+  <!-- Home dashboard redesign (phone-first, token-based) -->
+  <link rel="stylesheet" href="./css/home.css" />
   <!-- ✨ Kawaii Cute Overhaul — Last so it wins specificity -->
   <link rel="stylesheet" href="./css/cute.css" />
 </head>
@@ -151,16 +153,16 @@
       </div>
 
       <!-- Smart Catch-Up Assistant for Missed Check-in Days -->
-      <div id="missed-days-catchup-banner" class="card" role="region" aria-live="polite" aria-label="Missed check-in catch-up assistant" style="display: none; background: linear-gradient(135deg, var(--bg-surface), #FAF5FF); border: 2px dashed var(--border-card); margin-bottom: var(--space-md); box-shadow: var(--shadow-sm);">
-        <div class="flex justify-between items-center" style="flex-wrap: wrap; gap: 10px;">
+      <div id="missed-days-catchup-banner" class="card card-catchup" role="region" aria-live="polite" aria-label="Missed check-in catch-up assistant" style="display: none;">
+        <div class="card-catchup-inner">
           <div class="flex items-center gap-sm">
-            <span style="font-size: 1.6rem; line-height: 1;" aria-hidden="true">🧚‍♀️</span>
+            <span class="catchup-fairy" aria-hidden="true">🧚‍♀️</span>
             <div>
-              <div style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">Missed a few check-ins? We got you, Princess! ✨</div>
-              <div style="font-size: 0.8125rem; color: var(--text-secondary);" id="missed-days-text">Your cycle progressed naturally. We estimated where you are in your rhythm!</div>
+              <div class="catchup-title">Missed a few check-ins? We got you, Princess! ✨</div>
+              <div class="catchup-text" id="missed-days-text">Your cycle progressed naturally. We estimated where you are in your rhythm!</div>
             </div>
           </div>
-          <div class="flex gap-xs" style="flex-wrap: wrap;">
+          <div class="flex gap-xs catchup-actions">
             <button class="btn btn-primary btn-sm" id="btn-autofill-missed-days">✨ Auto-Fill Missed Days</button>
             <button class="btn btn-ghost btn-sm" id="btn-dismiss-catchup">Dismiss</button>
           </div>
@@ -169,59 +171,62 @@
 
       <!-- VIEW: HOME -->
       <section class="view-section active" id="view-home" aria-label="Home Dashboard">
-        <!-- Dynamic Header Greeting -->
-        <div class="flex justify-between items-center greeting-container" style="margin-bottom: var(--space-md); flex-wrap: wrap; gap: 8px;">
-          <div style="min-width: 200px; flex: 1;">
-            <h1 id="greeting-title" style="font-size: clamp(1.15rem, 4vw, 1.45rem); font-weight: 800; font-family: var(--font-family-display); margin: 0 0 2px 0;">Good morning, sweetest Princess ✨</h1>
-            <p id="greeting-subtitle" style="font-size: clamp(0.75rem, 3vw, 0.875rem); color: var(--text-secondary); margin: 0;">Ganda mo today! Know your rhythm, love your days.</p>
-          </div>
-          <div class="flex gap-xs greeting-action-btns" style="flex-wrap: wrap;">
-            <button class="btn btn-secondary btn-sm" id="btn-period-today-toggle">🩸 Period Started</button>
-            <button class="btn btn-primary btn-sm" id="btn-quick-log-hero">+ Daily Check-In 🌸</button>
-          </div>
-        </div>
+        <div class="home-wrap">
 
-        <!-- Daily Artistic Affirmation & Love Note -->
-        <div class="card" id="daily-affirmation-card" style="margin-bottom: var(--space-lg); cursor: pointer; transition: transform 0.2s;" title="Tap to sparkle!">
-          <div class="flex justify-between items-center" style="margin-bottom: 6px;">
-            <span class="badge" style="background: var(--bg-surface-subtle); color: var(--color-primary); font-weight: 700;" id="affirmation-badge">🎨 Emotional Masterpiece</span>
-            <span style="font-size: 0.75rem; color: var(--color-primary); font-weight: 600;">Tap for magic ✨</span>
+          <!-- Greeting header -->
+          <header class="home-greeting">
+            <div class="home-greeting-text">
+              <h1 id="greeting-title" class="home-greeting-title">Good morning, sweetest Princess ✨</h1>
+              <p id="greeting-subtitle" class="home-greeting-sub">Ganda mo today! Know your rhythm, love your days.</p>
+            </div>
+            <div class="home-greeting-actions">
+              <button class="btn btn-secondary btn-sm" id="btn-period-today-toggle">🩸 Period Started</button>
+              <button class="btn btn-primary btn-sm" id="btn-quick-log-hero">+ Daily Check-In 🌸</button>
+            </div>
+          </header>
+
+          <h2 class="sr-only">Today's dashboard</h2>
+
+          <!-- Daily affirmation -->
+          <div class="card card-affirmation" id="daily-affirmation-card" tabindex="0" role="button" title="Tap to sparkle!" aria-label="Daily affirmation, tap for a new one">
+            <div class="card-affirmation-top">
+              <span class="badge badge-affirm" id="affirmation-badge">🎨 Emotional Masterpiece</span>
+              <span class="card-affirmation-hint">Tap for magic ✨</span>
+            </div>
+            <p id="affirmation-quote" class="card-affirmation-quote">
+              "Ganda mo today, Princess! ✨ Valid ang feelings mo, hindi mo kailangang mag-explain sa mundo."
+            </p>
+            <p id="affirmation-tip" class="card-affirmation-tip"></p>
           </div>
-          <p id="affirmation-quote" style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; font-family: var(--font-family-display);">
-            "Ganda mo today, Princess! ✨ Valid ang feelings mo, hindi mo kailangang mag-explain sa mundo."
-          </p>
-          <p id="affirmation-tip" style="font-size: 0.8125rem; color: var(--text-secondary); margin: 0;"></p>
-        </div>
 
-        <div class="dashboard-grid">
-          <!-- Main Hero Cycle Card (Lilac Multi-Segment Dial) -->
-          <div class="card card-hero dashboard-grid-hero" id="hero-cycle-card">
-            <div id="hero-dial-container"></div>
+          <!-- Cycle hero -->
+          <div class="card card-hero" id="hero-cycle-card">
+            <div id="hero-dial-container" class="hero-dial"></div>
 
-            <div class="flex justify-center gap-sm items-center" style="margin-top: var(--space-xs); margin-bottom: var(--space-md);">
+            <div class="hero-phase-row">
               <span id="hero-phase-badge" class="badge badge-follicular">Follicular Phase</span>
               <span id="hero-phase-tag" class="tag-estimated">Estimated</span>
             </div>
 
-            <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-md); max-width: 380px; margin: 0 auto; box-shadow: var(--shadow-sm);">
-              <div style="font-size: 0.8125rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Next Period Countdown</div>
-              <div id="hero-next-period-text" style="font-size: 1.25rem; font-weight: 800; color: var(--color-primary); margin: 2px 0;">Estimated in 14 days</div>
-              <p style="font-size: 0.75rem; color: var(--text-tertiary); margin: 0;">Predictions stay accurate even if you miss a few check-in days!</p>
+            <div class="hero-next">
+              <div class="hero-next-label">Next Period Countdown</div>
+              <div id="hero-next-period-text" class="hero-next-value">Estimated in 14 days</div>
+              <p class="hero-next-note">Predictions stay accurate even if you miss a few check-in days!</p>
             </div>
           </div>
 
-          <!-- Today's Quick Feelings & Vibe Selector Card (Filipino Localized) -->
+          <!-- Mood / energy -->
           <div class="card">
             <div class="card-header">
               <div>
-                <h3 class="card-title">How's your heart & energy today?</h3>
+                <h3 class="card-title">How's your heart &amp; energy today?</h3>
                 <p class="card-subtitle">Anong vibe mo today, Princess? Tap what resonates ✨</p>
               </div>
             </div>
 
             <div class="chip-group" id="quick-mood-chips">
-              <button class="chip" data-mood="✨ Sunkissed & Jolly"><span class="emoji">✨</span> Sunkissed & Jolly</button>
-              <button class="chip" data-mood="🥰 Kilig & In Love"><span class="emoji">🥰</span> Kilig & In Love</button>
+              <button class="chip" data-mood="✨ Sunkissed & Jolly"><span class="emoji">✨</span> Sunkissed &amp; Jolly</button>
+              <button class="chip" data-mood="🥰 Kilig & In Love"><span class="emoji">🥰</span> Kilig &amp; In Love</button>
               <button class="chip" data-mood="🥺 Marupok / Soft"><span class="emoji">🥺</span> Marupok / Soft</button>
               <button class="chip" data-mood="😾 Spicy / Maldita"><span class="emoji">😾</span> Spicy / Maldita</button>
               <button class="chip" data-mood="😵‍💫 Sabaw / Lutang"><span class="emoji">😵‍💫</span> Sabaw / Lutang</button>
@@ -232,50 +237,48 @@
               <button class="chip" data-mood="🧸 Cozy / Bahay Lang"><span class="emoji">🧸</span> Cozy / Bahay Lang</button>
             </div>
 
-            <div class="flex justify-between items-center" style="margin-top: var(--space-lg); border-top: 1px solid var(--border-subtle); padding-top: var(--space-md); flex-wrap: wrap; gap: 8px;">
-              <span id="quick-log-status" style="font-size: 0.75rem; color: var(--color-primary); font-weight: 600;">Saved in your private journal ✨</span>
+            <div class="card-footer-row">
+              <span id="quick-log-status" class="card-footer-note">Saved in your private journal ✨</span>
               <button class="btn btn-primary btn-sm" id="btn-open-full-log">Full Daily Check-In →</button>
             </div>
           </div>
 
-          <!-- Daily Hydration Sanctuary & Fairy Lucky Crystal Card -->
+          <!-- Hydration + crystal -->
           <div class="card" id="hydration-crystal-card">
             <div class="card-header">
               <div>
-                <h3 class="card-title">Hydration & Daily Magic 💧🔮</h3>
-                <p class="card-subtitle">Stay hydrated for fresh skin & cramp relief! Plus your daily fairy charm.</p>
+                <h3 class="card-title">Hydration &amp; Daily Magic 💧🔮</h3>
+                <p class="card-subtitle">Stay hydrated for fresh skin &amp; cramp relief! Plus your daily fairy charm.</p>
               </div>
             </div>
 
-            <!-- Water Glasses Tracker -->
-            <div style="background: var(--bg-surface-subtle); padding: 12px 14px; border-radius: var(--radius-lg); margin-bottom: var(--space-md);">
-              <div class="flex justify-between items-center" style="margin-bottom: 8px;">
-                <span style="font-size: 0.875rem; font-weight: 700; color: var(--text-primary);">💧 Water Intake Goal:</span>
-                <span id="water-progress-text" style="font-size: 0.8125rem; font-weight: 700; color: var(--color-primary);">0 / 8 Glasses</span>
+            <div class="hydration-box">
+              <div class="flex justify-between items-center hydration-box-head">
+                <span class="hydration-label">💧 Water Intake Goal</span>
+                <span id="water-progress-text" class="hydration-count">0 / 8 Glasses</span>
               </div>
-              <div class="flex justify-between items-center gap-xs" id="water-droplets-container" style="flex-wrap: wrap; gap: 6px;" role="group" aria-label="Water intake glasses">
-                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="1" aria-label="Glass 1 of 8" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
-                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="2" aria-label="Glass 2 of 8" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
-                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="3" aria-label="Glass 3 of 8" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
-                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="4" aria-label="Glass 4 of 8" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
-                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="5" aria-label="Glass 5 of 8" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
-                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="6" aria-label="Glass 6 of 8" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
-                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="7" aria-label="Glass 7 of 8" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
-                <button type="button" class="btn btn-ghost btn-sm water-glass-btn" data-glass="8" aria-label="Glass 8 of 8" style="font-size: 1.25rem; padding: 4px 6px;">🥛</button>
+              <div class="water-droplets" id="water-droplets-container" role="group" aria-label="Water intake glasses">
+                <button type="button" class="btn btn-ghost btn-icon water-glass-btn" data-glass="1" aria-label="Glass 1 of 8">🥛</button>
+                <button type="button" class="btn btn-ghost btn-icon water-glass-btn" data-glass="2" aria-label="Glass 2 of 8">🥛</button>
+                <button type="button" class="btn btn-ghost btn-icon water-glass-btn" data-glass="3" aria-label="Glass 3 of 8">🥛</button>
+                <button type="button" class="btn btn-ghost btn-icon water-glass-btn" data-glass="4" aria-label="Glass 4 of 8">🥛</button>
+                <button type="button" class="btn btn-ghost btn-icon water-glass-btn" data-glass="5" aria-label="Glass 5 of 8">🥛</button>
+                <button type="button" class="btn btn-ghost btn-icon water-glass-btn" data-glass="6" aria-label="Glass 6 of 8">🥛</button>
+                <button type="button" class="btn btn-ghost btn-icon water-glass-btn" data-glass="7" aria-label="Glass 7 of 8">🥛</button>
+                <button type="button" class="btn btn-ghost btn-icon water-glass-btn" data-glass="8" aria-label="Glass 8 of 8">🥛</button>
               </div>
             </div>
 
-            <!-- Daily Lucky Charm / Crystal -->
-            <div class="flex items-center gap-md" style="background: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(244, 114, 182, 0.12)); padding: 12px 16px; border-radius: var(--radius-lg); border: 1.5px dashed var(--border-card);">
-              <span style="font-size: 2rem;" id="daily-crystal-icon">🔮</span>
+            <div class="crystal-box">
+              <span id="daily-crystal-icon" class="crystal-icon">🔮</span>
               <div>
-                <div style="font-size: 0.9375rem; font-weight: 800; color: var(--text-primary);" id="daily-crystal-name">Amethyst of Serenity</div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary);" id="daily-crystal-desc">Lucky Color: Lilac Lavender • Enhances peace, intuition, and soft heart healing.</div>
+                <div id="daily-crystal-name" class="crystal-name">Amethyst of Serenity</div>
+                <div id="daily-crystal-desc" class="crystal-desc">Lucky Color: Lilac Lavender • Enhances peace, intuition, and soft heart healing.</div>
               </div>
             </div>
           </div>
 
-          <!-- Interactive 4-Phase Biological Guide Card -->
+          <!-- Phase guide -->
           <div class="card" id="phase-guide-card">
             <div class="card-header">
               <div>
@@ -285,30 +288,24 @@
               <span class="badge badge-subtle" id="phase-guide-badge">Awareness</span>
             </div>
 
-            <!-- Interactive Phase Tabs -->
-            <div class="flex gap-xs" id="phase-tabs-container" style="margin-bottom: var(--space-md); overflow-x: auto; padding-bottom: 4px;">
+            <div class="phase-tabs" id="phase-tabs-container">
               <button class="btn btn-secondary btn-sm phase-tab-btn" data-phase="menstruation">🌸 Menstruation</button>
               <button class="btn btn-secondary btn-sm phase-tab-btn active" data-phase="follicular">✨ Follicular</button>
               <button class="btn btn-secondary btn-sm phase-tab-btn" data-phase="ovulation">☀️ Ovulation</button>
               <button class="btn btn-secondary btn-sm phase-tab-btn" data-phase="luteal">🌙 Luteal</button>
             </div>
 
-            <div id="phase-tab-content-body">
-              <p id="phase-guide-description" style="font-size: 0.875rem; color: var(--text-primary); margin-bottom: var(--space-sm);"></p>
+            <div id="phase-tab-content-body" class="phase-body">
+              <p id="phase-guide-description" class="phase-desc"></p>
 
-              <div class="flex flex-col gap-xs" style="font-size: 0.8125rem; margin-bottom: var(--space-md);">
-                <div style="background: var(--bg-surface-subtle); padding: 10px 14px; border-radius: var(--radius-md);">
-                  <strong>🥑 Nourishment:</strong> <span id="phase-guide-nutrition"></span>
-                </div>
-                <div style="background: var(--bg-surface-subtle); padding: 10px 14px; border-radius: var(--radius-md);">
-                  <strong>🏃‍♀️ Movement:</strong> <span id="phase-guide-movement"></span>
-                </div>
-                <div style="background: var(--bg-surface-subtle); padding: 10px 14px; border-radius: var(--radius-md);">
-                  <strong>✨ Mindset & Energy:</strong> <span id="phase-guide-mindset"></span>
-                </div>
+              <div class="phase-facts">
+                <div class="phase-fact"><strong>🥑 Nourishment:</strong> <span id="phase-guide-nutrition"></span></div>
+                <div class="phase-fact"><strong>🏃‍♀️ Movement:</strong> <span id="phase-guide-movement"></span></div>
+                <div class="phase-fact"><strong>✨ Mindset &amp; Energy:</strong> <span id="phase-guide-mindset"></span></div>
               </div>
             </div>
           </div>
+
         </div>
       </section>
 
@@ -439,7 +436,7 @@
             <div class="card-header">
               <div>
                 <h3 class="card-title">Gentle Reminders 🔔</h3>
-                <p class="card-subtitle">Optional, respectful nudges — never alarms</p>
+                <p class="card-subtitle">Optional, respectful nudges. Never alarms</p>
               </div>
             </div>
             <div class="form-group">

@@ -7,7 +7,7 @@
  * !important appears ONLY where markup carries inline styles.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Quicksand:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Quicksand:wght@500;600;700&display=swap');
 
 /* ============================================================
    Foundation
@@ -118,12 +118,12 @@ h1, h2, h3, h4 {
 
 /* Floating action button — soft themed glow so it reads as "tap me" */
 .nav-fab {
-  box-shadow: 0 4px 14px rgba(200, 109, 124, 0.4), 0 0 0 0 var(--color-primary-glow);
+  box-shadow: 0 4px 14px rgba(200, 109, 124, 0.4);
   transition: transform var(--transition-fast), background-color var(--transition-fast), box-shadow 200ms var(--ease-out);
 }
 @media (hover: hover) and (pointer: fine) {
   .nav-fab:hover {
-    box-shadow: 0 6px 18px rgba(200, 109, 124, 0.45), 0 0 18px 2px var(--color-primary-glow);
+    box-shadow: 0 8px 20px rgba(200, 109, 124, 0.45);
   }
 }
 
@@ -229,7 +229,7 @@ select, textarea, .form-control {
 input::placeholder, textarea::placeholder { color: var(--text-tertiary); }
 input:focus, select:focus, textarea:focus, .form-control:focus {
   border-color: var(--color-primary) !important;
-  box-shadow: 0 0 0 3px var(--color-primary-glow) !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.18) !important;
   outline: none !important;
 }
 

@@ -69,10 +69,10 @@
   --color-danger-bg: #FFF1F2;
 
   /* ==========================================================================
-     Typography — Plus Jakarta Sans (body) + Quicksand (display)
+     Typography — Nunito (body) + Quicksand (display)
      ========================================================================== */
-  --font-family-base: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-family-display: 'Quicksand', 'Plus Jakarta Sans', -apple-system, sans-serif;
+  --font-family-base: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-display: 'Quicksand', 'Nunito', -apple-system, sans-serif;
 
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.84375rem;

@@ -292,7 +292,7 @@ class PrincessCycleApp {
     if (nextPeriodEl) {
       if (cycleInfo.daysUntilNextPeriod !== null) {
         if (cycleInfo.isOverdue) {
-          nextPeriodEl.textContent = `${cycleInfo.daysLate} days late — log your period when it starts 🩸`;
+          nextPeriodEl.textContent = `${cycleInfo.daysLate} days late. Log your period when it starts 🩸`;
         } else if (cycleInfo.daysUntilNextPeriod > 0) {
           nextPeriodEl.textContent = `Estimated in ${cycleInfo.daysUntilNextPeriod} days ✨`;
         } else if (cycleInfo.daysUntilNextPeriod === 0) {

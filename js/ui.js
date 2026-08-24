@@ -174,11 +174,11 @@ export const UI = {
         </svg>
 
         <!-- Current Day Stardust Beacon Orb -->
-        <div class="beacon-orb" style="position: absolute; width: 22px; height: 22px; border-radius: 50%; background: #FFFFFF; border: 4px solid var(--color-primary); box-shadow: 0 0 14px var(--color-primary-glow), 0 2px 8px rgba(0,0,0,0.18); left: ${orbX}px; top: ${orbY}px; transform: translate(-50%, -50%); z-index: 5;" aria-hidden="true"></div>
+        <div class="beacon-orb" style="position: absolute; width: 22px; height: 22px; border-radius: 50%; background: #FFFFFF; border: 4px solid var(--color-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.18); left: ${orbX}px; top: ${orbY}px; transform: translate(-50%, -50%); z-index: 5;" aria-hidden="true"></div>
 
         <div class="cycle-dial-content">
           <div class="cycle-dial-total" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); font-weight: 600;">Cycle Day</div>
-          <div class="cycle-dial-day-number" style="font-family: var(--font-family-display); font-size: 2.8rem; background: linear-gradient(135deg, var(--color-primary), #C084FC); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${cycleDay}</div>
+          <div class="cycle-dial-day-number" style="font-family: var(--font-family-display); font-size: 2.8rem; color: var(--color-primary);">${cycleDay}</div>
           <div class="cycle-dial-total" style="color: var(--text-tertiary); font-size: 0.8125rem;">of ~${cLen} days</div>
           <div class="cycle-dial-phase-title" style="color: var(${phase.colorVar}); font-weight: 700; margin-top: 4px;">${phase.title}</div>
         </div>

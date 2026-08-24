@@ -92,9 +92,9 @@ export class RitualsController {
 
           <div class="ritual-progress" style="margin-bottom: var(--space-md);">
             <div class="ritual-progress-track">
-              <div class="ritual-progress-fill" id="ritual-progress-fill" style="width: ${pct}%;"></div>
+              <div class="ritual-progress-fill" id="ritual-progress-fill" style="transform: scaleX(${pct / 100});"></div>
             </div>
-            <div class="ritual-progress-label" id="ritual-progress-label">${pct}% complete — ${completedCount} of ${total} rituals</div>
+            <div class="ritual-progress-label" id="ritual-progress-label">${pct}% complete. ${completedCount} of ${total} rituals</div>
           </div>
 
           <div class="ritual-list" id="ritual-list">
@@ -190,8 +190,8 @@ export class RitualsController {
     const fill = this.mountEl.querySelector('#ritual-progress-fill');
     const label = this.mountEl.querySelector('#ritual-progress-label');
     const banner = this.mountEl.querySelector('#ritual-complete-banner');
-    if (fill) fill.style.width = `${pct}%`;
-    if (label) label.textContent = `${pct}% complete — ${completedCount} of ${total} rituals`;
+    if (fill) fill.style.transform = `scaleX(${pct / 100})`;
+    if (label) label.textContent = `${pct}% complete. ${completedCount} of ${total} rituals`;
     if (banner) banner.style.display = (completedCount === total && total > 0) ? 'block' : 'none';
   }
 

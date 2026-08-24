@@ -159,7 +159,7 @@ export class CalendarController {
     const esc = UI.esc;
 
     return `
-      <div class="card" style="border-left: 4px solid var(${phaseMeta.colorVar});">
+      <div class="card" style="border-top: 3px solid var(${phaseMeta.colorVar});">
         <div class="card-header">
           <div>
             <h4 class="card-title">${esc(dateStr === todayStr ? `Today (${dateStr})` : dateStr)}</h4>
