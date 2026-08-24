@@ -15,6 +15,7 @@ import { CalendarController } from './calendar.js';
 import { InsightsController } from './insights.js';
 import { HistoryController } from './history.js';
 import { SharingController } from './sharing.js';
+import { RitualsController } from './rituals-view.js';
 import { PrivacyLock } from './privacy-lock.js';
 import { SleepScheduleEngine } from './sleep.js';
 import { CycleEngine, PHASE_META, PHASES } from './cycle.js';
@@ -37,6 +38,7 @@ class PrincessCycleApp {
     this.historyCtrl = null;
     this.sharingCtrl = null;
     this.privacyLock = null;
+    this.ritualsCtrl = null;
     this.sleepEngine = null;
     this.activePhaseTab = 'follicular';
     this.dismissedCatchupSession = false;
@@ -119,6 +121,36 @@ class PrincessCycleApp {
       UI.showToast('Sharing settings updated ✨', 'info');
     });
 
+    // Self-Care Sanctuary (v2.0.0) — deep-links into existing features
+    this.ritualsCtrl = new RitualsController(store, {
+      openCheckin: (dateStr) => this.checkinCtrl.openCheckin(dateStr),
+      openBreathe: () => relaxationPacer.showModal(),
+      openAffirmation: () => {
+        const affCard = document.getElementById('daily-affirmation-card');
+        if (affCard) affCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        this.router.navigateTo('home', true);
+        setTimeout(() => {
+          const affCardEl = document.getElementById('daily-affirmation-card');
+          if (affCardEl) {
+            soundFx.playChime('sparkle');
+            fairySparkles.burst(affCardEl.getBoundingClientRect().left + 40, affCardEl.getBoundingClientRect().top + 20, 15);
+            UI.showToast('You are doing wonderful, Princess 💜', 'info', 2000);
+          }
+        }, 350);
+      },
+      logWaterGlass: () => {
+        const todayStr = store.formatDate(new Date());
+        const state = store.getState();
+        const entry = state.dailyEntries[todayStr] || {};
+        const currentGlasses = entry.waterGlasses || 0;
+        const next = currentGlasses >= 8 ? 8 : currentGlasses + 1;
+        store.setDailyEntry(todayStr, { ...entry, waterGlasses: next });
+        if (next === 8) UI.showToast('🎉 Hydration Goal Achieved! 💧', 'success', 3000);
+        else UI.showToast(`Logged ${next} / 8 glasses of water 💧`, 'info', 1500);
+        this.updateHydrationUI(next);
+      }
+    });
+
     // 4. Initialize Router with Route Handlers
     this.router = new Router(store, {
       home: () => this.renderHomeDashboard(),
@@ -129,6 +161,7 @@ class PrincessCycleApp {
       insights: () => this.insightsCtrl.render(DOM.mounts.insights()),
       history: () => this.historyCtrl.render(DOM.mounts.history()),
       sharing: () => this.sharingCtrl.render(DOM.mounts.sharing()),
+      rituals: () => this.ritualsCtrl.render(DOM.mounts.rituals()),
       settings: () => this.settingsCtrl.render(),
     });
     this.router.init();

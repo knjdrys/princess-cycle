@@ -976,5 +976,122 @@ textarea.form-control {
     left: 0;
     top: 0;
     width: 100%;
-  }
-}
+    }
+    }
+
+    /* ==========================================================================
+     Self-Care Sanctuary — Ritual Rows (v2.0.0)
+     ========================================================================== */
+    .ritual-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    }
+
+    .ritual-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    transition: background-color var(--transition-fast), border-color var(--transition-fast), opacity var(--transition-fast);
+    }
+
+    .ritual-row.done {
+    background: var(--phase-follicular-bg, rgba(167, 139, 250, 0.12));
+    border-color: var(--phase-follicular-border, var(--border-card));
+    opacity: 0.92;
+    }
+
+    .ritual-check {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid var(--border-medium);
+    background: transparent;
+    color: var(--text-inverse);
+    font-size: 1rem;
+    line-height: 1;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .ritual-check:hover {
+    border-color: var(--color-primary);
+    transform: scale(1.06);
+    }
+
+    .ritual-check.checked {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    box-shadow: 0 2px 8px var(--color-primary-glow, rgba(167, 139, 250, 0.4));
+    }
+
+    .ritual-body {
+    flex: 1;
+    min-width: 0;
+    }
+
+    .ritual-title {
+    font-size: 0.9375rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    }
+
+    .ritual-row.done .ritual-title {
+    color: var(--color-primary);
+    }
+
+    .ritual-blurb {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.35;
+    }
+
+    .ritual-action {
+    flex-shrink: 0;
+    }
+
+    /* Progress bar */
+    .ritual-progress-track {
+    width: 100%;
+    height: 10px;
+    background: var(--bg-surface-subtle);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+    }
+
+    .ritual-progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: var(--radius-full);
+    background: linear-gradient(90deg, var(--color-primary), #C084FC);
+    transition: width var(--transition-normal);
+    }
+
+    .ritual-progress-label {
+    margin-top: 6px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: var(--font-weight-medium);
+    }
+
+    .ritual-complete-banner {
+    margin-top: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    background: var(--phase-follicular-bg, rgba(167, 139, 250, 0.14));
+    border: 1.5px dashed var(--phase-follicular-border, var(--border-card));
+    font-size: 0.875rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary);
+    text-align: center;
+    }

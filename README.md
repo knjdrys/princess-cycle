@@ -10,7 +10,7 @@
 [![Privacy First](https://img.shields.io/badge/Privacy-100%25%20On--Device-9061F9.svg?style=flat-square)](#-privacy--data-ownership-pledge)
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-0%20(Vanilla%20ES6%2B)-A78BFA.svg?style=flat-square)](#-architecture--technology-stack)
 [![License: MIT](https://img.shields.io/badge/License-MIT-F472B6.svg?style=flat-square)](./LICENSE)
-[![Tests Passing](https://img.shields.io/badge/Tests-40%2B%20Assertions-brightgreen.svg?style=flat-square)](./tests/runner.html)
+[![Tests Passing](https://img.shields.io/badge/Tests-84%2B%20Assertions-brightgreen.svg?style=flat-square)](./tests/runner.html)
 
 *A privacy-first, offline-ready menstrual cycle, sleep schedule & personal wellness Progressive Web App (PWA). Built with pure Vanilla JavaScript (ES6+), zero cloud dependencies, and a 💜 dreamy kawaii lilac design tailored for the modern princess.*
 
@@ -36,6 +36,7 @@ Built from the ground up as an installable **Progressive Web App (PWA)**, Prince
 - **📈 Dynamic Hormone & BBT Visualizer**: Real-time canvas estimation of Estrogen, Progesterone, LH surge, FSH curves, and Basal Body Temperature (BBT in °C/°F) syncing seamlessly with dark/light themes.
 - **🌬️ Guided Breathing & Cramp Relief Pacer**: Box breathing resonator (4-4-4-4) with expanding visual sphere and gentle harmonic audio cues.
 - **🎵 Generative Ambient Relaxation Audio**: Pure Web Audio API synthesis — Gentle Rain, Soft Waves, and Pink Noise without external audio files.
+- **🌸 Self-Care Sanctuary & Ritual Streaks**: A new phase-aware daily ritual checklist that turns the app's wellness tools into one gentle routine — check in, breathe, hydrate, affirm, rest, move, nourish, hold your crystal — with current/best streak tracking and a 7-day consistency chart. One tap deep-links into each host feature.
 - **✨ Kawaii Aesthetic & Real Fairy Princess Identity**: Iridescent wings avatar, lilac glass-morphism cards, sparkle click bursts, floating ambient orbs, and rounded typography.
 - **💌 Taglish Affirmations & Spicy Mode Rescue Kit**: Relatable comfort tips (*"Ganda mo today, Princess!"*, *"Valid ang feelings mo"*, FoodPanda/Milk tea suggestions).
 - **🩺 Clinical Doctor's Summary Report**: One-click exportable/printable summary formatted for medical consultations.
@@ -134,6 +135,8 @@ princess-cycle/
 │   ├── audio.js                # Web Audio API ambient soundscape synthesizer
 │   ├── relaxation.js           # Guided breathing & cramp relief pacer
 │   ├── privacy-lock.js         # 4-digit PIN lock & screen shield
+│   ├── rituals.js               # Self-Care Ritual engine (phase-aware defs, streaks)
+│   ├── rituals-view.js          # Self-Care Sanctuary view (checklist, canvas, deep-links)
 │   └── demo-data.js            # Realistic Philippine demo data generator
 ├── tests/
 │   ├── runner.html             # Visual browser test runner

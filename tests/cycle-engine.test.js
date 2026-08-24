@@ -15,6 +15,7 @@ import { store } from '../js/state.js';
 import { DOM } from '../js/dom.js';
 import { UI, FocusTrap } from '../js/ui.js';
 import { InsightsController } from '../js/insights.js';
+import { RitualEngine, RITUAL_LIBRARY } from '../js/rituals.js';
 
 export async function runAllTests() {
   const results = [];
@@ -329,6 +330,66 @@ export async function runAllTests() {
     assert('InsightsController provides scheduleDrawAllCharts method', typeof insights.scheduleDrawAllCharts === 'function');
   } catch (e) {
     assert('Canvas performance tests threw exception', false, e.message);
+  }
+
+  // --- Group 18: Self-Care Ritual Engine (v2.0.0) ---
+  try {
+    // Library exposes anchor + phase rituals
+    assert('Ritual library contains check-in ritual', Boolean(RITUAL_LIBRARY.checkin));
+    assert('Ritual library contains breathe ritual', Boolean(RITUAL_LIBRARY.breathe));
+
+    // Phase-aware selection: menstruation shows rest, follicular shows move
+    const mensRituals = RitualEngine.getRitualsForPhase(PHASES.MENSTRUATION).map(r => r.id);
+    const follRituals = RitualEngine.getRitualsForPhase(PHASES.FOLLICULAR).map(r => r.id);
+    assert('Menstruation phase includes rest ritual', mensRituals.includes('rest'));
+    assert('Follicular phase includes move ritual', follRituals.includes('move'));
+    assert('Follicular phase excludes rest ritual', !follRituals.includes('rest'));
+
+    // Anchor rituals always lead the order
+    assert('Check-in is first ritual for any phase', follRituals[0] === 'checkin');
+
+    // Completion helpers
+    const entryWithRituals = { rituals: { checkin: true, hydrate: true } };
+    const done = RitualEngine.getCompletedForEntry(entryWithRituals);
+    assert('Completed rituals read from entry.rituals', done.checkin === true && done.hydrate === true);
+    assert('countCompleted sums ritual ids', RitualEngine.countCompleted(entryWithRituals, ['checkin', 'hydrate', 'breathe']) === 2);
+    assert('isDayCompleted true when >=1 done', RitualEngine.isDayCompleted(entryWithRituals) === true);
+    assert('isDayCompleted false on empty entry', RitualEngine.isDayCompleted({}) === false);
+
+    // Streak: 3 consecutive completed days ending today => 3
+    const today = '2026-08-10';
+    const streakEntries = {
+      '2026-08-08': { rituals: { checkin: true } },
+      '2026-08-09': { rituals: { checkin: true } },
+      '2026-08-10': { rituals: { checkin: true } }
+    };
+    assert('computeStreak counts consecutive completed days', RitualEngine.computeStreak(streakEntries, today, CycleEngine.addDays.bind(CycleEngine)) === 3);
+
+    const brokenEntries = {
+      '2026-08-07': { rituals: { checkin: true } },
+      '2026-08-10': { rituals: { checkin: true } }
+    };
+    assert('computeStreak stops at first gap', RitualEngine.computeStreak(brokenEntries, today, CycleEngine.addDays.bind(CycleEngine)) === 1);
+
+    // Longest streak across history
+    const longEntries = {
+      '2026-08-01': { rituals: { checkin: true } },
+      '2026-08-02': { rituals: { checkin: true } },
+      '2026-08-03': { rituals: { checkin: true } },
+      '2026-08-10': { rituals: { checkin: true } },
+      '2026-08-11': { rituals: { checkin: true } }
+    };
+    assert('computeLongestStreak finds longest run', RitualEngine.computeLongestStreak(longEntries, CycleEngine.addDays.bind(CycleEngine)) === 3);
+    assert('computeLongestStreak empty => 0', RitualEngine.computeLongestStreak({}, CycleEngine.addDays.bind(CycleEngine)) === 0);
+
+    // 7-day series length + ordering (oldest -> newest), honest empty state
+    const series = RitualEngine.getConsistencySeries(streakEntries, today, CycleEngine.addDays.bind(CycleEngine), ['checkin', 'hydrate']);
+    assert('Consistency series has 7 entries', series.length === 7);
+    assert('Consistency series ends on today', series[6].date === today);
+    assert('Consistency series starts 6 days before today', series[0].date === CycleEngine.addDays(today, -6));
+    assert('Consistency series totals are sane', series.every(s => s.total >= s.done && s.ratio >= 0 && s.ratio <= 1));
+  } catch (e) {
+    assert('Self-Care Ritual engine tests threw exception', false, e.message);
   }
 
   return results;

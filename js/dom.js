@@ -17,6 +17,7 @@ export const DOM = {
     insights: () => document.getElementById('view-insights'),
     history: () => document.getElementById('view-history'),
     sharing: () => document.getElementById('view-sharing'),
+    rituals: () => document.getElementById('view-rituals'),
     settings: () => document.getElementById('view-settings'),
   },
 
@@ -26,6 +27,7 @@ export const DOM = {
     insights: () => document.getElementById('insights-mount-point'),
     history: () => document.getElementById('history-mount-point'),
     sharing: () => document.getElementById('sharing-mount-point'),
+    rituals: () => document.getElementById('rituals-mount-point'),
   },
 
   // Navigation Items

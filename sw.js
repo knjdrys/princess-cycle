@@ -8,7 +8,7 @@
  * index.html + js/app.js — a missing file breaks the app offline entirely.
  */
 
-const CACHE_VERSION = 'v1.2.1';
+const CACHE_VERSION = 'v2.0.0';
 const CACHE_NAME = `princess-cycle-${CACHE_VERSION}`;
 
 const ASSETS_TO_CACHE = [
@@ -48,6 +48,9 @@ const ASSETS_TO_CACHE = [
   './js/history.js',
   './js/sharing.js',
   './js/privacy-lock.js',
+  // Self-Care Sanctuary (v2.0.0)
+  './js/rituals.js',
+  './js/rituals-view.js',
   // Ambient features
   './js/audio.js',
   './js/ambient-audio.js',

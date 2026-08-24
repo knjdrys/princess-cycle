@@ -38,7 +38,7 @@ export class Router {
   }
 
   navigateTo(viewName, updateHash = true) {
-    const validViews = ['home', 'calendar', 'insights', 'history', 'sharing', 'settings'];
+    const validViews = ['home', 'calendar', 'insights', 'history', 'sharing', 'rituals', 'settings'];
     const targetView = validViews.includes(viewName) ? viewName : 'home';
 
     if (updateHash && window.location.hash.replace(/^#\/?/, '') !== targetView) {
