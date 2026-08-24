@@ -11,6 +11,7 @@ body {
   font-weight: var(--font-weight-normal);
   line-height: var(--line-height-normal);
   min-height: 100vh;
+  min-height: 100dvh;
   transition: background-color var(--transition-normal), color var(--transition-normal);
   overflow-x: hidden;
   position: relative;

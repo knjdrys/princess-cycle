@@ -1,0 +1,232 @@
+/**
+ * PrincessCycle — App-Wide Design System Refinement Layer
+ * Loaded LAST. Re-defines the shared primitives every screen is built from:
+ * cards, buttons, chips, badges, inputs, sheets, nav, headings, motion,
+ * texture and accessibility. This is what "remodels the whole app" means here:
+ * elevate the components, and Calendar / Rituals / Insights / History /
+ * Sharing / Settings / Check-In all inherit the new quality at once.
+ *
+ * Brand retained: lilac + pink (taste-skill: keep the brand). Technique borrowed
+ * from impeccable + redesign-existing-projects: violet-TINTED shadows (not black),
+ * hairline edge refraction, restrained motion, real hierarchy, texture to kill
+ * digital flatness, no AI purple-to-blue gradient, no dark glows, no bounce.
+ *
+ * Only existing token names are used (stable API). No DOM hooks renamed.
+ */
+
+/* ============================================================
+   0. Foundational: grain texture + smooth scroll + skip link
+   ============================================================ */
+/* Subtle film-grain overlay: breaks the sterile flatness. Pure CSS, no assets. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  mix-blend-mode: multiply;
+}
+[data-theme="dark"] body::after { opacity: 0.05; mix-blend-mode: screen; }
+
+html { scroll-behavior: smooth; }
+
+/* Skip-to-content: hidden until focused (keyboard a11y) */
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-150%);
+  z-index: 1000;
+  background: var(--color-primary);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast);
+  text-decoration: none;
+}
+.skip-link:focus { transform: translateX(-50%) translateY(0); }
+
+/* ============================================================
+   1. Cards — depth via hairline edge + violet-tinted shadow
+   ============================================================ */
+.card {
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-subtle);
+  background-color: var(--bg-card-glass);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast),
+              border-color var(--transition-fast);
+}
+/* Edge refraction: a 1px top highlight sells the "real surface" look */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent);
+  opacity: 0.6;
+  pointer-events: none;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+[data-theme="dark"] .card::before { opacity: 0.25; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent); }
+.card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-card-hover);
+  transform: translateY(-2px);
+}
+
+/* ============================================================
+   2. Buttons — consistent lift + press + focus, brand sheen on primary
+   ============================================================ */
+.btn {
+  border-radius: var(--radius-btn);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.01em;
+  transition: transform var(--transition-fast), background-color var(--transition-fast),
+              box-shadow var(--transition-fast), border-color var(--transition-fast);
+  position: relative;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(1px) scale(0.985); }
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-glow);
+}
+.btn-primary {
+  /* intentional brand gradient (violet -> pink), not the AI purple-to-blue tell */
+  background: linear-gradient(135deg, var(--color-primary) 0%, #9D4EDD 55%, var(--color-accent) 130%);
+  border: none;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.28);
+  color: #fff;
+}
+.btn-primary:hover { box-shadow: 0 6px 20px rgba(124, 58, 237, 0.36); }
+.btn-secondary {
+  background-color: var(--bg-surface-subtle);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+.btn-secondary:hover { background-color: var(--bg-surface-hover); border-color: var(--border-medium); }
+.btn-secondary.active {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.btn-danger { color: var(--color-danger); border-color: var(--border-subtle); background: var(--bg-surface); }
+.btn-danger:hover { background: var(--color-danger-bg); border-color: var(--color-danger); }
+
+/* ============================================================
+   3. Chips & Badges — phase-aware, tactile
+   ============================================================ */
+.chip {
+  border-radius: var(--radius-full);
+  font-weight: var(--font-weight-medium);
+  transition: transform var(--transition-fast), background-color var(--transition-fast),
+              border-color var(--transition-fast), color var(--transition-fast);
+}
+.chip:hover { transform: translateY(-1px); }
+.chip:active { transform: scale(0.95); }
+.chip.active, .chip[aria-pressed="true"] {
+  box-shadow: 0 2px 8px var(--color-primary-glow);
+}
+.badge { border-radius: var(--radius-full); }
+
+/* ============================================================
+   4. Form controls — quieter borders, clear focus
+   ============================================================ */
+.form-control {
+  border-radius: var(--radius-md);
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+}
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-glow);
+}
+
+/* ============================================================
+   5. Navigation — active state with a brand underline pill
+   ============================================================ */
+.nav-item.active { color: var(--color-primary); }
+.nav-item.active svg { color: var(--color-primary); }
+.nav-item.active::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+}
+.sidebar-link.active {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.nav-fab {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 120%);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.4);
+  border: 3px solid var(--bg-surface);
+}
+.nav-fab:active { transform: scale(0.92); }
+
+/* ============================================================
+   6. Sheets & Modals — already good; add inner edge + safe radius
+   ============================================================ */
+.sheet-container, .modal-container {
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  border: 1px solid var(--border-subtle);
+  background-color: var(--bg-modal);
+}
+
+/* ============================================================
+   7. Typography — hierarchy, tabular data, balanced headings
+   ============================================================ */
+.card-title, h1, h2, h3, h4 {
+  letter-spacing: -0.018em;
+  text-wrap: balance;
+}
+.brand-title { letter-spacing: -0.02em; }
+
+/* Numeric data should align (cycle day, percentages, durations) */
+.cycle-dial-day-number,
+.hero-next-value,
+.hydration-count,
+.card-footer-note,
+#checkin-sheet-date,
+.energy-number {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Slightly larger display presence for the app's primary headings */
+.card-title { font-size: var(--font-size-md); font-weight: var(--font-weight-bold); }
+
+/* ============================================================
+   8. View transition — staggered, motivated entrance
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  .view-section.active > * {
+    animation: view-rise 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .view-section.active > *:nth-child(1) { animation-delay: 0.02s; }
+  .view-section.active > *:nth-child(2) { animation-delay: 0.06s; }
+  .view-section.active > *:nth-child(3) { animation-delay: 0.10s; }
+  .view-section.active > *:nth-child(4) { animation-delay: 0.14s; }
+  .view-section.active > *:nth-child(5) { animation-delay: 0.18s; }
+  .view-section.active > *:nth-child(6) { animation-delay: 0.22s; }
+}
+@keyframes view-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* The app content sits above the grain overlay */
+.app-root, .app-header, .bottom-nav { position: relative; z-index: 2; }
